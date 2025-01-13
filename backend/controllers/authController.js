@@ -66,7 +66,7 @@ const loginUser = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.body.id).select("-password");
+    const user = await User.findById(req.id).select("-password");
     if (user) {
       res.json(user);
     } else {

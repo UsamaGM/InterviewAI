@@ -9,7 +9,7 @@ const protect = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user; // Add user info to request
+    req.id = decoded.id; // Add user info to request
     next();
   } catch (error) {
     res.status(500).json({ error: error.message });
