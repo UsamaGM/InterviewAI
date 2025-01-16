@@ -19,7 +19,7 @@ const scheduleInterview = async (req, res) => {
     const interview = await Interview.create({
       recruiter: recruiterId,
       candidate: candidateId,
-      date,
+      date: date,
       time,
       questions: questions.map((question) => question._id),
     });
@@ -37,11 +37,30 @@ const getUserInterviews = async (req, res) => {
     const interviews = await Interview.find({
       $or: [{ recruiter: userId }, { candidate: userId }],
     })
-      .populate("recruiter", "name email")
-      .populate("candidate", "name email")
-      .populate("questions");
+      .sort({ date: 1, time: 1 })
+      .populate("questions")
+      .populate("recruiter", "username email")
+      .populate("candidate", "username email");
 
     res.json(interviews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getNextInterview = async (req, res) => {
+  const { id } = req;
+
+  try {
+    const interview = await Interview.findOne({
+      $or: [{ recruiter: id }, { candidate: id }],
+      status: "Scheduled",
+      date: { $gte: new Date() },
+    })
+      .select("-questions")
+      .sort({ date: 1, time: 1 });
+    if (!interview) return res.status(404).json({ message: "Not found" });
+    res.json(interview);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -104,6 +123,7 @@ const cancelInterview = async (req, res) => {
 module.exports = {
   scheduleInterview,
   getUserInterviews,
+  getNextInterview,
   updateInterview,
   cancelInterview,
 };

@@ -7,7 +7,7 @@ const {
 
 const router = express.Router();
 
-router.post("/", protect, addQuestion);
+router.post("/", addQuestion);
 router.get("/", getQuestions);
 
 module.exports = router;
