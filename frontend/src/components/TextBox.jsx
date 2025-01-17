@@ -23,10 +23,10 @@ function TextBox({
         {label}
       </label>
       <div className="relative">
-        {showIconIfProvided()}
-        {showPasswordVisibilityToggle()}
+        <ProvidedIcon />
+        <VisibilityToggle />
         <input
-          className={`w-full p-2 border border-secondary focus:outline-primary rounded-md ${
+          className={`w-full p-2 border-none focus:outline-secondary shadow-md shadow-dark rounded-full ${
             (Icon || type === "password") && "pl-10"
           }`}
           type={type === "password" ? (visible ? "text" : "password") : type}
@@ -41,7 +41,7 @@ function TextBox({
     </div>
   );
 
-  function showIconIfProvided() {
+  function ProvidedIcon() {
     return (
       Icon &&
       type !== "password" && (
@@ -50,7 +50,7 @@ function TextBox({
     );
   }
 
-  function showPasswordVisibilityToggle() {
+  function VisibilityToggle() {
     const style =
       "absolute left-3 top-1/2 transform -translate-y-1/2 text-dark cursor-pointer";
     return (

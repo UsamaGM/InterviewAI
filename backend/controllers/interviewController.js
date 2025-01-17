@@ -31,14 +31,21 @@ const scheduleInterview = async (req, res) => {
 };
 
 const getUserInterviews = async (req, res) => {
-  const userId = req.id;
+  const {
+    id,
+    query: { limit, status },
+  } = req;
 
   try {
     const interviews = await Interview.find({
-      $or: [{ recruiter: userId }, { candidate: userId }],
+      $and: [
+        { $or: [{ recruiter: id }, { candidate: id }] },
+        { status: status ?? "Scheduled" },
+      ],
     })
       .sort({ date: 1, time: 1 })
-      .populate("questions")
+      .limit(limit ?? 10)
+      .populate("questions", "_id question")
       .populate("recruiter", "username email")
       .populate("candidate", "username email");
 

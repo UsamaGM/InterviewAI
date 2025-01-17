@@ -9,7 +9,7 @@ function RoundedButton({
 }) {
   return (
     <div
-      className={`w-full rounded-md font-bold text-lg bg-primary text-primaryContrast hover:bg-secondary hover:text-secondaryContrast p-2 group relative ${className}`}
+      className={`w-full rounded-full font-bold text-lg shadow-md shadow-dark bg-primary text-primaryContrast hover:bg-secondary hover:text-secondaryContrast p-2 group relative ${className}`}
       onClick={onClick}
     >
       {submitButton ? (

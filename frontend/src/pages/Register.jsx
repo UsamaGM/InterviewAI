@@ -45,8 +45,8 @@ function Register() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-tertiary">
-      <div className="bg-white shadow-2xl shadow-dark p-6 rounded-lg max-w-sm w-full flex flex-col items-center">
+    <div className="relative min-h-screen flex items-center justify-center bg-light">
+      <div className="bg-tertiary text-dark border-2 border-dark/25 shadow-md shadow-dark p-6 rounded-3xl max-w-sm w-full flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-4">Register</h2>
         <form className="w-full space-y-4" onSubmit={handleSubmit}>
           <TextBox
@@ -64,7 +64,7 @@ function Register() {
             icon={AiOutlineMail}
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="someone@domain.com"
             value={formData.email}
             onChange={handleChange}
             required
@@ -73,13 +73,12 @@ function Register() {
             label="Password"
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Str0ngPa$$w0rd"
             value={formData.password}
             onChange={handleChange}
             required
           />
           <Role />
-
           <RoundedButton icon={AiOutlineLogin} title="Register" submitButton />
         </form>
       </div>
@@ -93,8 +92,12 @@ function Register() {
 
   function Role() {
     return (
-      <div className="flex justify-between">
-        <div className="flex items-center space-x-2">
+      <div className="flex justify-between font-bold">
+        <div
+          className={`flex items-center space-x-2 ${
+            formData.role === "recruiter" && "text-primary"
+          }`}
+        >
           <input
             type="radio"
             name="role"
@@ -105,7 +108,11 @@ function Register() {
           />
           <label htmlFor="recruiter">Recruiter</label>
         </div>
-        <div className="flex items-center space-x-2">
+        <div
+          className={`flex items-center space-x-2 ${
+            formData.role === "candidate" && "text-primary"
+          }`}
+        >
           <input
             type="radio"
             name="role"

@@ -2,6 +2,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import RoundedButton from "../components/RoundedButton";
 
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 
 function Header() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ function Header() {
 
   function handleLogout() {
     localStorage.removeItem("token");
-    alert("Logged out successfully");
+    toast.success("Good bye!");
     navigate("/login");
   }
 
@@ -20,8 +21,8 @@ function Header() {
   };
 
   return (
-    <header className="bg-primary text-primaryContrast py-4 shadow space-y-4 p-3">
-      <div className="container mx-auto flex justify-between items-center">
+    <header className="text-primaryContrast p-5">
+      <div className="w-full min-w-fit max-w-3xl mx-auto flex justify-between items-center rounded-full shadow-md shadow-dark bg-secondary py-3 px-7">
         <Link className="text-2xl font-bold" to="/dashboard">
           Logo here
         </Link>
@@ -34,7 +35,7 @@ function Header() {
                 <CustomNavLink to="/interviews" title="Interviews" />
               </div>
               <RoundedButton
-                className="bg-secondary/75 text-secondaryContrast hover:bg-secondary/100 py-0 px-2 shadow-sm shadow-dark"
+                className="bg-red-600 text-secondaryContrast hover:bg-tertiary hover:text-dark px-3 py-1 shadow-sm shadow-dark"
                 title="Logout"
                 onClick={handleLogout}
               />

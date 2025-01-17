@@ -38,8 +38,8 @@ function Login() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-tertiary">
-      <div className="bg-light shadow-2xl shadow-dark text-dark p-6 rounded-lg max-w-sm w-full flex flex-col items-center">
+    <div className="relative min-h-screen flex items-center justify-center bg-light">
+      <div className="bg-tertiary shadow-lg shadow-dark text-dark p-6 rounded-3xl border-2 border-dark/25 max-w-sm w-full flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-4">Login</h2>
         <form className="w-full space-y-4" onSubmit={handleSubmit}>
           <TextBox
