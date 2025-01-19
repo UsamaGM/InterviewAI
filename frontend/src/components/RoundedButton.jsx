@@ -1,26 +1,19 @@
 import PropTypes from "prop-types";
 
-function RoundedButton({
-  icon: Icon,
-  title,
-  submitButton,
-  className,
-  onClick,
-}) {
+function RoundedButton({ title, submitButton, className, onClick }) {
   return (
     <div
-      className={`w-full rounded-full font-bold text-lg shadow-md shadow-dark bg-primary text-primaryContrast hover:bg-secondary hover:text-secondaryContrast p-2 group relative ${className}`}
+      className={`w-full rounded-lg font-bold text-lg shadow-md cursor-pointer shadow-shadowDark ${className}`}
       onClick={onClick}
     >
       {submitButton ? (
-        <button className="w-full h-full" type="submit">
+        <button className="w-full h-full p-2" type="submit">
           {title}
         </button>
       ) : (
-        <p className="text-center hover:cursor-pointer select-none">{title}</p>
-      )}
-      {Icon && (
-        <Icon className="absolute size-5 right-10 top-1/2 -translate-y-1/2 opacity-0 transition-[transform opacity] duration-300 group-hover:right-5 group-hover:scale-125 group-hover:opacity-100" />
+        <p className="text-center hover:cursor-pointer select-none px-2">
+          {title}
+        </p>
       )}
     </div>
   );

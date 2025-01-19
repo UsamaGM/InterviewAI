@@ -4,7 +4,7 @@ import { AiOutlineMail, AiOutlineLogin } from "react-icons/ai";
 import { BallTriangle } from "react-loader-spinner";
 import { toast } from "react-toastify";
 import API from "../services/api";
-import TextBox from "../components/TextBox";
+import InputBox from "../components/InputBox";
 import RoundedButton from "../components/RoundedButton";
 
 function Login() {
@@ -38,11 +38,16 @@ function Login() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-light">
-      <div className="bg-tertiary shadow-lg shadow-dark text-dark p-6 rounded-3xl border-2 border-dark/25 max-w-sm w-full flex flex-col items-center">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
-        <form className="w-full space-y-4" onSubmit={handleSubmit}>
-          <TextBox
+    <div className="relative flex items-center justify-center bg-gradient-to-br from-light to-secondary min-h-[calc(100vh-4.5rem)]">
+      <div className="bg-secondary/25 backdrop-blur-xl backdrop-filter text-light shadow-xl shadow-shadowDark rounded-3xl p-8 border border-secondaryContrast/25 max-w-md w-full flex flex-col items-center animate-fadeIn">
+        <h1 className="text-3xl font-bold text-accent mb-6 animate-bounce">
+          Welcome Back!
+        </h1>
+        <p className="text-center text-secondaryContrast mb-6">
+          Please login to continue.
+        </p>
+        <form className="w-full space-y-6" onSubmit={handleSubmit}>
+          <InputBox
             label="Email"
             icon={AiOutlineMail}
             type="email"
@@ -52,7 +57,7 @@ function Login() {
             onChange={handleChange}
             required
           />
-          <TextBox
+          <InputBox
             label="Password"
             type="password"
             name="password"
@@ -61,8 +66,22 @@ function Login() {
             onChange={handleChange}
             required
           />
-          <RoundedButton title="Login" icon={AiOutlineLogin} submitButton />
+          <RoundedButton
+            title="Login"
+            icon={AiOutlineLogin}
+            submitButton
+            className="bg-accent text-dark hover:bg-accentLight"
+          />
         </form>
+        <p className="text-sm text-secondaryContrast mt-4">
+          {"Don't have an account? "}
+          <span
+            className="text-accentLight font-bold hover:text-accent cursor-pointer"
+            onClick={() => navigate("/register")}
+          >
+            Sign Up
+          </span>
+        </p>
       </div>
       {loading && (
         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-dark/50">

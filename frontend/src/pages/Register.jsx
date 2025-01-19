@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineLogin, AiOutlineMail, AiOutlineUser } from "react-icons/ai";
 import { BallTriangle } from "react-loader-spinner";
 import { toast } from "react-toastify";
+import InputBox from "../components/InputBox";
 import API from "../services/api";
-import TextBox from "../components/TextBox";
 import RoundedButton from "../components/RoundedButton";
 
 function Register() {
@@ -45,11 +45,16 @@ function Register() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-light">
-      <div className="bg-tertiary text-dark border-2 border-dark/25 shadow-md shadow-dark p-6 rounded-3xl max-w-sm w-full flex flex-col items-center">
-        <h2 className="text-2xl font-bold mb-4">Register</h2>
-        <form className="w-full space-y-4" onSubmit={handleSubmit}>
-          <TextBox
+    <div className="flex-grow flex items-center justify-center min-h-[calc(100vh-4.5rem)] bg-gradient-to-br from-light to-secondary">
+      <div className="bg-secondary/25 flex flex-col items-center justify-center backdrop-blur-xl text-dark border border-secondaryContrast/25 shadow-lg shadow-dark/50 rounded-3xl p-8 max-w-md w-full animate-fadeIn">
+        <h1 className="text-3xl font-bold text-accent mb-5 animate-bounce">
+          Create Account
+        </h1>
+        <p className="text-center text-secondaryContrast mb-5">
+          Join us and find the best opportunities tailored for you.
+        </p>
+        <form className="w-full space-y-6" onSubmit={handleSubmit}>
+          <InputBox
             label="Username"
             icon={AiOutlineUser}
             type="text"
@@ -59,7 +64,7 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <TextBox
+          <InputBox
             label="Email"
             icon={AiOutlineMail}
             type="email"
@@ -69,7 +74,7 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <TextBox
+          <InputBox
             label="Password"
             type="password"
             name="password"
@@ -78,9 +83,23 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <Role />
-          <RoundedButton icon={AiOutlineLogin} title="Register" submitButton />
+          <RoleSelector />
+          <RoundedButton
+            icon={AiOutlineLogin}
+            title="Register"
+            submitButton
+            className="bg-accent text-dark hover:bg-accentLight"
+          />
         </form>
+        <p className="text-sm text-secondaryContrast mt-4">
+          Already have an account?{" "}
+          <span
+            className="text-accentLight font-bold hover:text-accent cursor-pointer"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </span>
+        </p>
       </div>
       {loading && (
         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-dark/50">
@@ -90,39 +109,39 @@ function Register() {
     </div>
   );
 
-  function Role() {
+  function RoleSelector() {
     return (
       <div className="flex justify-between font-bold">
-        <div
-          className={`flex items-center space-x-2 ${
-            formData.role === "recruiter" && "text-primary"
+        <label
+          className={`flex items-center space-x-2 cursor-pointer ${
+            formData.role === "recruiter" ? "text-accentLight" : "text-dark"
           }`}
         >
           <input
             type="radio"
             name="role"
-            id="recruiter"
             value="recruiter"
             checked={formData.role === "recruiter"}
             onChange={handleChange}
+            className="accent-accent"
           />
-          <label htmlFor="recruiter">Recruiter</label>
-        </div>
-        <div
-          className={`flex items-center space-x-2 ${
-            formData.role === "candidate" && "text-primary"
+          <span>Recruiter</span>
+        </label>
+        <label
+          className={`flex items-center space-x-2 cursor-pointer ${
+            formData.role === "candidate" ? "text-accentLight" : "text-dark"
           }`}
         >
           <input
             type="radio"
             name="role"
-            id="candidate"
             value="candidate"
             checked={formData.role === "candidate"}
             onChange={handleChange}
+            className="accent-accent"
           />
-          <label htmlFor="candidate">Candidate</label>
-        </div>
+          <span>Candidate</span>
+        </label>
       </div>
     );
   }

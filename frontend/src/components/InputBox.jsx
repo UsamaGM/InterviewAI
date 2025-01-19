@@ -2,7 +2,7 @@ import { AiOutlineUnlock, AiFillLock } from "react-icons/ai";
 import PropTypes from "prop-types";
 import { useState } from "react";
 
-function TextBox({
+function InputBox({
   label,
   icon: Icon,
   type,
@@ -17,17 +17,18 @@ function TextBox({
   function toggleVisibility() {
     setVisible(!visible);
   }
+
   return (
     <div className="w-full flex flex-col gap-2">
-      <label className="text-sm font-bold" htmlFor={name}>
+      <label className="text-sm font-bold text-dark" htmlFor={name}>
         {label}
       </label>
       <div className="relative">
         <ProvidedIcon />
         <VisibilityToggle />
         <input
-          className={`w-full p-2 border-none focus:outline-secondary shadow-md shadow-dark rounded-full ${
-            (Icon || type === "password") && "pl-10"
+          className={`w-full p-2 border-none focus:outline-none focus:ring-2 focus:ring-accent shadow-md shadow-shadowDark rounded-md px-5 py-2 bg-light text-dark ${
+            (Icon || type === "password") && "pl-12"
           }`}
           type={type === "password" ? (visible ? "text" : "password") : type}
           name={name}
@@ -45,14 +46,14 @@ function TextBox({
     return (
       Icon &&
       type !== "password" && (
-        <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dark" />
+        <Icon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-dark" />
       )
     );
   }
 
   function VisibilityToggle() {
     const style =
-      "absolute left-3 top-1/2 transform -translate-y-1/2 text-dark cursor-pointer";
+      "absolute left-4 top-1/2 transform -translate-y-1/2 text-dark cursor-pointer";
     return (
       type === "password" &&
       (visible ? (
@@ -64,7 +65,7 @@ function TextBox({
   }
 }
 
-TextBox.propTypes = {
+InputBox.propTypes = {
   label: PropTypes.string,
   icon: PropTypes.func,
   type: PropTypes.string,
@@ -75,4 +76,4 @@ TextBox.propTypes = {
   required: PropTypes.bool,
 };
 
-export default TextBox;
+export default InputBox;
