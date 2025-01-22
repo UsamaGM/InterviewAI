@@ -7,6 +7,8 @@ const auth = require("./routes/authRoutes.js");
 const interviews = require("./routes/interviewRoutes.js");
 const questions = require("./routes/questionRoutes.js");
 const users = require("./routes/userRoutes.js");
+const activity = require("./routes/activityRoutes.js");
+const stats = require("./routes/statsRoutes.js");
 
 const connectDB = require("./config/db.js");
 
@@ -23,6 +25,8 @@ app.use("/api/auth", auth);
 app.use("/api/interviews", protect, interviews);
 app.use("/api/questions", protect, questions);
 app.use("/api/users", protect, users);
+app.use("/api/activity", protect, activity);
+app.use("/api/stats", protect, stats);
 
 const port = process.env.PORT;
 app.listen(port, () => console.log(`Listening on port: ${port}`));

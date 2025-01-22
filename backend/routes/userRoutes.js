@@ -7,9 +7,8 @@ const {
 
 const route = express.Router();
 
+route.get("/", getUser);
 route.get("/recruiters", getRecruiters);
 route.get("/candidates", getCandidates);
-route.get("/", getUser);
-route.get("/:id", getUser);
 
 module.exports = route;

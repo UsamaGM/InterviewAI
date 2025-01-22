@@ -2,22 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-.bg-animated {
-  background: linear-gradient(135deg, #4e79a7, #59a14f, #f28e2b);
-  background-size: 300% 300%;
-  animation: gradientShift 8s ease infinite;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.react-datepicker-wrapper {
+  width: 100%;
 }
 
 ::-webkit-scrollbar {

@@ -1,105 +1,213 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { AiFillCalendar } from "react-icons/ai";
+import Select from "react-select";
+import DatePicker from "react-datepicker";
+import RoundedButton from "../components/RoundedButton";
+import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import PropTypes from "prop-types";
 
-function ScheduleInterview({ myId }) {
+import "react-datepicker/dist/react-datepicker.css";
+
+function ScheduleInterviewPage() {
   const [formData, setFormData] = useState({
     recruiterId: "",
-    candidateId: "",
-    date: "",
+    date: null,
     time: "",
+    candidateIds: [],
     questionIds: [],
   });
 
   const [candidates, setCandidates] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const token = localStorage.getItem("token");
-        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const [userRes, candidatesRes, questionsRes] = await Promise.all([
+          API.get("/users"),
+          API.get("/users/candidates"),
+          API.get("/questions"),
+        ]);
 
-        const [candidateRes, questionRes] = await Promise.all(
-          API.get("/users/candidates", config),
-          API.get("/questions", config)
+        if (userRes.data.role !== "recruiter") {
+          toast.error("You are not authorized to access this page.");
+          navigate("/");
+        }
+
+        setCandidates(
+          candidatesRes.data.map((candidate) => ({
+            value: candidate._id,
+            label: candidate.username,
+          }))
         );
 
-        setCandidates(candidateRes.data);
-        setQuestions(questionRes.data);
+        setQuestions(
+          questionsRes.data.map((question) => ({
+            value: question._id,
+            label: question.question,
+          }))
+        );
+
+        setFormData((prev) => ({ ...prev, recruiterId: userRes.data._id }));
       } catch (error) {
-        setError(`Error: ${error}`);
+        toast.error(
+          error.code === "ERR_NETWORK"
+            ? "Network Error! Please try later."
+            : error.response?.data?.message || "An error occurred."
+        );
       }
     }
-    fetchData();
-  }, []);
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    fetchData();
+  }, [navigate]);
+
+  function handleInputChange(name, value) {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function validateForm() {
+    const newErrors = {};
+    if (!formData.candidateIds)
+      newErrors.candidateId = "Candidate is required.";
+    if (!formData.date) newErrors.date = "Date is required.";
+    if (!formData.time) newErrors.time = "Time is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    try {
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
+    if (!validateForm()) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
 
-      await API.post("/interviews", formData, config);
-      setSuccess(true);
-      setFormData({ recruiterId: myId, candidateId: "", date: "", time: "" });
+    try {
+      await API.post("/interviews", {
+        ...formData,
+        questionIds: formData.questionIds.map((q) => q.value),
+      });
+
+      toast.success("Interview scheduled successfully!");
+
+      setFormData({
+        recruiterId: formData.recruiterId,
+        candidateId: "",
+        date: null,
+        time: "",
+        questionIds: [],
+      });
+      setErrors({});
     } catch (error) {
-      alert(`Error: ${error}`);
+      toast.error(
+        error.code === "ERR_NETWORK"
+          ? "Network Error! Please try later."
+          : error.response?.data?.message || "Failed to schedule interview."
+      );
     }
   }
 
   return (
-    <div className="h-screen flex items-center justify-center">
-      <div className="max-w-lg mx-auto p-4 shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">Schedule an Interview</h2>
-        {success && (
-          <p className="text-green-500">Interview scheduled successfully!</p>
-        )}
-        <form className="space-y-4" onSubmit={handleSubmit}>
+    <div className="min-h-[calc(100vh-4.5rem)] flex items-center bg-gradient-to-tr from-primary/25 to-tertiary/25 p-6">
+      <div className="max-w-lg w-full mx-auto bg-primary/25 backdrop-blur-md rounded-3xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-center text-dark mb-6">
+          Schedule an Interview
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Date Picker */}
           <div>
+            <label className="block text-xs font-bold text-dark mb-1">
+              Date
+            </label>
+            <DatePicker
+              selected={formData.date}
+              onChange={(date) => handleInputChange("date", date)}
+              dateFormat="yyyy-MM-dd"
+              minDate={new Date()}
+              className="px-3 py-2 rounded-lg shadow-md shadow-shadowDark bg-light text-dark outline-none w-full"
+              placeholderText="Select a date"
+            />
+            {errors.date && (
+              <p className="text-red-500 text-xs mt-1">{errors.date}</p>
+            )}
+          </div>
+
+          {/* Time Input */}
+          <div>
+            <label className="block text-xs font-bold text-dark mb-1">
+              Time
+            </label>
             <input
-              className="w-full p-2 border border-gray-300 rounded"
-              type="text"
-              name="title"
-              placeholder="Interview Title"
-              value={formData.title}
-              onChange={handleChange}
-              required
+              type="time"
+              className="w-full px-3 py-2 rounded-lg shadow-md shadow-shadowDark"
+              value={formData.time}
+              onChange={(e) => handleInputChange("time", e.target.value)}
+            />
+            {errors.time && (
+              <p className="text-red-500 text-xs mt-1">{errors.time}</p>
+            )}
+          </div>
+
+          {/* Candidate Selector */}
+          <div>
+            <label className="block text-xs font-bold text-dark mb-1">
+              Candidate
+            </label>
+            <Select
+              options={candidates}
+              isMulti
+              placeholder="Select a candidate..."
+              onChange={(selected) =>
+                handleInputChange(
+                  "candidateIds",
+                  selected.map((s) => s.value) || []
+                )
+              }
+              isClearable
+              className="shadow-md shadow-shadowDark"
+            />
+            {errors.candidateId && (
+              <p className="text-red-500 text-xs mt-1">{errors.candidateId}</p>
+            )}
+          </div>
+
+          {/* Question Selector */}
+          <div>
+            <label className="block text-xs font-bold text-dark mb-1">
+              Questions
+            </label>
+            <Select
+              options={questions}
+              isMulti
+              placeholder="Select questions..."
+              onChange={(selected) =>
+                handleInputChange("questionIds", selected || [])
+              }
+              className="shadow-md shadow-shadowDark"
             />
           </div>
-          <input
-            className="w-full p-2 border border-gray-300 rounded"
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
+
+          {/* Buttons */}
+          <RoundedButton
+            className="bg-accent hover:bg-accentLight"
+            icon={AiFillCalendar}
+            title="Schedule Interview"
+            submitButton
           />
-          <input
-            className="w-full p-2 border border-gray-300 rounded"
-            type="time"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            required
-          />
-          <button
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            type="submit"
-          >
-            Schedule
-          </button>
         </form>
       </div>
     </div>
   );
 }
 
-export default ScheduleInterview;
+ScheduleInterviewPage.propTypes = {
+  onClose: PropTypes.func,
+};
+
+export default ScheduleInterviewPage;
