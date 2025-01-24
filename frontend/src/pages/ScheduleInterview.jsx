@@ -114,8 +114,8 @@ function ScheduleInterviewPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4.5rem)] flex items-center bg-gradient-to-tr from-primary/25 to-tertiary/25 p-6">
-      <div className="max-w-lg w-full mx-auto bg-primary/25 backdrop-blur-md rounded-3xl shadow-lg p-6">
+    <div className="min-h-[calc(100vh-4.5rem)] flex items-center bg-gradient-to-tr from-primary/30 to-accent/30 p-6">
+      <div className="max-w-lg w-full mx-auto bg-tertiary/20 backdrop-blur-lg rounded-3xl shadow-lg shadow-shadowDark p-6">
         <h2 className="text-2xl font-bold text-center text-dark mb-6">
           Schedule an Interview
         </h2>

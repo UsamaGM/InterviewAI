@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Interview = require("../models/interviewModel.js");
 const User = require("../models/userModel.js");
 const Question = require("../models/questionModel.js");
@@ -87,7 +88,7 @@ const getUserInterviews = async (req, res) => {
 };
 
 const getUserStats = async (req, res) => {
-  const { id } = req;
+  const id = new mongoose.Types.ObjectId(req.id);
 
   try {
     const stats = await Interview.aggregate([
@@ -104,10 +105,17 @@ const getUserStats = async (req, res) => {
       },
     ]);
 
+    const scheduled =
+      stats.filter((s) => s._id === "Scheduled").map((s) => s.count)[0] || 0;
+    const completed =
+      stats.filter((s) => s._id === "Completed").map((s) => s.count)[0] || 0;
+    const cancelled =
+      stats.filter((s) => s._id === "Cancelled").map((s) => s.count)[0] || 0;
+
     // Log the action of fetching user stats
     await createLog("fetch_stats", id, `Fetched stats for user ${id}`, {});
 
-    res.json(stats);
+    res.json({ scheduled, completed, cancelled });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

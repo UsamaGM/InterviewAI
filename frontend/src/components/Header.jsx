@@ -79,7 +79,7 @@ function Header() {
               <CustomNavLink to="/interviews" title="Interviews" />
               <button
                 onClick={handleLogout}
-                className="text-left text-warning hover:text-warningHover font-bold transition-all duration-300"
+                className="text-left text-red-700 hover:text-red-400 font-bold transition-all duration-300"
               >
                 Logout
               </button>
