@@ -2,20 +2,25 @@ const Question = require("../models/questionModel.js");
 const { createLog } = require("../utils/logger.js"); // Import log utility
 
 const addQuestion = async (req, res) => {
-  const { text, difficulty, category } = req.body;
+  const { question, answer, difficulty, category } = req.body;
 
   try {
-    const question = await Question.create({ text, difficulty, category });
+    const q = await Question.create({
+      question,
+      answer,
+      difficulty,
+      category,
+    });
 
     // Log the question addition event
     await createLog(
       "question_added",
       req.id, // Assuming req.id is the ID of the user making the request
       `A new question was added by user ${req.id}`,
-      { text, difficulty, category }
+      { question, answer, difficulty, category }
     );
 
-    res.status(201).json(question);
+    res.status(201).json(q);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

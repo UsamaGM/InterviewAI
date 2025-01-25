@@ -50,8 +50,8 @@ function Register() {
         <h1 className="text-3xl font-bold text-accent mb-5 animate-bounce">
           Create Account
         </h1>
-        <p className="text-center text-secondaryContrast mb-5">
-          Join us and find the best opportunities tailored for you.
+        <p className="text-center text-dark mb-5 font-semibold">
+          Join us and start your career journey!
         </p>
         <form className="w-full space-y-6" onSubmit={handleSubmit}>
           <InputBox
@@ -94,7 +94,7 @@ function Register() {
         <p className="text-sm text-secondaryContrast mt-4">
           Already have an account?{" "}
           <span
-            className="text-accentLight font-bold hover:text-accent cursor-pointer"
+            className="text-purple-800 font-bold hover:text-accent cursor-pointer"
             onClick={() => navigate("/login")}
           >
             Login

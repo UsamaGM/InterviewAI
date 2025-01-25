@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { AiFillCalendar } from "react-icons/ai";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import RoundedButton from "../components/RoundedButton";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
-import PropTypes from "prop-types";
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -98,9 +96,9 @@ function ScheduleInterviewPage() {
 
       setFormData({
         recruiterId: formData.recruiterId,
-        candidateId: "",
         date: null,
         time: "",
+        candidateIds: [],
         questionIds: [],
       });
       setErrors({});
@@ -196,7 +194,6 @@ function ScheduleInterviewPage() {
           {/* Buttons */}
           <RoundedButton
             className="bg-accent hover:bg-accentLight"
-            icon={AiFillCalendar}
             title="Schedule Interview"
             submitButton
           />
@@ -205,9 +202,5 @@ function ScheduleInterviewPage() {
     </div>
   );
 }
-
-ScheduleInterviewPage.propTypes = {
-  onClose: PropTypes.func,
-};
 
 export default ScheduleInterviewPage;

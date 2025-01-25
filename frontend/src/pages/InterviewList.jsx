@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import API from "../services/api";
 import { formatDate, formatTime } from "../utils/dateTimeFormatter";
@@ -41,11 +41,6 @@ function InterviewList() {
     fetchInterviews();
   }, []);
 
-  const interviewStyle = useMemo(
-    () => "px-5 py-4 rounded-xl bg-light shadow-md shadow-shadowDark",
-    []
-  );
-
   return (
     <div className="min-h-[calc(100vh-4.5rem)] p-5 bg-gradient-to-br from-secondary/30 to-accent/30">
       <div className="max-w-3xl mx-auto flex flex-col items-center">
@@ -73,37 +68,21 @@ function InterviewList() {
               </div>
             </section>
             <div className="w-full space-y-4">
-              <h2 className="text-2xl font-bold mt-4">Scheduled Interviews</h2>
-              <ul>
-                {/*TODO:style*/}
-                {scheduled.length > 0 ? (
-                  scheduled.map((interview) => (
-                    <Interview key={interview._id} interview={interview} />
-                  ))
-                ) : (
-                  <p>No scheduled interviews yet!</p>
-                )}
-              </ul>
-              <h2 className="text-2xl font-bold">Completed Interviews</h2>
-              <ul>
-                {completed.length > 0 ? (
-                  completed.map((interview) => (
-                    <Interview key={interview._id} interview={interview} />
-                  ))
-                ) : (
-                  <p>Lets finish an interview</p>
-                )}
-              </ul>
-              <h2 className="text-2xl font-bold">Cancelled Interviews</h2>
-              <ul>
-                {cancelled.length > 0 ? (
-                  cancelled.map((interview) => (
-                    <Interview key={interview._id} interview={interview} />
-                  ))
-                ) : (
-                  <p>No interviews cancelled!</p>
-                )}
-              </ul>
+              <Interview
+                interviews={scheduled}
+                title="Scheduled"
+                alt="No Scheduled Interviews"
+              />
+              <Interview
+                interviews={completed}
+                title="Completed"
+                alt="No Completed Interviews"
+              />
+              <Interview
+                interviews={cancelled}
+                title="Cancelled"
+                alt="No cancelled Interviews"
+              />
             </div>
           </>
         )}
@@ -111,14 +90,28 @@ function InterviewList() {
     </div>
   );
 
-  function Interview({ interview }) {
+  function Interview({ interviews, title, alt }) {
+    console.log(interviews);
     return (
-      <li className={interviewStyle}>
-        <h3 className="font-bold">{interview.title}</h3>
-        <p>
-          {formatDate(interview.date)} at {formatTime(interview.time)}
-        </p>
-      </li>
+      <section className="mb-6">
+        <h2 className="text-2xl font-bold mb-3">{title}</h2>
+        <div className="bg-white shadow-md shadow-shadowDark rounded-xl px-5 py-3">
+          <ul>
+            {interviews.length > 0 ? (
+              interviews.map((interview) => (
+                <li key={interview._id} className="mb-3 border-b">
+                  <h3 className="font-bold">{interview.title}</h3>
+                  <p>
+                    {formatDate(interview.date)} at {formatTime(interview.time)}
+                  </p>
+                </li>
+              ))
+            ) : (
+              <p>{alt}</p>
+            )}
+          </ul>
+        </div>
+      </section>
     );
   }
 }
