@@ -9,6 +9,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import ScheduleInterview from "./pages/ScheduleInterview";
 import InterviewList from "./pages/InterviewList";
 import AddQuestion from "./pages/AddQuestion";
+import CandidateManagement from "./pages/CandidateManagement";
 
 function App() {
   return (
@@ -32,6 +33,14 @@ function App() {
           element={
             <PrivateRoute>
               <Profile />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/candidates"
+          element={
+            <PrivateRoute>
+              <CandidateManagement />
             </PrivateRoute>
           }
         />

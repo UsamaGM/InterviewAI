@@ -33,6 +33,15 @@ const InterviewSchema = new mongoose.Schema(
       enum: ["Scheduled", "Completed", "Cancelled"],
       default: "Scheduled",
     },
+    score: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 0,
+    },
+    feedback: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

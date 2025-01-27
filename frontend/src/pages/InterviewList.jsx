@@ -1,8 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
+// eslint-disable-next-line no-unused-vars
+import { Chart as ChartJS } from "chart.js/auto";
+import { Bar } from "react-chartjs-2";
 import { toast } from "react-toastify";
-import API from "../services/api";
 import { formatDate, formatTime } from "../utils/dateTimeFormatter";
+import API from "../services/api";
 
 function InterviewList() {
   const [scheduled, setScheduled] = useState([]);
@@ -13,6 +16,7 @@ function InterviewList() {
     completed: 0,
     cancelled: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchInterviews() {
@@ -29,6 +33,7 @@ function InterviewList() {
         setCompleted(completedRes.data);
         setCancelled(cancelledRes.data);
         setStats(statsRes.data);
+        setLoading(false);
       } catch (error) {
         console.log(error);
         toast.error(
@@ -41,6 +46,37 @@ function InterviewList() {
     fetchInterviews();
   }, []);
 
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+  };
+
+  const data = {
+    labels: ["Scheduled", "Completed", "Cancelled"],
+    datasets: [
+      {
+        label: "Interviews",
+        data: [stats.scheduled, stats.completed, stats.cancelled],
+        backgroundColor: ["#00A8FF", "#00FF6D", "#FF6D6D"],
+      },
+    ],
+  };
+
+  if (loading)
+    return (
+      <div className="p-6 bg-gradient-to-tr from-primary/25 to-tertiary/25 min-h-screen">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-center items-center h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </div>
+    );
+
   return (
     <div className="min-h-[calc(100vh-4.5rem)] p-5 bg-gradient-to-br from-secondary/30 to-accent/30">
       <div className="max-w-3xl mx-auto flex flex-col items-center">
@@ -52,20 +88,7 @@ function InterviewList() {
           <>
             <section className="w-full mb-6">
               <h2 className="text-2xl font-bold mb-4 text-dark">Stats</h2>
-              <div className="bg-white shadow-md shadow-shadowDark rounded-lg p-4 grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <p className="text-xl font-bold">{stats.scheduled}</p>
-                  <p className="text-sm">Scheduled</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold">{stats.completed}</p>
-                  <p className="text-sm">Completed</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold">{stats.cancelled}</p>
-                  <p className="text-sm">Cancelled</p>
-                </div>
-              </div>
+              <Bar data={data} options={options} />
             </section>
             <div className="w-full space-y-4">
               <Interview
@@ -91,7 +114,6 @@ function InterviewList() {
   );
 
   function Interview({ interviews, title, alt }) {
-    console.log(interviews);
     return (
       <section className="mb-6">
         <h2 className="text-2xl font-bold mb-3">{title}</h2>

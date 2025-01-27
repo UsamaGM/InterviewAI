@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import API from "../services/api";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 import { formatDate, formatTime } from "../utils/dateTimeFormatter";
+import API from "../services/api";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -13,6 +13,7 @@ function Dashboard() {
     totalCandidates: 0,
     totalQuestions: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   const isCandidate = useMemo(() => user?.role === "candidate", [user]);
 
@@ -31,6 +32,7 @@ function Dashboard() {
         setUpcomingInterviews(interviewsRes.data);
         setRecentActivity(activityRes.data);
         setStats(statsRes.data);
+        setLoading(false);
       } catch (error) {
         toast.error(
           error.response?.data?.message || "Failed to load dashboard data."
@@ -43,6 +45,17 @@ function Dashboard() {
 
   const linkStyle =
     "bg-primary text-primaryContrast rounded-md px-4 py-2 hover:bg-accent hover:text-accentContrast hover:scale-110 transition-all duration-300";
+
+  if (loading)
+    return (
+      <div className="p-6 bg-gradient-to-tr from-primary/25 to-tertiary/25 min-h-screen">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-center items-center h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div className="p-6 bg-gradient-to-tr from-primary/25 to-tertiary/25 min-h-screen">
@@ -114,8 +127,8 @@ function Dashboard() {
             <Link to="/schedule" className={linkStyle}>
               Schedule Interview
             </Link>
-            <Link to="/candidates/add" className={linkStyle}>
-              Add Candidate
+            <Link to="/candidates" className={linkStyle}>
+              Manage Candidates
             </Link>
             <Link to="/questions/add" className={linkStyle}>
               Add Question
