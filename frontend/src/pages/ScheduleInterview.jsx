@@ -28,11 +28,11 @@ function ScheduleInterviewPage() {
       try {
         const [userRes, candidatesRes, questionsRes] = await Promise.all([
           API.get("/users"),
-          API.get("/users/candidates"),
+          API.get("/candidates"),
           API.get("/questions"),
         ]);
 
-        if (userRes.data.role !== "recruiter") {
+        if (!userRes.data) {
           toast.error("You are not authorized to access this page.");
           navigate("/");
         }
@@ -40,7 +40,7 @@ function ScheduleInterviewPage() {
         setCandidates(
           candidatesRes.data.map((candidate) => ({
             value: candidate._id,
-            label: candidate.username,
+            label: candidate.name,
           }))
         );
 

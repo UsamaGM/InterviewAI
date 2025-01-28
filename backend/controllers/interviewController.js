@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Interview = require("../models/interviewModel.js");
 const User = require("../models/userModel.js");
+const Candidate = require("../models/candidateModel.js");
 const Question = require("../models/questionModel.js");
 const { createLog } = require("../utils/logger.js"); // Import log utility
 
@@ -10,7 +11,7 @@ const scheduleInterview = async (req, res) => {
   try {
     console.log(candidateIds);
     const recruiter = await User.findById(recruiterId);
-    const candidates = await User.find({
+    const candidates = await Candidate.find({
       _id: { $in: candidateIds },
     });
     console.log(candidates);
@@ -65,10 +66,10 @@ const getUserInterviews = async (req, res) => {
       ],
     })
       .sort({ date: 1, time: 1 })
-      .limit(limit ?? 10)
+      .limit(limit ?? 5)
       .populate("questions", "_id question")
       .populate("recruiter", "username email")
-      .populate("candidates", "username email");
+      .populate("candidates", "name email");
 
     // Log the action of fetching user interviews
     await createLog(

@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { formatDate, formatTime } from "../utils/dateTimeFormatter";
 import API from "../services/api";
 
 function Dashboard() {
-  const [user, setUser] = useState(null);
   const [upcomingInterviews, setUpcomingInterviews] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [stats, setStats] = useState({
@@ -14,8 +13,6 @@ function Dashboard() {
     totalQuestions: 0,
   });
   const [loading, setLoading] = useState(true);
-
-  const isCandidate = useMemo(() => user?.role === "candidate", [user]);
 
   useEffect(() => {
     async function fetchData() {
@@ -28,7 +25,13 @@ function Dashboard() {
             API.get("/stats"),
           ]);
 
-        setUser(userRes.data);
+        console.log(interviewsRes.data);
+
+        if (!userRes.data) {
+          toast.error("You are not authorized to access this page.");
+          Navigate()("/");
+        }
+
         setUpcomingInterviews(interviewsRes.data);
         setRecentActivity(activityRes.data);
         setStats(statsRes.data);
@@ -43,8 +46,11 @@ function Dashboard() {
     fetchData();
   }, []);
 
-  const linkStyle =
-    "bg-primary text-primaryContrast rounded-md px-4 py-2 hover:bg-accent hover:text-accentContrast hover:scale-110 transition-all duration-300";
+  const linkStyle = useMemo(
+    () =>
+      "bg-primary/50 backdrop-blur-xl text-dark rounded-md px-4 py-2 hover:bg-accent hover:text-accentContrast hover:scale-110 transition-all duration-300",
+    []
+  );
 
   if (loading)
     return (
@@ -58,24 +64,22 @@ function Dashboard() {
     );
 
   return (
-    <div className="p-6 bg-gradient-to-tr from-primary/25 to-tertiary/25 min-h-screen">
+    <div className="p-6 bg-gradient-to-tr from-secondary/35 to-tertiary/35 min-h-screen">
       <div className="max-w-4xl mx-auto">
         {/* Upcoming Interviews */}
         <section className="mb-6">
           <h2 className="text-lg font-bold mb-3">Upcoming Interviews</h2>
-          <div className="bg-white shadow-md rounded-lg p-4">
+          <div className="bg-white/25 backdrop-blur-md shadow-md rounded-lg p-4">
             {upcomingInterviews.length > 0 ? (
               upcomingInterviews.map((interview) => (
                 <div
                   key={interview.id}
-                  className="flex justify-between items-center border-b py-2"
+                  className="flex justify-between gap-1 items-center border-b border-shadowDark py-2"
                 >
-                  <span>{formatTime(interview.time)}</span>
-                  <span>{formatDate(interview.date)}</span>
-                  <span>
-                    {isCandidate
-                      ? interview.recruiter.username
-                      : interview.candidates.map((c) => c.username).join(", ")}
+                  <span className="flex-1">{formatDate(interview.date)}</span>
+                  <span className="mr-5">{formatTime(interview.time)}</span>
+                  <span className="flex-1">
+                    {interview.candidates.map((c) => c.name).join(", ")}
                   </span>
                 </div>
               ))
@@ -88,10 +92,10 @@ function Dashboard() {
         {/* Recent Activity */}
         <section className="mb-6">
           <h2 className="text-lg font-bold mb-3">Recent Activity</h2>
-          <div className="bg-white shadow-md rounded-lg p-4">
+          <div className="bg-white/25 backdrop-blur-md shadow-md rounded-lg p-4">
             {recentActivity.length > 0 ? (
               recentActivity.map((activity, index) => (
-                <div key={index} className="border-b py-2">
+                <div key={index} className="border-b border-shadowDark py-2">
                   <p>{activity.details}</p>
                 </div>
               ))
@@ -104,7 +108,7 @@ function Dashboard() {
         {/* Stats */}
         <section className="mb-6">
           <h2 className="text-lg font-bold mb-3">Stats</h2>
-          <div className="bg-white shadow-md rounded-lg p-4 grid grid-cols-3 gap-4">
+          <div className="bg-white/25 backdrop-blur-md shadow-md rounded-lg p-4 grid grid-cols-3 gap-4">
             <div className="text-center">
               <p className="text-xl font-bold">{stats.interviewsThisWeek}</p>
               <p className="text-sm text-gray-500">Interviews This Week</p>

@@ -12,7 +12,6 @@ function Register() {
     username: "",
     email: "",
     password: "",
-    role: "candidate",
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -83,7 +82,6 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <RoleSelector />
           <RoundedButton
             icon={AiOutlineLogin}
             title="Register"
@@ -108,43 +106,6 @@ function Register() {
       )}
     </div>
   );
-
-  function RoleSelector() {
-    return (
-      <div className="flex justify-between font-bold">
-        <label
-          className={`flex items-center space-x-2 cursor-pointer ${
-            formData.role === "recruiter" ? "text-accentLight" : "text-dark"
-          }`}
-        >
-          <input
-            type="radio"
-            name="role"
-            value="recruiter"
-            checked={formData.role === "recruiter"}
-            onChange={handleChange}
-            className="accent-accent"
-          />
-          <span>Recruiter</span>
-        </label>
-        <label
-          className={`flex items-center space-x-2 cursor-pointer ${
-            formData.role === "candidate" ? "text-accentLight" : "text-dark"
-          }`}
-        >
-          <input
-            type="radio"
-            name="role"
-            value="candidate"
-            checked={formData.role === "candidate"}
-            onChange={handleChange}
-            className="accent-accent"
-          />
-          <span>Candidate</span>
-        </label>
-      </div>
-    );
-  }
 }
 
 export default Register;

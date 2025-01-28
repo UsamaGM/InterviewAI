@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const Candidate = require("../models/candidateModel.js");
 
 //get all candidates
@@ -33,10 +34,10 @@ const addCandidate = async (req, res) => {
 const editCandidate = async (req, res) => {
   try {
     const updatedCandidate = await Candidate.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
+      req.body._id,
+      req.body
     );
+
     res.json(updatedCandidate);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -65,6 +66,7 @@ const searchAndFilterCandidates = async (req, res) => {
       query.experience = { $gte: Number(minExperience) };
 
     const candidates = await Candidate.find(query);
+
     res.json(candidates);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputBox from "./InputBox";
 import PropTypes from "prop-types";
 
-function AddCandidateModal({ isOpen, onClose, onSave }) {
+function CandidateForm({ candidate, isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -10,6 +10,12 @@ function AddCandidateModal({ isOpen, onClose, onSave }) {
     experience: "",
     skills: "",
   });
+
+  useEffect(() => {
+    if (candidate) {
+      setFormData({ ...candidate, skills: candidate.skills.join(", ") });
+    }
+  }, [candidate]);
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,6 +25,13 @@ function AddCandidateModal({ isOpen, onClose, onSave }) {
     e.preventDefault();
     onSave(formData);
     onClose();
+    setFormData({
+      name: "",
+      email: "",
+      appliedRole: "",
+      experience: "",
+      skills: "",
+    });
   }
 
   if (!isOpen) return null;
@@ -85,7 +98,7 @@ function AddCandidateModal({ isOpen, onClose, onSave }) {
               className="bg-primary/25 hover:bg-primary/40 backdrop-blur-md text-dark px-2 py-1 rounded-md"
               type="submit"
             >
-              Add
+              {candidate ? "Update" : "Add"}
             </button>
           </div>
         </form>
@@ -94,10 +107,11 @@ function AddCandidateModal({ isOpen, onClose, onSave }) {
   );
 }
 
-AddCandidateModal.propTypes = {
+CandidateForm.propTypes = {
+  candidate: PropTypes.object,
   isOpen: PropTypes.bool,
   onClose: PropTypes.func,
   onSave: PropTypes.func,
 };
 
-export default AddCandidateModal;
+export default CandidateForm;

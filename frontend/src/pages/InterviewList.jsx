@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { Chart as ChartJS } from "chart.js/auto";
-import { Bar } from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2";
 import { toast } from "react-toastify";
 import { formatDate, formatTime } from "../utils/dateTimeFormatter";
 import API from "../services/api";
@@ -21,18 +21,19 @@ function InterviewList() {
   useEffect(() => {
     async function fetchInterviews() {
       try {
-        const [scheduledRes, completedRes, cancelledRes, statsRes] =
+        const [scheduledRes, completedRes, cancelledRes, interviewStatsRes] =
           await Promise.all([
             API.get("/interviews"),
             API.get("/interviews?status=Completed"),
             API.get("/interviews?status=Cancelled"),
             API.get("/interviews/stats"),
+            API.get("/stats"),
           ]);
 
         setScheduled(scheduledRes.data);
         setCompleted(completedRes.data);
         setCancelled(cancelledRes.data);
-        setStats(statsRes.data);
+        setStats(interviewStatsRes.data);
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -50,7 +51,8 @@ function InterviewList() {
     responsive: true,
     plugins: {
       legend: {
-        display: false,
+        display: true,
+        position: "bottom",
       },
     },
   };
@@ -86,9 +88,13 @@ function InterviewList() {
           <p>No interviews yet.</p>
         ) : (
           <>
-            <section className="w-full mb-6">
+            <section className="w-full max-w-3xl overflow-hidden mb-6">
               <h2 className="text-2xl font-bold mb-4 text-dark">Stats</h2>
-              <Bar data={data} options={options} />
+              <Doughnut
+                className="max-h-52 bg-white/35 backdrop-blur-md shadow-md shadow-shadowDark rounded-lg"
+                data={data}
+                options={options}
+              />
             </section>
             <div className="w-full space-y-4">
               <Interview
@@ -117,7 +123,7 @@ function InterviewList() {
     return (
       <section className="mb-6">
         <h2 className="text-2xl font-bold mb-3">{title}</h2>
-        <div className="bg-white shadow-md shadow-shadowDark rounded-xl px-5 py-3">
+        <div className="bg-white/35 backdrop-blur-md shadow-md shadow-shadowDark rounded-xl px-5 py-3">
           <ul>
             {interviews.length > 0 ? (
               interviews.map((interview) => (
