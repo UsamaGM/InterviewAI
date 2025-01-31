@@ -1,13 +1,16 @@
 const express = require("express");
-const protect = require("../middleware/authMiddleware.js");
 const {
   addQuestion,
   getQuestions,
+  updateQuestion,
+  deleteQuestion,
 } = require("../controllers/questionController.js");
 
 const router = express.Router();
 
-router.post("/", addQuestion);
 router.get("/", getQuestions);
+router.post("/", addQuestion);
+router.put("/", updateQuestion);
+router.delete("/:id", deleteQuestion);
 
 module.exports = router;

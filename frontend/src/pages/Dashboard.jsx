@@ -128,14 +128,14 @@ function Dashboard() {
         <section className="mb-6">
           <h2 className="text-lg font-bold mb-3">Quick Actions</h2>
           <div className="flex items-center justify-evenly space-x-4">
-            <Link to="/schedule" className={linkStyle}>
-              Schedule Interview
+            <Link to="/interviews" className={linkStyle}>
+              Manage Interviews
             </Link>
             <Link to="/candidates" className={linkStyle}>
               Manage Candidates
             </Link>
-            <Link to="/questions/add" className={linkStyle}>
-              Add Question
+            <Link to="/questions" className={linkStyle}>
+              Manage Question
             </Link>
           </div>
         </section>

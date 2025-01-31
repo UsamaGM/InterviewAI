@@ -8,8 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import ScheduleInterview from "./pages/ScheduleInterview";
 import InterviewList from "./pages/InterviewList";
-import AddQuestion from "./pages/AddQuestion";
 import CandidateManagement from "./pages/CandidateManagement";
+import QuestionManagement from "./pages/QuestionManagement";
 
 function App() {
   return (
@@ -61,10 +61,10 @@ function App() {
           }
         />
         <Route
-          path="/questions/add"
+          path="/questions"
           element={
             <PrivateRoute>
-              <AddQuestion />
+              <QuestionManagement />
             </PrivateRoute>
           }
         />

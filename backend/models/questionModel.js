@@ -10,8 +10,8 @@ const QuestionSchema = new mongoose.Schema({
   },
   difficulty: {
     type: String,
-    enum: ["easy", "medium", "hard"],
-    default: "medium",
+    enum: ["Easy", "Medium", "Hard"],
+    default: "Medium",
   },
 });
 

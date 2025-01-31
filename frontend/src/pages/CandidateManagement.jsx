@@ -12,7 +12,7 @@ function CandidateManagement() {
   const [searchQuery, setSearchQuery] = useState({
     name: "",
     minExperience: "",
-    role: null,
+    role: "",
   });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -62,7 +62,7 @@ function CandidateManagement() {
     try {
       const adjustedCandidate = {
         ...candidateData,
-        skills: candidateData.skills.split(", "),
+        skills: candidateData.skills.split(","),
       };
 
       await API.put("/candidates", candidateData);
@@ -98,12 +98,12 @@ function CandidateManagement() {
       const filteredRes = await API.get(
         `/candidates/search?name=${searchQuery.name}&role=${searchQuery.role}&minExperience=${searchQuery.minExperience}`
       );
-      console.log(filteredRes.data);
+
       setCandidates(filteredRes.data);
       setSearchQuery({
         name: "",
         minExperience: "",
-        role: null,
+        role: "",
       });
     } catch (error) {
       toast.error("Failed to filter candidates" + error);

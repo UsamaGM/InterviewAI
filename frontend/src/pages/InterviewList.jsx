@@ -54,6 +54,11 @@ function InterviewList() {
         display: true,
         position: "bottom",
       },
+      title: {
+        display: true,
+        text: "Interview Stats",
+        position: "bottom",
+      },
     },
   };
 
@@ -89,12 +94,14 @@ function InterviewList() {
         ) : (
           <>
             <section className="w-full max-w-3xl overflow-hidden mb-6">
-              <h2 className="text-2xl font-bold mb-4 text-dark">Stats</h2>
-              <Doughnut
-                className="max-h-52 bg-white/35 backdrop-blur-md shadow-md shadow-shadowDark rounded-lg"
-                data={data}
-                options={options}
-              />
+              <div className="pb-2 w-fit">
+                <h2 className="text-2xl font-bold mb-4 text-dark">Stats</h2>
+                <Doughnut
+                  className="max-h-60 bg-white/35 backdrop-blur-md shadow-md shadow-shadowDark rounded-xl"
+                  data={data}
+                  options={options}
+                />
+              </div>
             </section>
             <div className="w-full space-y-4">
               <Interview
