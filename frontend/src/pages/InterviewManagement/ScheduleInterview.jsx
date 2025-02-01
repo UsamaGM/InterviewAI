@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
-import RoundedButton from "../components/RoundedButton";
+import RoundedButton from "../../components/RoundedButton";
 import { useNavigate } from "react-router-dom";
-import API from "../services/api";
+import API from "../../services/api";
 
 import "react-datepicker/dist/react-datepicker.css";
 

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { Chart as ChartJS } from "chart.js/auto";
 import { Doughnut } from "react-chartjs-2";
 import { toast } from "react-toastify";
-import { formatDate, formatTime } from "../utils/dateTimeFormatter";
-import API from "../services/api";
+import { formatDate, formatTime } from "../../utils/dateTimeFormatter";
+import API from "../../services/api";
 
 function InterviewList() {
   const [scheduled, setScheduled] = useState([]);

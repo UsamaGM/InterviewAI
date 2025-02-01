@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import InputBox from "./InputBox";
+import InputBox from "../../components/InputBox";
 import PropTypes from "prop-types";
 
 function CandidateForm({ candidate, isOpen, onClose, onSave }) {

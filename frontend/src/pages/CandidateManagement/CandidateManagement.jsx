@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import { BallTriangle } from "react-loader-spinner";
-import { AiFillDelete, AiFillEdit } from "react-icons/ai";
-import CandidateForm from "../components/CandidateForm";
-import API from "../services/api";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import CandidateForm from "./CandidateForm";
+import API from "../../services/api";
 import { Navigate } from "react-router-dom";
 
 function CandidateManagement() {
@@ -179,16 +179,16 @@ function CandidateManagement() {
               <td className={rowStyle}>{candidate.experience}</td>
               <td className={rowStyle}>{candidate.skills.join(",")}</td>
               <td className={rowStyle}>
-                <div className="flex items-center gap-4">
-                  <AiFillEdit
-                    className="text-blue-500 cursor-pointer hover:scale-150 transition-all duration-300 size-7"
+                <div className="flex justify-center items-center gap-4">
+                  <FaEdit
+                    className="text-blue-500 cursor-pointer hover:scale-150 transition-all duration-300 size-3"
                     onClick={() => {
                       setSelectedCandidate(candidate);
                       setShowEditModal(true);
                     }}
                   />
-                  <AiFillDelete
-                    className="text-red-500 cursor-pointer hover:scale-150 transition-all duration-300 size-7"
+                  <FaTrash
+                    className="text-red-500 cursor-pointer hover:scale-150 transition-all duration-300 size-3"
                     onClick={() => {
                       setSelectedCandidate(candidate);
                       setShowDeleteModal(true);

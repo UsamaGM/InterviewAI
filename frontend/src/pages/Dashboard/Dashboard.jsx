@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { Link, Navigate } from "react-router-dom";
-import { formatDate, formatTime } from "../utils/dateTimeFormatter";
-import API from "../services/api";
+import { formatDate, formatTime } from "../../utils/dateTimeFormatter";
+import API from "../../services/api";
 
 function Dashboard() {
   const [upcomingInterviews, setUpcomingInterviews] = useState([]);

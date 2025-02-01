@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import Profile from "./pages/ProfileManagement/Profile";
+import Login from "./pages/Authentication/Login";
+import Register from "./pages/Authentication/Register";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import CandidateManagement from "./pages/CandidateManagement/CandidateManagement";
+import QuestionManagement from "./pages/QuestionManagement/QuestionManagement";
+import InterviewList from "./pages/InterviewManagement/InterviewList";
+import ScheduleInterview from "./pages/InterviewManagement/ScheduleInterview";
 import Header from "./components/Header";
-import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
-import ScheduleInterview from "./pages/ScheduleInterview";
-import InterviewList from "./pages/InterviewList";
-import CandidateManagement from "./pages/CandidateManagement";
-import QuestionManagement from "./pages/QuestionManagement";
 
 function App() {
   return (

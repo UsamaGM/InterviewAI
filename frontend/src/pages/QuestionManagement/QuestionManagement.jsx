@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import API from "../services/api";
-import QuestionForm from "../components/QuestionForm";
-import { AiFillDelete, AiFillEdit } from "react-icons/ai";
+import API from "../../services/api";
+import QuestionForm from "./QuestionForm";
+// import { AiFillDelete, AiFillEdit } from "react-icons/ai";
+import { FaPen, FaTrash } from "react-icons/fa";
 
 function QuestionManagement() {
   const [questions, setQuestions] = useState([]);
@@ -158,16 +159,16 @@ function QuestionManagement() {
                 <td className={rowStyle}>{question.category}</td>
                 <td className={rowStyle}>{question.difficulty}</td>
                 <td>
-                  <div className="flex items-center gap-4">
-                    <AiFillEdit
-                      className="text-blue-500 cursor-pointer hover:scale-150 transition-all duration-300 size-7"
+                  <div className="flex justify-center items-center gap-4">
+                    <FaPen
+                      className="text-blue-400 cursor-pointer hover:scale-150 transition-all duration-300 size-3"
                       onClick={() => {
                         setSelectedQuestion(question);
                         setShowEditModal(true);
                       }}
                     />
-                    <AiFillDelete
-                      className="text-red-500 cursor-pointer hover:scale-150 transition-all duration-300 size-7"
+                    <FaTrash
+                      className="text-red-500 cursor-pointer hover:scale-150 transition-all duration-300 size-3"
                       onClick={() => {
                         setSelectedQuestion(question);
                         setShowDeleteModal(true);

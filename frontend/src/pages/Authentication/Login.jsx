@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineMail, AiOutlineLogin } from "react-icons/ai";
 import { BallTriangle } from "react-loader-spinner";
 import { toast } from "react-toastify";
-import API from "../services/api";
-import InputBox from "../components/InputBox";
-import RoundedButton from "../components/RoundedButton";
+import API from "../../services/api";
+import InputBox from "../../components/InputBox";
+import RoundedButton from "../../components/RoundedButton";
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });

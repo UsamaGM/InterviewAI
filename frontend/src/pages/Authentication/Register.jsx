@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineLogin, AiOutlineMail, AiOutlineUser } from "react-icons/ai";
 import { BallTriangle } from "react-loader-spinner";
 import { toast } from "react-toastify";
-import InputBox from "../components/InputBox";
-import API from "../services/api";
-import RoundedButton from "../components/RoundedButton";
+import InputBox from "../../components/InputBox";
+import API from "../../services/api";
+import RoundedButton from "../../components/RoundedButton";
 
 function Register() {
   const [formData, setFormData] = useState({

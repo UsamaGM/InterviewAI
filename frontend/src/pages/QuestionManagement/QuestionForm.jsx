@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import InputBox from "./InputBox";
+import InputBox from "../../components/InputBox";
 import PropTypes from "prop-types";
 
 import "react-datepicker/dist/react-datepicker.css";
