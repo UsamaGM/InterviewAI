@@ -25,7 +25,7 @@ function Dashboard() {
             API.get("/stats"),
           ]);
 
-        console.log(interviewsRes.data);
+        console.log(statsRes.data);
 
         if (!userRes.data) {
           toast.error("You are not authorized to access this page.");

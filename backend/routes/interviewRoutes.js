@@ -1,20 +1,16 @@
 const express = require("express");
 const {
-  scheduleInterview,
-  getUserInterviews,
-  getUserStats,
-  getNextInterview,
+  getInterviews,
+  createInterview,
   updateInterview,
-  cancelInterview,
+  deleteInterview,
 } = require("../controllers/interviewController.js");
 
 const router = express.Router();
 
-router.get("/", getUserInterviews);
-router.get("/next", getNextInterview);
-router.get("/stats", getUserStats);
-router.post("/", scheduleInterview);
-router.patch("/:id", updateInterview);
-router.delete("/:id", cancelInterview);
+router.get("/", getInterviews);
+router.post("/", createInterview);
+router.put("/:id", updateInterview);
+router.delete("/:id", deleteInterview);
 
 module.exports = router;

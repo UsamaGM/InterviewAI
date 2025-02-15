@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const InterviewSchema = new mongoose.Schema(
   {
+    title: {
+      type: String,
+      required: true,
+    },
     recruiter: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -41,6 +45,7 @@ const InterviewSchema = new mongoose.Schema(
     },
     feedback: {
       type: String,
+      default: "",
     },
   },
   { timestamps: true }
