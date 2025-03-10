@@ -3,6 +3,8 @@
 !.vscode/extensions.json
 .idea
 .DS_Store
+*/node_modules
+*/.env
 *.suo
 *.ntvs*
 *.njsproj
