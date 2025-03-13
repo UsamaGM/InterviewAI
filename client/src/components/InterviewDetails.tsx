@@ -12,7 +12,7 @@ import {
   Paper,
 } from "@mui/material";
 import api from "../services/api";
-import { Interview } from "../types";
+import { Interview } from "../utils/types";
 import { AxiosError } from "axios";
 
 const InterviewDetails: React.FC = () => {

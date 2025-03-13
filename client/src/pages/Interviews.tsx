@@ -1,7 +1,8 @@
 import React from "react";
 import InterviewList from "../components/InterviewList";
 import { Link } from "react-router-dom";
-import { Button, Container, Box, Typography } from "@mui/material";
+import { Button, Container, Box } from "@mui/material";
+import { StyledTitle } from "../MUIStyles";
 
 const Interviews: React.FC = () => {
   return (
@@ -10,10 +11,9 @@ const Interviews: React.FC = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        marginTop="20px"
-        marginBottom="20px"
+        paddingTop="1.5rem"
       >
-        <Typography variant="h4">Interviews</Typography>
+        <StyledTitle variant="h4">Interviews</StyledTitle>
         <Button
           component={Link}
           to="/interviews/create"

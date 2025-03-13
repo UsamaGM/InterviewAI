@@ -10,14 +10,8 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import { Interview } from "../utils/types";
 import api from "../services/api";
-
-interface Interview {
-  _id: string;
-  title: string;
-  description: string;
-  status: string;
-}
 
 const InterviewList: React.FC = () => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -26,7 +20,8 @@ const InterviewList: React.FC = () => {
     const fetchInterviews = async () => {
       try {
         const response = await api.get("/interviews");
-        setInterviews(response.data);
+        setInterviews(Array.isArray(response.data) ? response.data : []);
+        console.log(response);
       } catch (error) {
         console.error("Error fetching interviews:", error);
       }
@@ -43,23 +38,27 @@ const InterviewList: React.FC = () => {
             Interview List
           </Typography>
           <List>
-            {interviews.map((interview) => (
-              <ListItem
-                key={interview._id}
-                component={Link}
-                to={
-                  interview.status === "scheduled"
-                    ? `/interviews/take/${interview._id}`
-                    : `/interviews/${interview._id}`
-                }
-                style={{ width: "100%" }} // Add style to ListItem
-              >
-                <ListItemText
-                  primary={interview.title}
-                  secondary={interview.description}
-                />
-              </ListItem>
-            ))}
+            {interviews.length ? (
+              interviews.map((interview) => (
+                <ListItem
+                  key={interview._id}
+                  component={Link}
+                  to={
+                    interview.status === "scheduled"
+                      ? `/interviews/take/${interview._id}`
+                      : `/interviews/${interview._id}`
+                  }
+                  style={{ width: "100%" }} // Add style to ListItem
+                >
+                  <ListItemText
+                    primary={interview.title}
+                    secondary={interview.description}
+                  />
+                </ListItem>
+              ))
+            ) : (
+              <Typography>No interviews yet! Let's create some</Typography>
+            )}
           </List>
         </Paper>
       </Box>

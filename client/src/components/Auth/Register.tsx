@@ -3,18 +3,17 @@ import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import {
   TextField,
-  Button,
   Container,
   Typography,
   Select,
   MenuItem,
   InputLabel,
   FormControl,
-  Paper,
   Box,
   Alert,
 } from "@mui/material";
 import { AxiosError } from "axios";
+import { StyledButton, StyledLink, StyledPaper } from "../../MUIStyles";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -50,8 +49,8 @@ const Register: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
+    <Container maxWidth="md">
+      <StyledPaper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
         <Typography variant="h4" align="center" gutterBottom>
           Register
         </Typography>
@@ -91,13 +90,19 @@ const Register: React.FC = () => {
               <MenuItem value={"recruiter"}>Recruiter</MenuItem>
             </Select>
           </FormControl>
+          <Typography>
+            Don't have an account yet?{" "}
+            <StyledLink style={{ textDecoration: "none" }} to="/login">
+              Login
+            </StyledLink>
+          </Typography>
           <Box mt={2} display="flex" justifyContent="center">
-            <Button type="submit" variant="contained" color="primary">
+            <StyledButton type="submit" variant="contained" color="primary">
               Register
-            </Button>
+            </StyledButton>
           </Box>
         </form>
-      </Paper>
+      </StyledPaper>
     </Container>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, ReactElement } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -12,10 +12,13 @@ import {
   Paper,
   Alert,
   Divider,
+  Chip,
 } from "@mui/material";
 import api from "../services/api";
-import { Question, Interview } from "../types";
+import { Question, Interview } from "../utils/types";
 import { AxiosError, AxiosResponse } from "axios";
+import { CheckCircle, HelpOutline, Pending } from "@mui/icons-material";
+import { handleError } from "../utils/errorHandler";
 
 const TakeInterview: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,30 +43,38 @@ const TakeInterview: React.FC = () => {
           initialAnswers[question._id] = question.answerText || "";
         });
         setAnswers(initialAnswers);
-        setLoading(false);
       } catch (error: AxiosError | unknown) {
-        let errorMessage = "Could not fetch interview. Please try again.";
-        if (error instanceof AxiosError) {
-          console.error("Error fetching interview:", error.message);
-          if (
-            error.response &&
-            error.response.data &&
-            error.response.data.message
-          ) {
-            errorMessage = error.response.data.message;
-          } else {
-            errorMessage = error.message;
-          }
-        } else {
-          console.error("Error fetching interview: ", error);
-        }
-        setError(errorMessage);
+        setError(handleError(error, "Error fetching interview"));
+      } finally {
         setLoading(false);
       }
     };
 
     fetchInterview();
   }, [id]);
+
+  const getQuestionStatus = (question: Question) => {
+    if (question.aiAssessment && question.aiAssessment.score !== undefined) {
+      return "assessed";
+    } else if (answers[question._id]) {
+      return "answered";
+    } else {
+      return "pending";
+    }
+  };
+
+  const getStatusIcon = (status: string): ReactElement | undefined => {
+    switch (status) {
+      case "assessed":
+        return <CheckCircle color="success" />;
+      case "answered":
+        return <HelpOutline color="primary" />;
+      case "pending":
+        return <Pending color="action" />;
+      default:
+        return undefined;
+    }
+  };
 
   const handleAnswerChange = (questionId: string, answer: string) => {
     setAnswers({ ...answers, [questionId]: answer });
@@ -91,8 +102,7 @@ const TakeInterview: React.FC = () => {
       await api.put(`/interviews/${id}`, { questions: updatedQuestions });
       console.log(`Answer saved for question ${questionId}`);
     } catch (error) {
-      if (error instanceof AxiosError)
-        setError("Error saving answer: " + error.message);
+      setError(handleError(error, "Error saving answer"));
     }
   };
 
@@ -121,7 +131,7 @@ const TakeInterview: React.FC = () => {
       navigate("/interviews");
     } catch (error) {
       if (error instanceof AxiosError) {
-        setError("Error submitting answers. Please try again.");
+        setError(handleError(error, "Error submitting answers"));
       }
     }
   };
@@ -146,9 +156,7 @@ const TakeInterview: React.FC = () => {
       setInterview(response.data);
     } catch (error) {
       if (error instanceof AxiosError) {
-        setError(
-          "Error assessing answer. Please try again.\nError: " + error.message
-        );
+        setError(handleError(error, "Error assessing answer"));
       }
     } finally {
       setLoading(false);
@@ -163,9 +171,7 @@ const TakeInterview: React.FC = () => {
       const response = await api.get(`/interviews/${id}`);
       setInterview(response.data);
     } catch (error) {
-      if (error instanceof AxiosError) {
-        setError("Error submitting interview. Please try again.");
-      }
+      setError(handleError(error, "Error submitting interview"));
     }
   };
 
@@ -182,10 +188,6 @@ const TakeInterview: React.FC = () => {
     );
   }
 
-  if (error) {
-    return <Alert severity="error">{error}</Alert>;
-  }
-
   if (!interview) {
     return <Typography>Interview not found.</Typography>;
   }
@@ -194,6 +196,11 @@ const TakeInterview: React.FC = () => {
 
   return (
     <Container maxWidth="md">
+      {error && (
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
       <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
         <Typography variant="h4" align="center" gutterBottom>
           {interview.title}
@@ -211,6 +218,15 @@ const TakeInterview: React.FC = () => {
                 <Typography variant="h6" gutterBottom>
                   {currentQuestionIndex + 1}. {question?.questionText}
                 </Typography>
+                <Chip
+                  icon={getStatusIcon(
+                    getQuestionStatus(interview.questions[currentQuestionIndex])
+                  )}
+                  label={getQuestionStatus(
+                    interview.questions[currentQuestionIndex]
+                  )}
+                  size="small"
+                />
                 <TextField
                   label="Your Answer"
                   multiline

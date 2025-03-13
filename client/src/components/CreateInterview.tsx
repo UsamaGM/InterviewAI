@@ -12,7 +12,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { InterviewForm, JobRole } from "../types";
+import { InterviewForm, JobRole } from "../utils/types";
 import { AxiosError } from "axios";
 
 const CreateInterview: React.FC = () => {
