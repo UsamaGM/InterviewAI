@@ -61,7 +61,12 @@ export const generateQuestions = async (
     }
     return [];
   } catch (error) {
-    console.error("Error generating questions:", error);
+    console.error(
+      `Error generating questions: ${
+        error instanceof AxiosError ? error.message : error
+      }`
+    );
+
     return [];
   }
 };

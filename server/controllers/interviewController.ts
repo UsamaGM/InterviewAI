@@ -6,6 +6,7 @@ import {
   assessAnswer as aiAssessAnswer,
   rateInterview as aiRateInterview,
 } from "../services/aiService";
+import { scheduleInterviewReminders } from "../services/schedulingService";
 
 // Create Interview
 export const createInterview = async (req: Request, res: Response) => {

@@ -3,7 +3,6 @@ import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import {
   TextField,
-  Container,
   Typography,
   Select,
   MenuItem,
@@ -12,8 +11,14 @@ import {
   Box,
   Alert,
 } from "@mui/material";
-import { AxiosError } from "axios";
-import { StyledButton, StyledLink, StyledPaper } from "../../MUIStyles";
+import {
+  StyledButton,
+  StyledContainer,
+  StyledLink,
+  StyledPaper,
+  StyledTitle,
+} from "../../MUIStyles";
+import { handleError } from "../../utils/errorHandler";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -24,35 +29,23 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null); // Clear previous errors
+    setError(null);
     try {
       await api.post("/auth/register", { email, password, role });
       navigate("/login");
-    } catch (error: AxiosError | unknown) {
-      let errorMessage = "Registration failed. Please try again.";
-      if (error instanceof AxiosError) {
-        console.error("Registration failed:", error.message);
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          errorMessage = error.response.data.message;
-        } else {
-          errorMessage = error.message;
-        }
-      } else {
-        console.error("Registration failed:", error);
-      }
-      setError(errorMessage);
+    } catch (error) {
+      handleError(error, "Failed to register");
     }
   };
 
   return (
-    <Container maxWidth="md">
-      <StyledPaper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
-        <Typography variant="h4" align="center" gutterBottom>
+    <StyledContainer>
+      <StyledPaper elevation={8}>
+        <StyledTitle variant="h4" align="center" marginBottom={2}>
           Register
+        </StyledTitle>
+        <Typography align="center">
+          Register now to avail an early bird discount
         </Typography>
         {error && (
           <Box mb={2}>
@@ -66,6 +59,7 @@ const Register: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
             margin="normal"
+            variant="outlined"
           />
           <TextField
             label="Password"
@@ -74,6 +68,7 @@ const Register: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
             margin="normal"
+            variant="outlined"
           />
           <FormControl fullWidth margin="normal">
             <InputLabel id="role-select-label">Role</InputLabel>
@@ -85,25 +80,25 @@ const Register: React.FC = () => {
               onChange={(e) =>
                 setRole(e.target.value as "recruiter" | "candidate")
               }
+              variant="outlined"
             >
               <MenuItem value={"candidate"}>Candidate</MenuItem>
               <MenuItem value={"recruiter"}>Recruiter</MenuItem>
             </Select>
           </FormControl>
-          <Typography>
-            Don't have an account yet?{" "}
-            <StyledLink style={{ textDecoration: "none" }} to="/login">
-              Login
-            </StyledLink>
+          <Typography
+            variant="body2"
+            style={{ marginTop: "16px" }}
+            align="center"
+          >
+            Already have an account? <StyledLink to="/login">Login</StyledLink>
           </Typography>
-          <Box mt={2} display="flex" justifyContent="center">
-            <StyledButton type="submit" variant="contained" color="primary">
-              Register
-            </StyledButton>
-          </Box>
+          <StyledButton>
+            <button type="submit">Register</button>
+          </StyledButton>
         </form>
       </StyledPaper>
-    </Container>
+    </StyledContainer>
   );
 };
 

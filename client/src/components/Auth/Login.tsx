@@ -3,7 +3,6 @@ import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import {
   TextField,
-  Container,
   Typography,
   Box,
   Alert,
@@ -11,8 +10,15 @@ import {
   IconButton,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { AxiosError, AxiosResponse } from "axios";
-import { StyledButton, StyledLink, StyledPaper } from "../../MUIStyles";
+import { AxiosResponse } from "axios";
+import { handleError } from "../../utils/errorHandler";
+import {
+  StyledButton,
+  StyledContainer,
+  StyledLink,
+  StyledPaper,
+  StyledTitle,
+} from "../../MUIStyles";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -34,31 +40,24 @@ const Login: React.FC = () => {
       });
       localStorage.setItem("token", response.data.token);
       navigate("/");
-    } catch (error: AxiosError | unknown) {
-      let errorMessage = "Login failed. Please try again.";
-      if (error instanceof AxiosError) {
-        console.error("Login failed:", error.message);
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          errorMessage = error.response.data.message;
-        } else {
-          errorMessage = error.message;
-        }
-      } else {
-        console.error("Login failed:", error);
-      }
-      setError(errorMessage);
+    } catch (error) {
+      setError(handleError(error, "Failed to log in"));
     }
   };
 
   return (
-    <Container maxWidth="sm">
+    <StyledContainer>
       <StyledPaper elevation={3}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Log In
+        <StyledTitle variant="h4" align="center" marginBottom={2}>
+          Login
+        </StyledTitle>
+        <Typography
+          variant="body2"
+          align="center"
+          color="textSecondary"
+          gutterBottom
+        >
+          Please log in to your account.
         </Typography>
         {error && (
           <Box mb={2}>
@@ -75,15 +74,15 @@ const Login: React.FC = () => {
             variant="outlined"
           />
           <TextField
+            fullWidth
             label="Password"
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            fullWidth
             margin="normal"
             variant="outlined"
             slotProps={{
-              htmlInput: {
+              input: {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
@@ -98,18 +97,20 @@ const Login: React.FC = () => {
               },
             }}
           />
-          <Typography variant="body2" style={{ marginTop: "8px" }}>
+          <Typography
+            variant="body2"
+            style={{ marginTop: "16px" }}
+            align="center"
+          >
             Don't have an account yet?{" "}
             <StyledLink to="/register">Register</StyledLink>
           </Typography>
-          <Box mt={3} display="flex" justifyContent="center">
-            <StyledButton type="submit" variant="contained" color="secondary">
-              Log In
-            </StyledButton>
-          </Box>
+          <StyledButton>
+            <button type="submit">Log In</button>
+          </StyledButton>
         </form>
       </StyledPaper>
-    </Container>
+    </StyledContainer>
   );
 };
 
