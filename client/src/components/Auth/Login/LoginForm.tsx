@@ -1,5 +1,5 @@
 import { useState } from "react";
-import InputBox from "../../custom/InputBox";
+import InputBox from "../../InputBox/InputBox";
 import { Link, useNavigate } from "react-router-dom";
 import { handleError } from "../../../utils/errorHandler";
 import api from "../../../services/api";

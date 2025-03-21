@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../../services/api";
 import { handleError } from "../../../utils/errorHandler";
-import InputBox from "../../custom/InputBox";
+import InputBox from "../../InputBox/InputBox";
 
 function RegisterForm() {
   const [name, setName] = useState<string>("");
