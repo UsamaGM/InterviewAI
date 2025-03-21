@@ -1,0 +1,10 @@
+/*
+	Installed from https://reactbits.dev/ts/default/
+*/
+
+.particles-container {
+  background-color: black;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}

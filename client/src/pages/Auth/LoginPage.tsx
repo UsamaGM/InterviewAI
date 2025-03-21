@@ -1,19 +1,8 @@
 import React from "react";
-import Login from "../../components/Auth/Login";
-import { Container } from "@mui/material";
+import Login from "../../components/Auth/Login/Login";
 
 const LoginPage: React.FC = () => {
-  return (
-    <Container
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Login />
-    </Container>
-  );
+  return <Login />;
 };
 
 export default LoginPage;

@@ -1,19 +1,14 @@
 import React from "react";
-import { AppBar, Toolbar, Typography } from "@mui/material";
 
 const Footer: React.FC = () => {
   return (
-    <AppBar
-      position="static"
-      color="primary"
-      style={{ top: "auto", bottom: 0 }}
-    >
-      <Toolbar>
-        <Typography variant="body2" style={{ margin: "0 auto" }}>
+    <footer className="bg-blue-500 text-white w-full fixed bottom-0">
+      <div className="container mx-auto py-3 text-center">
+        <p className="text-sm">
           © {new Date().getFullYear()} InterviewAI. All rights reserved.
-        </Typography>
-      </Toolbar>
-    </AppBar>
+        </p>
+      </div>
+    </footer>
   );
 };
 

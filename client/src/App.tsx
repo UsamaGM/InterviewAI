@@ -1,5 +1,3 @@
-import { Box, ThemeProvider } from "@mui/material";
-import { theme } from "./MUIStyles/theme";
 import Interviews from "./pages/Interviews";
 import CreateInterviewPage from "./pages/CreateInterviewPage";
 import LoginPage from "./pages/Auth/LoginPage";
@@ -21,68 +19,54 @@ function App() {
 
   return (
     <Router>
-      <ThemeProvider theme={theme}>
-        <Box display="flex" flexDirection="column" minHeight="100vh">
-          {isAuthenticated && <Header />}
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/interviews" />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/interviews"
-              element={
-                isAuthenticated ? <Interviews /> : <Navigate to="/login" />
-              }
-            />
-            <Route
-              path="/interviews/new"
-              element={
-                isAuthenticated ? (
-                  <CreateInterviewPage />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/interviews/take/:id"
-              element={
-                isAuthenticated ? (
-                  <TakeInterviewPage />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/interviews/:id"
-              element={
-                isAuthenticated ? (
-                  <InterviewDetailsPage />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                isAuthenticated ? <UserProfilePage /> : <Navigate to="/login" />
-              }
-            />
-          </Routes>
-          {isAuthenticated && <Footer />}
-        </Box>
-      </ThemeProvider>
+      {isAuthenticated && <Header />}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/interviews" />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/interviews"
+          element={isAuthenticated ? <Interviews /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/interviews/new"
+          element={
+            isAuthenticated ? <CreateInterviewPage /> : <Navigate to="/login" />
+          }
+        />
+        <Route
+          path="/interviews/take/:id"
+          element={
+            isAuthenticated ? <TakeInterviewPage /> : <Navigate to="/login" />
+          }
+        />
+        <Route
+          path="/interviews/:id"
+          element={
+            isAuthenticated ? (
+              <InterviewDetailsPage />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            isAuthenticated ? <UserProfilePage /> : <Navigate to="/login" />
+          }
+        />
+      </Routes>
+      {isAuthenticated && <Footer />}
     </Router>
   );
 }

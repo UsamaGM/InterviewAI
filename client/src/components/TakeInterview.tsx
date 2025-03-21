@@ -1,24 +1,8 @@
-import React, { useState, useEffect, useRef, ReactElement } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Container,
-  Typography,
-  List,
-  ListItem,
-  TextField,
-  Button,
-  Box,
-  CircularProgress,
-  Paper,
-  Alert,
-  Divider,
-  Chip,
-} from "@mui/material";
 import api from "../services/api";
 import { Question, Interview } from "../utils/types";
-import { AxiosError, AxiosResponse } from "axios";
-import { CheckCircle, HelpOutline, Pending } from "@mui/icons-material";
-import { handleError } from "../utils/errorHandler";
+import { AxiosError } from "axios";
 
 const TakeInterview: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,7 +28,11 @@ const TakeInterview: React.FC = () => {
         });
         setAnswers(initialAnswers);
       } catch (error: AxiosError | unknown) {
-        setError(handleError(error, "Error fetching interview"));
+        setError(
+          error instanceof AxiosError
+            ? error.message
+            : "Error fetching interview"
+        );
       } finally {
         setLoading(false);
       }
@@ -63,16 +51,16 @@ const TakeInterview: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string): ReactElement | undefined => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "assessed":
-        return <CheckCircle color="success" />;
+        return <p>Checked</p>;
       case "answered":
-        return <HelpOutline color="primary" />;
+        return <p>Answered</p>;
       case "pending":
-        return <Pending color="action" />;
+        return <p>Pending</p>;
       default:
-        return undefined;
+        return null;
     }
   };
 
@@ -85,7 +73,7 @@ const TakeInterview: React.FC = () => {
 
     saveTimeout.current = setTimeout(() => {
       saveAnswer(questionId, answer);
-    }, 1000); // Save after 1 second of inactivity
+    }, 1000);
   };
 
   const saveAnswer = async (questionId: string, answer: string) => {
@@ -101,8 +89,10 @@ const TakeInterview: React.FC = () => {
 
       await api.put(`/interviews/${id}`, { questions: updatedQuestions });
       console.log(`Answer saved for question ${questionId}`);
-    } catch (error) {
-      setError(handleError(error, "Error saving answer"));
+    } catch (error: AxiosError | unknown) {
+      setError(
+        error instanceof AxiosError ? error.message : "Error saving answer"
+      );
     }
   };
 
@@ -129,10 +119,10 @@ const TakeInterview: React.FC = () => {
 
       await api.put(`/interviews/${id}`, { questions: questionsWithAnswers });
       navigate("/interviews");
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        setError(handleError(error, "Error submitting answers"));
-      }
+    } catch (error: AxiosError | unknown) {
+      setError(
+        error instanceof AxiosError ? error.message : "Error submitting answers"
+      );
     }
   };
 
@@ -145,19 +135,16 @@ const TakeInterview: React.FC = () => {
     setLoading(true);
 
     try {
-      const response: AxiosResponse<Interview> = await api.post(
-        `/interviews/${id}/assess-answer`,
-        {
-          questionIndex: questionIndex,
-          answerText: answers[questionId],
-        }
-      );
+      const response = await api.post(`/interviews/${id}/assess-answer`, {
+        questionIndex: questionIndex,
+        answerText: answers[questionId],
+      });
 
       setInterview(response.data);
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        setError(handleError(error, "Error assessing answer"));
-      }
+    } catch (error: AxiosError | unknown) {
+      setError(
+        error instanceof AxiosError ? error.message : "Error assessing answer"
+      );
     } finally {
       setLoading(false);
     }
@@ -170,151 +157,134 @@ const TakeInterview: React.FC = () => {
       await api.post(`/interviews/${id}/rate-interview`, {});
       const response = await api.get(`/interviews/${id}`);
       setInterview(response.data);
-    } catch (error) {
-      setError(handleError(error, "Error submitting interview"));
+    } catch (error: AxiosError | unknown) {
+      setError(
+        error instanceof AxiosError
+          ? error.message
+          : "Error submitting interview"
+      );
     }
   };
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="200px"
-      >
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
   }
 
   if (!interview) {
-    return <Typography>Interview not found.</Typography>;
+    return <p className="text-center">Interview not found.</p>;
   }
 
   const question: Question = interview.questions[currentQuestionIndex];
 
   return (
-    <Container maxWidth="md">
-      {error && (
-        <Alert severity="error" onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
-      <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          {interview.title}
-        </Typography>
-        <Typography variant="body1" align="center">
-          {interview.description}
-        </Typography>
-      </Paper>
+    <div className="flex justify-center items-start min-h-screen bg-gray-100 p-4">
+      <div className="max-w-3xl w-full">
+        {error && (
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+            role="alert"
+          >
+            <strong className="font-bold">Error!</strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-4">
+          <h4 className="text-2xl font-semibold text-center mb-4">
+            {interview.title}
+          </h4>
+          <p className="text-center text-gray-700">{interview.description}</p>
+        </div>
 
-      {interview.status === "in-progress" && question ? (
-        <>
-          <List>
-            <ListItem key={question?._id} divider>
-              <Paper elevation={1} style={{ width: "100%", padding: "16px" }}>
-                <Typography variant="h6" gutterBottom>
-                  {currentQuestionIndex + 1}. {question?.questionText}
-                </Typography>
-                <Chip
-                  icon={getStatusIcon(
-                    getQuestionStatus(interview.questions[currentQuestionIndex])
-                  )}
-                  label={getQuestionStatus(
-                    interview.questions[currentQuestionIndex]
-                  )}
-                  size="small"
-                />
-                <TextField
-                  label="Your Answer"
-                  multiline
-                  fullWidth
-                  value={answers[question?._id] || ""}
-                  onChange={(e) =>
-                    handleAnswerChange(question?._id, e.target.value)
-                  }
-                  margin="normal"
-                />
-                <Box mt={2} display="flex" justifyContent="flex-end">
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() =>
-                      handleAssessAnswer(question?._id, currentQuestionIndex)
-                    }
-                    disabled={!answers[question?._id]}
-                  >
-                    Assess Answer
-                  </Button>
-                </Box>
-                {question?.aiAssessment && (
-                  <Box mt={2}>
-                    <Divider style={{ marginBottom: "10px" }} />
-                    <Typography variant="subtitle1">AI Assessment:</Typography>
-                    <Typography>
-                      Score: {question.aiAssessment.score}
-                    </Typography>
-                    <Typography>
-                      Keywords: {question.aiAssessment.keywords?.join(", ")}
-                    </Typography>
-                    <Typography>
-                      Sentiment: {question.aiAssessment.sentiment}
-                    </Typography>
-                    <Typography>
-                      Feedback: {question.aiAssessment.feedback}
-                    </Typography>
-                  </Box>
+        {interview.status === "in-progress" && question ? (
+          <>
+            <div className="bg-white rounded-lg shadow-md p-6 mb-4">
+              <h5 className="text-xl font-semibold mb-2">
+                {currentQuestionIndex + 1}. {question.questionText}
+              </h5>
+              <div className="flex items-center mb-2">
+                {getStatusIcon(
+                  getQuestionStatus(interview.questions[currentQuestionIndex])
                 )}
-              </Paper>
-            </ListItem>
-          </List>
-          <Box mt={2} display="flex" justifyContent="space-between">
-            <Button
-              variant="outlined"
-              onClick={handlePreviousQuestion}
-              disabled={currentQuestionIndex === 0}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={handleNextQuestion}
-              disabled={currentQuestionIndex === interview.questions.length - 1}
-            >
-              Next
-            </Button>
-          </Box>
-        </>
-      ) : (
-        <>
-          <Typography align="center">
+                <span className="ml-2">
+                  {getQuestionStatus(interview.questions[currentQuestionIndex])}
+                </span>
+              </div>
+              <textarea
+                className="w-full border rounded-lg p-2 mb-2"
+                rows={4}
+                value={answers[question._id] || ""}
+                onChange={(e) =>
+                  handleAnswerChange(question._id, e.target.value)
+                }
+              />
+              <div className="flex justify-end mb-2">
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() =>
+                    handleAssessAnswer(question._id, currentQuestionIndex)
+                  }
+                  disabled={!answers[question._id]}
+                >
+                  Assess Answer
+                </button>
+              </div>
+              {question.aiAssessment && (
+                <div className="border-t pt-2">
+                  <h6 className="font-semibold">AI Assessment:</h6>
+                  <p>Score: {question.aiAssessment.score}</p>
+                  <p>Keywords: {question.aiAssessment.keywords?.join(", ")}</p>
+                  <p>Sentiment: {question.aiAssessment.sentiment}</p>
+                  <p>Feedback: {question.aiAssessment.feedback}</p>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-between mt-4">
+              <button
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                onClick={handlePreviousQuestion}
+                disabled={currentQuestionIndex === 0}
+              >
+                Previous
+              </button>
+              <button
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                onClick={handleNextQuestion}
+                disabled={
+                  currentQuestionIndex === interview.questions.length - 1
+                }
+              >
+                Next
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-center">
             No questions found for this interview. Did you add any?
-          </Typography>
-        </>
-      )}
+          </p>
+        )}
 
-      {interview.status === "in-progress" && question && (
-        <Box mt={2} display="flex" justifyContent="center">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmitAnswers}
-            style={{ marginRight: "10px" }}
-          >
-            Save Answers
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmitInterview}
-          >
-            Submit Interview
-          </Button>
-        </Box>
-      )}
-    </Container>
+        {interview.status === "in-progress" && question && (
+          <div className="flex justify-center mt-4">
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+              onClick={handleSubmitAnswers}
+            >
+              Save Answers
+            </button>
+            <button
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+              onClick={handleSubmitInterview}
+            >
+              Submit Interview
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

@@ -1,36 +1,16 @@
 import React from "react";
 import UserProfile from "../components/UserProfile";
-import { Container, Box, Typography } from "@mui/material";
 
 const UserProfilePage: React.FC = () => {
   return (
-    <Container
-      maxWidth="md"
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-      }}
-    >
-      <Box
-        style={{
-          width: "100%",
-          maxWidth: "600px", // Adjust max width as needed
-          padding: "20px",
-        }}
-      >
-        <Typography
-          variant="h3"
-          align="center"
-          gutterBottom
-          style={{ marginBottom: "20px" }}
-        >
+    <div className="flex justify-center items-center min-h-screen p-4">
+      <div className="w-full max-w-xl">
+        <h3 className="text-3xl font-semibold text-center mb-6">
           User Profile
-        </Typography>
+        </h3>
         <UserProfile />
-      </Box>
-    </Container>
+      </div>
+    </div>
   );
 };
 

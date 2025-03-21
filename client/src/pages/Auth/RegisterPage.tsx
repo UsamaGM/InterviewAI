@@ -1,19 +1,8 @@
 import React from "react";
-import Register from "../../components/Auth/Register";
-import { Container } from "@mui/material";
+import Register from "../../components/Auth/Register/Register";
 
 const RegisterPage: React.FC = () => {
-  return (
-    <Container
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Register />
-    </Container>
-  );
+  return <Register />;
 };
 
 export default RegisterPage;

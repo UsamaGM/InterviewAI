@@ -1,13 +1,4 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  TextField,
-  Button,
-  Box,
-  CircularProgress,
-  Paper,
-  Alert,
-} from "@mui/material";
 import api from "../services/api";
 import { AxiosError } from "axios";
 
@@ -97,56 +88,82 @@ const UserProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="200px"
-      >
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
   }
 
   if (error) {
-    return <Alert severity="error">{error}</Alert>;
+    return (
+      <div
+        className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        role="alert"
+      >
+        <strong className="font-bold">Error!</strong>
+        <span className="block sm:inline">{error}</span>
+      </div>
+    );
   }
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
+      <div className="max-w-sm w-full bg-white rounded-lg shadow-md p-6">
         {successMessage && (
-          <Box mb={2}>
-            <Alert severity="success">{successMessage}</Alert>
-          </Box>
+          <div
+            className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+            role="alert"
+          >
+            <strong className="font-bold">Success!</strong>
+            <span className="block sm:inline">{successMessage}</span>
+          </div>
         )}
         {user && (
           <form onSubmit={handleSubmit}>
-            <TextField
-              label="Email"
-              name="email"
-              value={user.email || ""}
-              fullWidth
-              margin="normal"
-              disabled
-            />
-            <TextField
-              label="Name"
-              name="name"
-              value={updateData.name || ""}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
-            <Box mt={2} display="flex" justifyContent="center">
-              <Button type="submit" variant="contained" color="primary">
+            <div className="mb-4">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="email"
+              >
+                Email
+              </label>
+              <input
+                className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="email"
+                type="email"
+                name="email"
+                value={user.email || ""}
+                disabled
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="name"
+              >
+                Name
+              </label>
+              <input
+                className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="name"
+                type="text"
+                name="name"
+                value={updateData.name || ""}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex justify-center mt-4">
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit"
+              >
                 Update Profile
-              </Button>
-            </Box>
+              </button>
+            </div>
           </form>
         )}
-      </Paper>
-    </Container>
+      </div>
+    </div>
   );
 };
 

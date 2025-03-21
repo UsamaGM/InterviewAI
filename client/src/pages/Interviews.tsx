@@ -1,19 +1,11 @@
 import React from "react";
 import InterviewList from "../components/InterviewList";
-import { Container } from "@mui/material";
 
 const Interviews: React.FC = () => {
   return (
-    <Container
-      style={{
-        marginTop: "20px",
-        display: "flex",
-        flexDirection: "column",
-        flexGrow: 1,
-      }}
-    >
+    <div className="mt-8 flex flex-col flex-grow p-4">
       <InterviewList />
-    </Container>
+    </div>
   );
 };
 

@@ -1,17 +1,6 @@
 import React, { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import {
-  TextField,
-  Button,
-  Container,
-  Box,
-  Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
 import { InterviewForm, JobRole } from "../utils/types";
 import { AxiosError } from "axios";
 
@@ -57,57 +46,86 @@ const CreateInterview: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      {error && (
-        <Box mb={2}>
-          <Alert severity="error">{error}</Alert>
-        </Box>
-      )}
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Title"
-          name="title"
-          value={interviewForm.title}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Description"
-          name="description"
-          value={interviewForm.description}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          multiline
-        />
-        <FormControl fullWidth margin="normal">
-          <InputLabel id="role-select-label">Role</InputLabel>
-          <Select
-            name="jobRole"
-            value={interviewForm.jobRole}
-            label="JobRole"
-            onChange={(e) =>
-              setInterviewForm({
-                ...interviewForm,
-                jobRole: e.target.value as keyof JobRole,
-              })
-            }
-          >
-            {Object.keys(JobRole).map((key) => (
-              <MenuItem key={key} value={JobRole[key as keyof typeof JobRole]}>
-                {JobRole[key as keyof typeof JobRole]}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Box mt={2} display="flex" justifyContent="center">
-          <Button type="submit" variant="contained" color="primary">
-            Create
-          </Button>
-        </Box>
-      </form>
-    </Container>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="max-w-sm w-full p-6 bg-white rounded-lg shadow-md">
+        {error && (
+          <div className="mb-4">
+            <div
+              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert"
+            >
+              <strong className="font-bold">Error!</strong>
+              <span className="block sm:inline">{error}</span>
+            </div>
+          </div>
+        )}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="title"
+            >
+              Title
+            </label>
+            <input
+              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              type="text"
+              name="title"
+              value={interviewForm.title}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="description"
+            >
+              Description
+            </label>
+            <textarea
+              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              name="description"
+              value={interviewForm.description}
+              onChange={handleInputChange}
+              rows={4}
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="jobRole"
+            >
+              Role
+            </label>
+            <select
+              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              name="jobRole"
+              value={interviewForm.jobRole}
+              onChange={(e) =>
+                setInterviewForm({
+                  ...interviewForm,
+                  jobRole: e.target.value as keyof JobRole,
+                })
+              }
+            >
+              {Object.keys(JobRole).map((key) => (
+                <option key={key} value={JobRole[key as keyof typeof JobRole]}>
+                  {JobRole[key as keyof typeof JobRole]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex justify-center mt-4">
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Create
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
