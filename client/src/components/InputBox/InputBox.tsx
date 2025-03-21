@@ -2,9 +2,11 @@ import { useState } from "react";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 
 interface InputBoxProps {
+  required?: boolean;
   password?: boolean;
-  id?: string;
+  textarea?: boolean;
   type?: string;
+  id?: string;
   placeholder: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -12,6 +14,8 @@ interface InputBoxProps {
 
 function InputBox({
   password = false,
+  // textarea = false,
+  required = true,
   id,
   placeholder,
   type,
@@ -33,6 +37,7 @@ function InputBox({
             onChange={onChange}
             className="peer w-full px-2 py-2 border-none bg-transparent placeholder-transparent focus:border-transparent focus:ring-0 focus:outline-hidden"
             placeholder={placeholder}
+            required={required}
           />
           <button
             type="button"

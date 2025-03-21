@@ -51,4 +51,5 @@ export interface InterviewForm {
   title: string;
   description: string;
   jobRole: keyof JobRole;
+  sheduledTime: string;
 }
