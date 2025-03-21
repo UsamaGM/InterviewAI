@@ -1,9 +1,9 @@
 import React from "react";
-import InterviewList from "../components/InterviewList";
+import InterviewList from "../components/Interview/InterviewList";
 
 const Interviews: React.FC = () => {
   return (
-    <div className="mt-8 flex flex-col flex-grow p-4">
+    <div>
       <InterviewList />
     </div>
   );

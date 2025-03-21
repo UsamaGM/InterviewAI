@@ -1,5 +1,5 @@
 import React from "react";
-import InterviewDetails from "../components/InterviewDetails";
+import InterviewDetails from "../components/Interview/InterviewDetails";
 
 const InterviewDetailsPage: React.FC = () => {
   return (

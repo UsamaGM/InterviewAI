@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../services/api";
-import { Interview } from "../utils/types";
+import api from "../../services/api";
+import { Interview } from "../../utils/types";
 import { AxiosError } from "axios";
 
 const InterviewDetails: React.FC = () => {

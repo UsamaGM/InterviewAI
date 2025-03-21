@@ -12,7 +12,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Header from "./components/Header/Header";
-import Footer from "./components/Footer";
+import Footer from "./components/Footer/Footer";
 
 function App() {
   const isAuthenticated = !!localStorage.getItem("token");
@@ -44,12 +44,6 @@ function App() {
           }
         />
         <Route
-          path="/interviews/take/:id"
-          element={
-            isAuthenticated ? <TakeInterviewPage /> : <Navigate to="/login" />
-          }
-        />
-        <Route
           path="/interviews/:id"
           element={
             isAuthenticated ? (
@@ -57,6 +51,12 @@ function App() {
             ) : (
               <Navigate to="/login" />
             )
+          }
+        />
+        <Route
+          path="/interviews/:id/take"
+          element={
+            isAuthenticated ? <TakeInterviewPage /> : <Navigate to="/login" />
           }
         />
         <Route

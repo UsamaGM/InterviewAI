@@ -8,17 +8,22 @@ export interface Question {
     sentiment?: string;
     feedback?: string;
   };
+  questionType?: string;
 }
 
 export interface Interview {
   _id: string;
   title: string;
-  description: string;
+  description?: string;
+  recruiter: string;
+  candidate?: string;
+  scheduledTime?: Date;
   questions: Question[];
-  status: string;
+  status: "draft" | "scheduled" | "in-progress" | "completed" | "cancelled";
   score?: number;
   feedback?: string;
-  jobRole?: JobRole;
+  createdAt: Date;
+  jobRole?: string;
 }
 
 export enum JobRole {

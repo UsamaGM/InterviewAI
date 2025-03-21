@@ -1,5 +1,5 @@
 import React from "react";
-import CreateInterview from "../components/CreateInterview";
+import CreateInterview from "../components/Interview/CreateInterview";
 
 const CreateInterviewPage: React.FC = () => {
   return (

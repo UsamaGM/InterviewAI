@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import api from "../services/api";
+import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
-import { InterviewForm, JobRole } from "../utils/types";
+import { InterviewForm, JobRole } from "../../utils/types";
 import { AxiosError } from "axios";
 
 const CreateInterview: React.FC = () => {
