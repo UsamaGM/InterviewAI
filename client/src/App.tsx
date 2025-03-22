@@ -44,7 +44,7 @@ function App() {
           }
         />
         <Route
-          path="/interviews/:id"
+          path="/interviews/:id/details"
           element={
             isAuthenticated ? (
               <InterviewDetailsPage />

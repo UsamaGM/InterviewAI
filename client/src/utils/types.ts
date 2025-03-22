@@ -1,3 +1,8 @@
+export interface User {
+  _id: string;
+  name: string;
+}
+
 export interface Question {
   _id: string;
   questionText: string;
@@ -15,7 +20,7 @@ export interface Interview {
   _id: string;
   title: string;
   description?: string;
-  recruiter: string;
+  recruiter: User;
   candidate?: string;
   scheduledTime?: Date;
   questions: Question[];

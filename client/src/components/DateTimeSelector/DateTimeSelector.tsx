@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 interface DatetimeSelectorProps {
   id: string;
@@ -19,15 +19,25 @@ const DatetimeSelector = ({
   const [time, setTime] = useState(
     value ? new Date(value).toISOString().split("T")[1].slice(0, 5) : ""
   );
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const pickerRef = useRef<HTMLLabelElement>(null);
 
-  const handleDateChange = (e) => {
+  interface DateChangeEvent {
+    target: {
+      value: string;
+    };
+  }
+
+  const handleDateChange = (e: DateChangeEvent): void => {
     setDate(e.target.value);
     updateDatetime(e.target.value, time);
   };
 
-  const handleTimeChange = (e) => {
+  interface TimeChangeEvent {
+    target: {
+      value: string;
+    };
+  }
+
+  const handleTimeChange = (e: TimeChangeEvent): void => {
     setTime(e.target.value);
     updateDatetime(date, e.target.value);
   };
@@ -41,32 +51,10 @@ const DatetimeSelector = ({
     }
   };
 
-  const togglePicker = () => {
-    setIsPickerOpen(!isPickerOpen);
-  };
-
-  interface MouseEvent {
-    target: EventTarget | null;
-  }
-
-  const handleClickOutside = (e: MouseEvent): void => {
-    if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
-      setIsPickerOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  });
-
   return (
     <label
       htmlFor={id}
       className="relative block rounded-md border border-gray-200 shadow-xs focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600 mb-6"
-      ref={pickerRef}
     >
       <div className="flex items-center">
         <input

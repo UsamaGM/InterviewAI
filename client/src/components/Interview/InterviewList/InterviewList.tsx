@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Interview } from "../../utils/types";
-import { handleError } from "../../utils/errorHandler";
-import api from "../../services/api";
-import InterviewCard from "../Cards/InterviewCard";
-import AddInterviewButton from "../Buttons/AddInterviewButton";
+import { Interview } from "../../../utils/types";
+import { handleError } from "../../../utils/errorHandler";
+import api from "../../../services/api";
+import InterviewCard from "./InterviewCard";
+import SlidingIconButton from "../../Buttons/SlidingIconButton";
 
 const InterviewList: React.FC = () => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -51,7 +51,11 @@ const InterviewList: React.FC = () => {
           </>
         )}
         <div className="mt-8 flex justify-center">
-          <AddInterviewButton />
+          <SlidingIconButton
+            title="Create New Interview"
+            link
+            to="/interviews/new"
+          />
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { InterviewForm, JobRole } from "../../../utils/types";
 import { AxiosError } from "axios";
 import InputBox from "../../InputBox/InputBox";
 import Dropdown from "../../Dropdowns/Dropdown";
-import DatetimeSelector from "../../DateTimeSelector/DateTimeSelector";
+import RotatingButton from "../../Buttons/RotatingButton";
 
 const CreateInterview: React.FC = () => {
   const [interviewForm, setInterviewForm] = useState<InterviewForm>({
@@ -83,22 +83,12 @@ const CreateInterview: React.FC = () => {
           })
         }
       />
-      <DatetimeSelector
-        id="scheduledtime"
-        placeholder="Scheduled Time"
-        value={interviewForm.sheduledTime}
-        onChange={(value) =>
-          setInterviewForm({ ...interviewForm, sheduledTime: value! })
-        }
-      />
       <div className="flex justify-center mt-6">
-        <button
+        <RotatingButton
           disabled={isLoading}
-          type="submit"
-          className="inline-block rounded-sm bg-indigo-600 px-8 py-3 text-sm font-medium text-white transition hover:scale-110 hover:-rotate-2 focus:ring-3 focus:outline-hidden"
-        >
-          {isLoading ? "Creating " : "Create "} Interview
-        </button>
+          disabledTitle="Creating Interview"
+          enabledTitle="Create Interview"
+        />
       </div>
     </form>
   );

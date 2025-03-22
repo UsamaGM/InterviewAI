@@ -1,5 +1,5 @@
 import React from "react";
-import InterviewList from "../components/Interview/InterviewList";
+import InterviewList from "../components/Interview/InterviewList/InterviewList";
 
 const Interviews: React.FC = () => {
   return (
