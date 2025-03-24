@@ -1,16 +1,15 @@
 import React from "react";
-import TakeInterview from "../components/Interview/TakeInterview";
+import TakeInterview from "../components/Interview/TakeInterview/TakeInterview";
+import Header from "../components/Header/Header";
+import Footer from "../components/Footer/Footer";
 
 const TakeInterviewPage: React.FC = () => {
   return (
-    <div className="flex justify-center items-start min-h-screen p-8">
-      <div className="w-full max-w-6xl">
-        <h3 className="text-4xl font-semibold text-center mb-8">
-          Take Interview
-        </h3>
-        <TakeInterview />
-      </div>
-    </div>
+    <>
+      <Header />
+      <TakeInterview />
+      <Footer />
+    </>
   );
 };
 

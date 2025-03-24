@@ -48,7 +48,11 @@ export const getInterviewById = async (
 ): Promise<void> => {
   try {
     const interviewId = req.params.id;
-    const interview = await Interview.findById(interviewId);
+    const interview = await Interview.findById(interviewId).populate(
+      "recruiter",
+      "_id name email"
+    );
+
     if (!interview) {
       res.status(404).json({ message: "Interview not found" });
     }
@@ -244,7 +248,6 @@ export const rateInterview = async (
       res.status(404).json({ message: "Interview not found" });
     }
 
-    //TODO: integrate with aiService.js
     const { score, feedback } = await aiRateInterview([interviewId]);
 
     interview!.score = score;

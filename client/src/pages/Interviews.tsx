@@ -1,11 +1,15 @@
 import React from "react";
 import InterviewList from "../components/Interview/InterviewList/InterviewList";
+import Header from "../components/Header/Header";
+import Footer from "../components/Footer/Footer";
 
 const Interviews: React.FC = () => {
   return (
-    <div>
+    <>
+      <Header />
       <InterviewList />
-    </div>
+      <Footer />
+    </>
   );
 };
 

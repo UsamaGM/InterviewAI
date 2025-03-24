@@ -1,11 +1,15 @@
 import React from "react";
 import InterviewDetails from "../components/Interview/InterviewDetails/InterviewDetails";
+import Header from "../components/Header/Header";
+import Footer from "../components/Footer/Footer";
 
 const InterviewDetailsPage: React.FC = () => {
   return (
-    <div className="flex justify-center items-start min-w-screen min-h-[calc(100vh-100px)] bg-gray-100 p-8">
+    <>
+      <Header />
       <InterviewDetails />
-    </div>
+      <Footer />
+    </>
   );
 };
 

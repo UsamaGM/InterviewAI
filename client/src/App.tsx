@@ -11,15 +11,12 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Header from "./components/Header/Header";
-import Footer from "./components/Footer/Footer";
 
 function App() {
   const isAuthenticated = !!localStorage.getItem("token");
 
   return (
     <Router>
-      {isAuthenticated && <Header />}
       <Routes>
         <Route
           path="/"
@@ -66,7 +63,6 @@ function App() {
           }
         />
       </Routes>
-      {isAuthenticated && <Footer />}
     </Router>
   );
 }

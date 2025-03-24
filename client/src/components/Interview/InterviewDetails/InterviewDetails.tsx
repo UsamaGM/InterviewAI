@@ -62,7 +62,7 @@ const InterviewDetails: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl w-full">
+    <div className="flex flex-col justify-start items-start min-w-screen min-h-[calc(100vh-100px)] bg-gray-100 p-8">
       <div className="flow-root">
         <dl className="-my-3 divide-y divide-gray-200 text-sm">
           <div className="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
@@ -97,6 +97,7 @@ const InterviewDetails: React.FC = () => {
 
             <dd className="text-gray-700 sm:col-span-2">{interview.status}</dd>
           </div>
+
           {interview.status === "completed" && (
             <>
               <div className="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
@@ -107,17 +108,10 @@ const InterviewDetails: React.FC = () => {
                 </dd>
               </div>
               <div className="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-                <dt className="font-medium text-gray-900">Score</dt>
+                <dt className="font-medium text-gray-900">Feedback</dt>
 
                 <dd className="text-gray-700 sm:col-span-2">
-                  {interview.score}
-                </dd>
-              </div>
-              <div className="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-                <dt className="font-medium text-gray-900">Score</dt>
-
-                <dd className="text-gray-700 sm:col-span-2">
-                  {interview.score}
+                  {interview.feedback}
                 </dd>
               </div>
             </>
