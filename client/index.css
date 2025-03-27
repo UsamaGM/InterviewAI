@@ -8,3 +8,19 @@
     background-position: 100% 50%;
   }
 }
+
+body {
+  background-color: #f2f4f5;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  background-color: #0002;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: gray;
+  border-radius: 3px;
+}

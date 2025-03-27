@@ -26,7 +26,7 @@ const TakeInterview: React.FC = () => {
           `/interviews/${id}`
         );
 
-        if (!interviewResponse.data.questions) {
+        if (interviewResponse.data.questions.length === 0) {
           const interviewResponse = await api.post(
             `/interviews/${id}/generate-questions`
           );
@@ -80,7 +80,6 @@ const TakeInterview: React.FC = () => {
       });
 
       await api.put(`/interviews/${id}`, { questions: updatedQuestions });
-      console.log(`Answer saved for question ${questionId}`);
     } catch (error: AxiosError | unknown) {
       setError(
         error instanceof AxiosError ? error.message : "Error saving answer"
@@ -159,6 +158,7 @@ const TakeInterview: React.FC = () => {
   };
 
   if (loading) {
+    //TODO: Implement global Loading Animation
     return (
       <div className="flex justify-center items-center h-full">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
@@ -171,10 +171,10 @@ const TakeInterview: React.FC = () => {
   }
 
   const question: Question = interview.questions[currentQuestionIndex];
-  console.log(question);
 
   return (
-    <div className="flex justify-center items-start h-[calc(100vh-100px)] bg-gray-100 p-6">
+    <>
+      {/*Show error block. TODO: Implement global Error block for consistency.*/}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
           <strong className="font-semibold">Error!</strong>
@@ -182,29 +182,50 @@ const TakeInterview: React.FC = () => {
         </div>
       )}
 
-      {interview && (
-        <div className="w-1/4 h-full p-8 mr-4 max-h-full overflow-y-auto">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            {interview.title}
-          </h2>
-          <p className="text-gray-600 text-justify">{interview.description}</p>
+      {/*Interview Title, Description and Action Buttons*/}
+      <div className="w-1/4 h-full p-8 mr-4 max-h-full overflow-y-auto">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          {interview.title}
+        </h2>
+        <p className="text-gray-600 text-justify">{interview.description}</p>
 
-          <div className="flex flex-col gap-4 mt-6">
-            <SlidingIconButton
-              title="Save Answers"
-              onClick={handleSubmitAnswers}
-            />
-            <SlidingIconButton
-              title="Submit Interview"
-              onClick={handleSubmitInterview}
-            />
-          </div>
+        <div className="flex flex-col gap-4 mt-6">
+          <SlidingIconButton
+            title="Save Answers"
+            onClick={handleSubmitAnswers}
+          />
+          <SlidingIconButton
+            title="Submit Interview"
+            onClick={handleSubmitInterview}
+          />
         </div>
-      )}
+      </div>
 
-      <div className="w-2/4 bg-white rounded-lg shadow-md p-8">
-        {interview?.status === "in-progress" && question && (
+      {/*Question Answer section with steps and assess, previous, next buttons*/}
+      <div className="w-2/4 bg-white rounded-lg shadow-lg p-8">
+        {question && (
           <>
+            {/*Previous, Steps, Next*/}
+            <div className="flex justify-between items-center mb-4">
+              <IconButton
+                flipped
+                size="0.8rem"
+                onClick={handlePreviousQuestion}
+                disabled={currentQuestionIndex === 0}
+              />
+              <Steps
+                questions={interview.questions}
+                currentIndex={currentQuestionIndex}
+              />
+              <IconButton
+                size="0.8rem"
+                onClick={handleNextQuestion}
+                disabled={
+                  currentQuestionIndex === interview.questions.length - 1
+                }
+              />
+            </div>
+
             <h3 className="text-lg text-justify font-semibold text-gray-800 mb-6">
               {question.questionText}
             </h3>
@@ -218,7 +239,7 @@ const TakeInterview: React.FC = () => {
             />
 
             <button
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-blue-400 focus:ring-offset-2 ring-2 disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-blue-400 focus:ring-offset-2 ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() =>
                 handleAssessAnswer(question._id, currentQuestionIndex)
               }
@@ -229,28 +250,11 @@ const TakeInterview: React.FC = () => {
             >
               Assess Answer
             </button>
-
-            <div className="flex justify-between items-center">
-              <IconButton
-                flipped
-                onClick={handlePreviousQuestion}
-                disabled={currentQuestionIndex === 0}
-              />
-              <Steps
-                questions={interview.questions}
-                currentIndex={currentQuestionIndex}
-              />
-              <IconButton
-                onClick={handleNextQuestion}
-                disabled={
-                  currentQuestionIndex === interview.questions.length - 1
-                }
-              />
-            </div>
           </>
         )}
       </div>
 
+      {/*AI Assessment Results*/}
       <div className="flow-root w-1/4 mr-4 mb-4 p-6 max-h-full overflow-y-auto">
         <h4 className="font-semibold text-2xl text-gray-800 mb-4">
           AI Assessment
@@ -302,7 +306,7 @@ const TakeInterview: React.FC = () => {
           No questions found for this interview.
         </p>
       )}
-    </div>
+    </>
   );
 };
 

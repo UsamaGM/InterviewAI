@@ -85,6 +85,7 @@ const CreateInterview: React.FC = () => {
       />
       <div className="flex justify-center mt-6">
         <RotatingButton
+          type="submit"
           disabled={isLoading}
           disabledTitle="Creating Interview"
           enabledTitle="Create Interview"

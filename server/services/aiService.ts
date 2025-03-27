@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { IQuestion } from "../models/Interview";
 
 const apiKey = process.env.OPENROUTER_TOKEN;
 const baseURL = "https://openrouter.ai/api/v1/chat/completions";
@@ -102,34 +103,31 @@ export const assessAnswer = async (
   }
 };
 
-export const rateInterview = async (questions: any[]): Promise<any> => {
+export const rateInterview = async (
+  questions: IQuestion[]
+): Promise<{ score: number; feedback: string } | {}> => {
   try {
     const assessments = questions.map((q) => q.aiAssessment);
-    const totalScore = assessments.reduce(
-      (sum, assessment) => sum + (assessment?.score || 0),
-      0
-    );
-    const averageScore =
-      questions.length > 0 ? totalScore / questions.length : 0;
 
     const prompt = `Based on the following assessments of interview questions: ${JSON.stringify(
       assessments
     )}. Give a score of the interview from 0 to 10 and give overall feedback. Format the response as JSON: {"score": ..., "feedback": "..."}`;
 
-    const output = await query(prompt);
+    const response = await query(prompt);
 
-    if (output && output[0] && output[0].generated_text) {
-      try {
-        const feedback = output[0].generated_text;
+    try {
+      const { score, feedback } = JSON.parse(
+        response
+          .replace(/```(json)?\n?/i, "")
+          .replace(/```/i, "")
+          .trim()
+      );
 
-        return { score: averageScore, feedback: feedback.feedback };
-      } catch (jsonError) {
-        console.error("error parsing json", jsonError);
-        return {};
-      }
+      return { score: score, feedback: feedback };
+    } catch (jsonError) {
+      console.error("error parsing json", jsonError);
+      return {};
     }
-
-    return { score: averageScore, feedback: "error" };
   } catch (error) {
     console.error("Error rating interview:", error);
     return {};

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
-interface IQuestion {
+export interface IQuestion {
   questionText: string;
   answerText?: string;
   aiAssessment?: {

@@ -46,9 +46,9 @@ function AlertWithOptions({
           <p className="mt-1 text-sm text-gray-700">{subtitle}</p>
 
           <div className="mt-4 flex gap-2">
-            <a
+            <button
               onClick={onOkay}
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+              className="inline-flex items-center cursor-pointer gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
             >
               <span className="text-sm"> {okayTitle || "Yes"} </span>
 
@@ -66,11 +66,11 @@ function AlertWithOptions({
                   d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
                 />
               </svg>
-            </a>
+            </button>
 
             <button
               onClick={onCancel}
-              className="block rounded-lg px-4 py-2 text-gray-700 transition hover:bg-gray-50"
+              className="block rounded-lg cursor-pointer px-4 py-2 text-gray-700 transition hover:bg-gray-50"
             >
               <span className="text-sm">{cancelTitle || "Cancel"}</span>
             </button>
@@ -79,7 +79,7 @@ function AlertWithOptions({
 
         <button
           onClick={onCancel}
-          className="text-gray-500 transition hover:text-gray-600"
+          className="text-gray-500 transition cursor-pointer hover:text-gray-600"
         >
           <span className="sr-only">Dismiss popup</span>
 

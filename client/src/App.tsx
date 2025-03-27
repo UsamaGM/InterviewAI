@@ -11,6 +11,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import EditInterviewPage from "./pages/EditInterviewPage";
 
 function App() {
   const isAuthenticated = !!localStorage.getItem("token");
@@ -30,38 +31,21 @@ function App() {
         />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+
+        {/* Protected Routes */}
         <Route
-          path="/interviews"
-          element={isAuthenticated ? <Interviews /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/interviews/new"
-          element={
-            isAuthenticated ? <CreateInterviewPage /> : <Navigate to="/login" />
-          }
-        />
-        <Route
-          path="/interviews/:id/details"
-          element={
-            isAuthenticated ? (
-              <InterviewDetailsPage />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/interviews/:id/take"
-          element={
-            isAuthenticated ? <TakeInterviewPage /> : <Navigate to="/login" />
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            isAuthenticated ? <UserProfilePage /> : <Navigate to="/login" />
-          }
-        />
+          element={!isAuthenticated ? <Navigate to="/login" /> : undefined}
+        >
+          <Route path="/interviews" element={<Interviews />} />
+          <Route path="/interviews/new" element={<CreateInterviewPage />} />
+          <Route
+            path="/interviews/:id/details"
+            element={<InterviewDetailsPage />}
+          />
+          <Route path="/interviews/:id/take" element={<TakeInterviewPage />} />
+          <Route path="/interviews/:id/edit" element={<EditInterviewPage />} />
+          <Route path="/profile" element={<UserProfilePage />} />
+        </Route>
       </Routes>
     </Router>
   );

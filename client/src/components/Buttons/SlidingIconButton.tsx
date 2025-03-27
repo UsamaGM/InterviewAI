@@ -4,6 +4,7 @@ interface SlidingIconButtonProps {
   title: string;
   link?: boolean;
   to?: string;
+  color?: string;
   onClick?: () => void;
 }
 
@@ -11,11 +12,13 @@ function SlidingIconButton({
   title,
   link = false,
   to,
+  color,
   onClick,
 }: SlidingIconButtonProps) {
   return link ? (
     <Link
-      className="group relative inline-flex items-center overflow-hidden rounded-sm bg-indigo-600 px-8 py-3 text-white focus:ring-3 focus:outline-hidden"
+      className="group relative inline-flex cursor-pointer items-center overflow-hidden rounded-sm bg-indigo-600 px-8 py-3 text-white focus:ring-3 focus:outline-hidden"
+      style={color ? { backgroundColor: color } : {}}
       to={to!}
     >
       <span className="absolute -end-full transition-all group-hover:end-4">
@@ -41,7 +44,8 @@ function SlidingIconButton({
     </Link>
   ) : (
     <button
-      className="group relative inline-flex items-center overflow-hidden rounded-sm bg-indigo-600 px-8 py-3 text-white focus:ring-3 focus:outline-hidden"
+      className="group relative inline-flex cursor-pointer items-center overflow-hidden rounded-sm bg-indigo-600 px-8 py-3 text-white focus:ring-3 focus:outline-hidden"
+      style={color ? { backgroundColor: color } : {}}
       onClick={onClick}
     >
       <span className="absolute -end-full transition-all group-hover:end-4">

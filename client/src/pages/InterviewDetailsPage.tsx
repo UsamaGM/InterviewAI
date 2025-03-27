@@ -7,7 +7,9 @@ const InterviewDetailsPage: React.FC = () => {
   return (
     <>
       <Header />
-      <InterviewDetails />
+      <div className="flex flex-col justify-start items-start w-screen min-h-[calc(100vh-125px)] p-6">
+        <InterviewDetails />
+      </div>
       <Footer />
     </>
   );

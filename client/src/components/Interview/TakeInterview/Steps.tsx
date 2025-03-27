@@ -14,7 +14,7 @@ function Steps({ questions, currentIndex }: StepsProps) {
             <div className="flex">
               <span
                 className={`rounded-md p-1 text-green-600 ${
-                  currentIndex === index && "border-black border"
+                  currentIndex === index && "border-2 border-blue-600"
                 } ${
                   question.aiAssessment.score >= 7
                     ? "bg-green-200"

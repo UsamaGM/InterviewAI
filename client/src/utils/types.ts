@@ -55,6 +55,6 @@ export enum JobRole {
 export interface InterviewForm {
   title: string;
   description: string;
-  jobRole: keyof JobRole;
+  jobRole: JobRole;
   sheduledTime: string;
 }

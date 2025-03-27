@@ -35,30 +35,28 @@ const InterviewList: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-100px)] overflow-y-scroll bg-gray-100 p-6">
-      <div className="container mx-auto flex-grow max-w-3xl">
-        {interviews.length > 0 ? (
-          <ul className="space-y-4">
-            {interviews.map((interview) => (
-              <InterviewCard key={interview._id} interview={interview} />
-            ))}
-          </ul>
-        ) : (
-          <div className="text-center mt-8 p-4 bg-white rounded-lg shadow-md">
-            <p className="text-gray-600">
-              No interviews yet! Let's create some.
-            </p>
-          </div>
-        )}
-
-        <div className="mt-8 flex justify-center">
-          <SlidingIconButton
-            title="Create New Interview"
-            link
-            to="/interviews/new"
-          />
-        </div>
+    <div className="container mx-auto  flex-grow max-w-3xl">
+      {/*Create Interview Button*/}
+      <div className="fixed bottom-20 right-8 z-50">
+        <SlidingIconButton
+          link
+          title="Create New Interview"
+          to="/interviews/new"
+        />
       </div>
+
+      {/*List of Interview Cards*/}
+      {interviews.length > 0 ? (
+        <ul className="space-y-4">
+          {interviews.map((interview) => (
+            <InterviewCard key={interview._id} interview={interview} />
+          ))}
+        </ul>
+      ) : (
+        <div className="text-center mt-8 p-4 bg-white rounded-lg shadow-md">
+          <p className="text-gray-600">No interviews yet! Let's create some.</p>
+        </div>
+      )}
     </div>
   );
 };

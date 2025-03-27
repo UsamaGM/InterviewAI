@@ -7,7 +7,9 @@ const Interviews: React.FC = () => {
   return (
     <>
       <Header />
-      <InterviewList />
+      <div className="flex flex-col min-h-[calc(100vh-125px)] p-6">
+        <InterviewList />
+      </div>
       <Footer />
     </>
   );

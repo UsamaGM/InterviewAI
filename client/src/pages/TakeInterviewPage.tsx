@@ -7,7 +7,9 @@ const TakeInterviewPage: React.FC = () => {
   return (
     <>
       <Header />
-      <TakeInterview />
+      <div className="flex flex-col md:flex-row justify-center min-h-[calc(100vh-125px)] items-center md:items-start p-6">
+        <TakeInterview />
+      </div>
       <Footer />
     </>
   );

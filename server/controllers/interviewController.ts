@@ -6,7 +6,6 @@ import {
   assessAnswer as aiAssessAnswer,
   rateInterview as aiRateInterview,
 } from "../services/aiService";
-import { scheduleInterviewReminders } from "../services/schedulingService";
 
 // Create Interview
 export const createInterview = async (req: Request, res: Response) => {
@@ -55,8 +54,9 @@ export const getInterviewById = async (
 
     if (!interview) {
       res.status(404).json({ message: "Interview not found" });
+    } else {
+      res.status(200).json(interview);
     }
-    res.status(200).json(interview);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -77,8 +77,9 @@ export const updateInterview = async (
     );
     if (!updatedInterview) {
       res.status(404).json({ message: "Interview not found" });
+    } else {
+      res.status(200).json(updatedInterview);
     }
-    res.status(200).json(updatedInterview);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -95,8 +96,9 @@ export const deleteInterview = async (
     const deletedInterview = await Interview.findByIdAndDelete(interviewId);
     if (!deletedInterview) {
       res.status(404).json({ message: "Interview not found" });
+    } else {
+      res.status(204).send();
     }
-    res.status(204).send();
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -120,8 +122,9 @@ export const scheduleInterview = async (
       .populate("candidate");
     if (!updatedInterview) {
       res.status(404).json({ message: "Interview not found" });
+    } else {
+      res.status(200).json(updatedInterview);
     }
-    res.status(200).json(updatedInterview);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -142,8 +145,9 @@ export const startInterview = async (
     );
     if (!updatedInterview) {
       res.status(404).json({ message: "Interview not found" });
+    } else {
+      res.status(200).json(updatedInterview);
     }
-    res.status(200).json(updatedInterview);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -165,8 +169,9 @@ export const submitInterview = async (
     );
     if (!updatedInterview) {
       res.status(404).json({ message: "Interview not found" });
+    } else {
+      res.status(200).json(updatedInterview);
     }
-    res.status(200).json(updatedInterview);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -248,10 +253,17 @@ export const rateInterview = async (
       res.status(404).json({ message: "Interview not found" });
     }
 
-    const { score, feedback } = await aiRateInterview([interviewId]);
-
-    interview!.score = score;
-    interview!.feedback = feedback;
+    const result = await aiRateInterview(interview?.questions!);
+    if ("score" in result && "feedback" in result) {
+      const { score, feedback } = result;
+      console.log(score, feedback);
+      interview!.score = score;
+      interview!.feedback = feedback;
+      interview!.status = "completed";
+    } else {
+      throw new Error("Invalid response from aiRateInterview");
+    }
+    interview!.status = "completed";
 
     const updatedInterview = await interview!.save();
     res.status(200).json(updatedInterview);
