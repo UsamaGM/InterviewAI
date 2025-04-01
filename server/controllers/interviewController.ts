@@ -6,6 +6,8 @@ import {
   assessAnswer as aiAssessAnswer,
   rateInterview as aiRateInterview,
 } from "../services/aiService";
+import User from "../models/User";
+import { sendEmail } from "../services/emailService";
 
 // Create Interview
 export const createInterview = async (req: Request, res: Response) => {
@@ -266,6 +268,86 @@ export const rateInterview = async (
     interview!.status = "completed";
 
     const updatedInterview = await interview!.save();
+    res.status(200).json(updatedInterview);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get interviews for candidate
+export const getCandidateInterviews = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const candidateId = (req as any).user._id as Types.ObjectId;
+    const interviews = await Interview.find({ 
+      candidate: candidateId,
+      status: { $in: ["scheduled", "in-progress", "completed"] }
+    }).populate("recruiter", "_id name email");
+    
+    res.status(200).json(interviews);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Invite new candidate by email
+export const inviteCandidate = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const interviewId = req.params.id;
+    const { email, scheduledTime } = req.body;
+    
+    // Check if user exists
+    let candidate = await User.findOne({ email });
+    
+    // If not, create a new candidate user with a temporary password
+    if (!candidate) {
+      const tempPassword = Math.random().toString(36).slice(-8);
+      candidate = await User.create({
+        email,
+        password: tempPassword,
+        role: "candidate",
+        isVerified: false
+      });
+      
+      // Send invitation email with temporary password
+      const emailHTML = `
+        <p>You've been invited to an interview!</p>
+        <p>Your temporary password is: ${tempPassword}</p>
+        <p>Please login at: ${process.env.CLIENT_URL}/login</p>
+      `;
+      await sendEmail(email, "Interview Invitation", emailHTML);
+    } else {
+      // Send notification email to existing user
+      const emailHTML = `
+        <p>You've been invited to a new interview!</p>
+        <p>Please login at: ${process.env.CLIENT_URL}/login to view details.</p>
+      `;
+      await sendEmail(email, "New Interview Invitation", emailHTML);
+    }
+    
+    // Update the interview with candidate and scheduled time
+    const updatedInterview = await Interview.findByIdAndUpdate(
+      interviewId,
+      { 
+        scheduledTime, 
+        candidate: candidate._id, 
+        status: "scheduled" 
+      },
+      { new: true }
+    );
+    
+    if (!updatedInterview) {
+      res.status(404).json({ message: "Interview not found" });
+      return;
+    }
+    
     res.status(200).json(updatedInterview);
   } catch (error) {
     console.error(error);

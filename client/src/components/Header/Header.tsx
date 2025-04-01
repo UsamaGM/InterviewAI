@@ -1,9 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AlertWithOptions from "../Alerts/AlertWithOptions";
 import StyledNavLink from "./StyledNavLink";
+import api from "../../services/api";
 
 const Header: React.FC = () => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await api.get("/users/profile");
+        setUserRole(response.data.role);
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+      }
+    };
+
+    if (localStorage.getItem("token")) {
+      fetchUserProfile();
+    }
+  }, []);
+  
   const handleLogout = () => {
     setShowAlert(true);
     localStorage.removeItem("token");
@@ -15,7 +33,15 @@ const Header: React.FC = () => {
       <div className="container mx-auto flex justify-between items-center">
         <h1 className="text-xl font-semibold">InterviewAI</h1>
         <nav className="flex items-center space-x-4">
-          <StyledNavLink title="Interviews" to="/interviews" />
+          {userRole === "recruiter" ? (
+            <>
+              <StyledNavLink title="Interviews" to="/interviews" />
+              <StyledNavLink title="Create Interview" to="/interviews/new" />
+            </>
+          ) : userRole === "candidate" ? (
+            <StyledNavLink title="My Interviews" to="/candidate/dashboard" />
+          ) : null}
+          
           <StyledNavLink title="Profile" to="/profile" />
           <div className="relative">
             <button

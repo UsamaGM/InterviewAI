@@ -12,6 +12,8 @@ import {
   generateAIQuestions,
   assessAnswer,
   rateInterview,
+  getCandidateInterviews,
+  inviteCandidate,
 } from "../controllers/interviewController";
 import { protect } from "../middleware/authMiddleware"; // Assuming you have an auth middleware
 
@@ -28,5 +30,7 @@ router.post("/:id/submit", protect, submitInterview);
 router.post("/:id/generate-questions", protect, generateAIQuestions);
 router.post("/:id/assess-answer", protect, assessAnswer);
 router.post("/:id/rate-interview", protect, rateInterview);
+router.get("/candidate", protect, getCandidateInterviews);
+router.post("/:id/invite", protect, inviteCandidate);
 
 export default router;

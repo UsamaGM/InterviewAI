@@ -98,6 +98,7 @@ const loginUser = async (req: AuthRequest, res: Response) => {
         }
 
     const user = await User.findOne({ email });
+    console.log(user);
 
     if (user && (await user.matchPassword(password))) {
       if (!user.isVerified) {
