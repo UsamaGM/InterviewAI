@@ -6,6 +6,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import Steps from "./Steps";
 import IconButton from "../../Buttons/IconButton";
 import SlidingIconButton from "../../Buttons/SlidingIconButton";
+import TextArea from "../../TextArea/TextArea";
 
 const TakeInterview: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -230,12 +231,11 @@ const TakeInterview: React.FC = () => {
               {question.questionText}
             </h3>
 
-            <textarea
-              className="w-full p-4 outline rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700 mb-6 min-h-[150px] resize-none"
+            <TextArea
+              disabled={question.aiAssessment?.score !== undefined}
+              placeholder="Type your answer here..."
               value={answers[question._id] || ""}
               onChange={(e) => handleAnswerChange(question._id, e.target.value)}
-              placeholder="Type your answer here..."
-              disabled={question.aiAssessment?.score !== undefined}
             />
 
             <button
