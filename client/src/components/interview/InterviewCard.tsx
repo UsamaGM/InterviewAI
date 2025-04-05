@@ -55,24 +55,23 @@ const InterviewCard = ({
   );
 
   return (
-    <div className="flex-shrink min-w-lg max-w-2xl bg-white rounded-lg ring-2 ring-gray-300 hover:ring-gray-400 shadow-lg p-6 hover:shadow-none transition-all duration-300">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="text-xl font-semibold text-gray-800">
+    <div className="w-[calc(50%-0.5rem)] bg-white rounded-lg ring-2 ring-gray-300 hover:ring-gray-400 shadow-lg p-6 hover:shadow-none transition-all duration-300">
+      <div>
+        <div className="flex justify-between">
+          <h3 className="text-xl font-semibold text-justify line-clamp-1 h-6 text-gray-800">
             {interview.title}
           </h3>
-
-          <p className="text-gray-600 text-wrap text-justify line-clamp-2 h-12 overflow-ellipsis mt-1">
-            {interview.description}
-          </p>
+          <span
+            className={`px-3 py-1 min-w-fit rounded-full text-sm font-medium ${
+              statusDetails[interview.status].styles
+            }`}
+          >
+            {statusDetails[interview.status].title}
+          </span>
         </div>
-        <span
-          className={`px-3 py-1 min-w-fit rounded-full text-sm font-medium ${
-            statusDetails[interview.status].styles
-          }`}
-        >
-          {statusDetails[interview.status].title}
-        </span>
+        <p className="text-gray-600 text-wrap text-justify line-clamp-2 h-12 overflow-ellipsis mt-2">
+          {interview.description}
+        </p>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-4">
@@ -87,8 +86,8 @@ const InterviewCard = ({
       </div>
 
       {interview.candidate && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-md">
-          <p className="text-sm text-gray-500">Candidate</p>
+        <div className="flex items-center space-x-4 mt-4 p-2 bg-gray-100 rounded-md">
+          <p className="text-sm text-gray-700">Candidate</p>
           <p className="font-medium">
             {interview.candidate.name || interview.candidate.email}
           </p>
@@ -104,8 +103,7 @@ const InterviewCard = ({
             .map((action, index) => (
               <button
                 key={index}
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() => {
                   navigate(action.to);
                 }}
                 className="text-blue-500 hover:text-blue-800 hover:bg-blue-100 hover:shadow transition-all duration-300 font-medium cursor-pointer p-2 rounded-md"

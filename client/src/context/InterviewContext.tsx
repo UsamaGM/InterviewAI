@@ -166,12 +166,16 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
   async function updateInterview(interview: Interview) {
     try {
       setLoading({ ...loading, updatingInterview: true });
-      const response = await api.put(`/interviews/${interview._id}`, interview);
-      setInterviews([...interviews, response.data]);
+      const { data } = await api.put(`/interviews/${interview._id}`, interview);
+      setInterviews(
+        interviews.map((interview) =>
+          interview._id === data._id ? data : interview
+        )
+      );
     } catch (err) {
       setError({
         ...error,
-        updatingInterview: handleError(err, "Error updating interview"),
+        updatingInterview: handleError(err, "Error updating interview!"),
       });
     } finally {
       setLoading({ ...loading, updatingInterview: false });
@@ -181,11 +185,8 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
   async function startInterview() {
     try {
       setLoading({ ...loading, startingInterview: true });
-      const response = await api.post(
-        `/interviews/${selectedInterview!._id}/start`,
-        {}
-      );
-      setInterviews([...interviews, response.data]);
+      await api.post(`/interviews/${selectedInterview!._id}/start`, {});
+      await updateInterviews();
     } catch (err) {
       setError({
         ...error,
@@ -348,13 +349,9 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
     setLoading({ ...loading, schedulingInterview: true });
 
     try {
-      const { data } = await api.post(
-        `/interviews/${interviewId}/invite`,
-        inviteData
-      );
+      await api.post(`/interviews/${interviewId}/invite`, inviteData);
 
-      setInterviews([...interviews, data]);
-      setSelectedInterview(data);
+      await updateInterviews();
 
       setError({ ...error, schedulingInterview: null });
     } catch (err) {

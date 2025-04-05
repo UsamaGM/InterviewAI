@@ -57,7 +57,7 @@ const Header: React.FC = () => {
           <div className="relative" ref={logoutMenuRef}>
             <button
               onClick={() => setShowLogoutConfirm(true)}
-              className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-md transition-colors duration-200 font-medium flex items-center"
+              className="bg-red-100 cursor-pointer hover:bg-red-200 text-red-700 px-4 py-2 rounded-md transition-colors duration-200 font-medium flex items-center"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

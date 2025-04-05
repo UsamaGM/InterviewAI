@@ -8,40 +8,40 @@ function CandidateInterviewList() {
     loading: { fetchingInterviews },
   } = useInterview();
 
-  if (fetchingInterviews) {
-    return <LoadingSpinner size="lg" />;
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Your Interviews</h1>
 
       {interviews && interviews.length > 0 ? (
         <ul className="space-y-4">
-          {interviews.map((interview) => (
-            <InterviewCard
-              key={interview._id}
-              interview={interview}
-              role="candidate"
-              actions={[
-                {
-                  label: "Start Interview",
-                  to: `/candidate/interview/${interview._id}`,
-                  condition: interview.status === "scheduled",
-                },
-                {
-                  label: "Continue Interview",
-                  to: `/candidate/interview/${interview._id}`,
-                  condition: interview.status === "in-progress",
-                },
-                {
-                  label: "View Results",
-                  to: `/candidate/interview/${interview._id}/results`,
-                  condition: interview.status === "completed",
-                },
-              ]}
-            />
-          ))}
+          {fetchingInterviews ? (
+            <LoadingSpinner size="lg" />
+          ) : (
+            interviews.map((interview) => (
+              <InterviewCard
+                key={interview._id}
+                interview={interview}
+                role="candidate"
+                actions={[
+                  {
+                    label: "Start Interview",
+                    to: `/candidate/interview/${interview._id}`,
+                    condition: interview.status === "scheduled",
+                  },
+                  {
+                    label: "Continue Interview",
+                    to: `/candidate/interview/${interview._id}`,
+                    condition: interview.status === "in-progress",
+                  },
+                  {
+                    label: "View Results",
+                    to: `/candidate/interview/${interview._id}/results`,
+                    condition: interview.status === "completed",
+                  },
+                ]}
+              />
+            ))
+          )}
         </ul>
       ) : (
         <div className="text-center mt-8">

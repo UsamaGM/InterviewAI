@@ -4,9 +4,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 const RecruiterDashboardPage = lazy(
   () => import("../pages/recruiter/RecruiterDashboardPage")
 );
-const CreateInterviewPage = lazy(
-  () => import("../pages/recruiter/CreateInterviewPage")
-);
 const ScheduleInterviewPage = lazy(
   () => import("../pages/recruiter/ScheduleInterviewPage")
 );
@@ -40,7 +37,6 @@ export default function RecruiterRoutes({
       <Route path="dashboard" element={<RecruiterDashboardPage />} />
       <Route path="schedule" element={<ScheduleInterviewPage />} />
       <Route path="schedule/:id" element={<ScheduleInterviewPage />} />
-      <Route path="new-interview" element={<CreateInterviewPage />} />
       <Route path="interview-details" element={<InterviewDetailsPage />} />
       <Route path="edit-interview" element={<EditInterviewPage />} />
       <Route path="invite-candidate" element={<InviteCandidatePage />} />

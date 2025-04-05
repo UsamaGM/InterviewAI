@@ -30,7 +30,7 @@ export const createInterview = async (req: Request, res: Response) => {
   }
 };
 
-// Get all interviews
+// Get recruiter interviews
 export const getRecruiterInterviews = async (req: Request, res: Response) => {
   try {
     const recruiterId = (req as any).user._id as Types.ObjectId;

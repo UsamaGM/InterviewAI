@@ -14,8 +14,9 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import { useInterview } from "../../context/InterviewContext";
+import { useAuth } from "../../context/AuthContext";
 
-const InterviewDetails: React.FC = () => {
+function InterviewDetails() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState<"delete" | "cancel" | null>(null);
 
@@ -26,6 +27,7 @@ const InterviewDetails: React.FC = () => {
     startInterview,
     deleteInterview,
   } = useInterview();
+  const { isCandidate } = useAuth();
 
   const statusConfig = useMemo(
     () => ({
@@ -125,13 +127,20 @@ const InterviewDetails: React.FC = () => {
                 />
                 <DetailItem
                   icon={UserIcon}
-                  label="Recruiter"
-                  value={selectedInterview.recruiter?.name ?? "Unknown"}
+                  label={isCandidate ? "Recruiter" : "Candidate"}
+                  value={
+                    isCandidate
+                      ? selectedInterview.recruiter!.name
+                      : selectedInterview.candidate!.name ??
+                        selectedInterview.candidate!.email
+                  }
                 />
                 <DetailItem
                   icon={ClockIcon}
                   label="Status"
-                  value={selectedInterview.status ?? "Unknown"}
+                  value={
+                    statusConfig[selectedInterview.status].status ?? "Unknown"
+                  }
                 />
                 {selectedInterview.status === "completed" && (
                   <>
@@ -162,7 +171,7 @@ const InterviewDetails: React.FC = () => {
                 </div>
               )}
 
-              {statusConfig[selectedInterview.status].action && (
+              {isCandidate && statusConfig[selectedInterview.status].action && (
                 <button
                   onClick={handleStartInterview}
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -180,36 +189,40 @@ const InterviewDetails: React.FC = () => {
                   )}
                 </button>
               )}
-              <button
-                onClick={() => navigate("/interviews/edit")}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <PencilIcon className="h-5 w-5 mr-2" />
-                Edit
-              </button>
-              {selectedInterview.status !== "cancelled" && (
-                <button
-                  onClick={() => setShowModal("cancel")}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <XMarkIcon className="h-5 w-5 mr-2" />
-                  Cancel
-                </button>
+              {!isCandidate && (
+                <>
+                  {" "}
+                  <button
+                    onClick={() => navigate("/interviews/edit")}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <PencilIcon className="h-5 w-5 mr-2" />
+                    Edit
+                  </button>
+                  {selectedInterview.status !== "cancelled" && (
+                    <button
+                      onClick={() => setShowModal("cancel")}
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      <XMarkIcon className="h-5 w-5 mr-2" />
+                      Cancel
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowModal("delete")}
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    <TrashIcon className="h-5 w-5 mr-2" />
+                    Delete
+                  </button>
+                </>
               )}
-              <button
-                onClick={() => setShowModal("delete")}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                <TrashIcon className="h-5 w-5 mr-2" />
-                Delete
-              </button>
             </div>
           </div>
         </div>
 
-        {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <h3 className="text-lg font-medium text-gray-900">
                 {showModal === "delete"
@@ -258,7 +271,7 @@ const InterviewDetails: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 interface DetailItemProps {
   icon: React.ComponentType<{ className?: string }>;
