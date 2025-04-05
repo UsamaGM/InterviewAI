@@ -31,10 +31,12 @@ export const createInterview = async (req: Request, res: Response) => {
 };
 
 // Get all interviews
-export const getAllInterviews = async (req: Request, res: Response) => {
+export const getRecruiterInterviews = async (req: Request, res: Response) => {
   try {
     const recruiterId = (req as any).user._id as Types.ObjectId;
-    const interviews = await Interview.find({ recruiter: recruiterId });
+    const interviews = await Interview.find({
+      recruiter: recruiterId,
+    }).populate("candidate", "_id name email");
     res.status(200).json(interviews);
   } catch (error) {
     console.error(error);
@@ -228,8 +230,8 @@ export const assessAnswer = async (
 
     const assessment = await aiAssessAnswer(
       interview!.questions[questionIndex].questionText,
-      interview!.description!,
       answerText,
+      interview!.description!,
       interview!.jobRole!
     );
 
@@ -258,7 +260,6 @@ export const rateInterview = async (
     const result = await aiRateInterview(interview?.questions!);
     if ("score" in result && "feedback" in result) {
       const { score, feedback } = result;
-      console.log(score, feedback);
       interview!.score = score;
       interview!.feedback = feedback;
       interview!.status = "completed";
@@ -281,15 +282,15 @@ export const getCandidateInterviews = async (
   res: Response
 ): Promise<void> => {
   try {
-    const candidateId = (req as any).user._id as Types.ObjectId;
-    const interviews = await Interview.find({ 
+    const candidateId = (req as any).user._id;
+    const interviews = await Interview.find({
       candidate: candidateId,
-      status: { $in: ["scheduled", "in-progress", "completed"] }
+      status: { $in: ["scheduled", "in-progress", "completed"] },
     }).populate("recruiter", "_id name email");
-    
+
     res.status(200).json(interviews);
   } catch (error) {
-    console.error(error);
+    console.error("Error in getCandidateInterviews:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -302,10 +303,10 @@ export const inviteCandidate = async (
   try {
     const interviewId = req.params.id;
     const { email, scheduledTime } = req.body;
-    
+
     // Check if user exists
     let candidate = await User.findOne({ email });
-    
+
     // If not, create a new candidate user with a temporary password
     if (!candidate) {
       const tempPassword = Math.random().toString(36).slice(-8);
@@ -313,9 +314,9 @@ export const inviteCandidate = async (
         email,
         password: tempPassword,
         role: "candidate",
-        isVerified: false
+        isVerified: false,
       });
-      
+
       // Send invitation email with temporary password
       const emailHTML = `
         <p>You've been invited to an interview!</p>
@@ -331,23 +332,23 @@ export const inviteCandidate = async (
       `;
       await sendEmail(email, "New Interview Invitation", emailHTML);
     }
-    
+
     // Update the interview with candidate and scheduled time
     const updatedInterview = await Interview.findByIdAndUpdate(
       interviewId,
-      { 
-        scheduledTime, 
-        candidate: candidate._id, 
-        status: "scheduled" 
+      {
+        scheduledTime,
+        candidate: candidate._id,
+        status: "scheduled",
       },
       { new: true }
     );
-    
+
     if (!updatedInterview) {
       res.status(404).json({ message: "Interview not found" });
       return;
     }
-    
+
     res.status(200).json(updatedInterview);
   } catch (error) {
     console.error(error);

@@ -5,17 +5,17 @@ const apiKey = process.env.OPENROUTER_TOKEN;
 const baseURL = "https://openrouter.ai/api/v1/chat/completions";
 
 const systemPrompt =
-  "You are an AI interviewer conducting an interview. Ask the candidate questions and assess their responses. You always respond with JSON. Do not write any text except the JSON needed.";
+  "You are an AI interviewer with 5 years of experience conducting interviews. You have previously worked with top brands of the world including FAANG (Facebook, Amazon, Apple, Netflix, Google) and you know the questions that are most important and repeated in interviews. You only respond in JSON format and nothing else.";
 
 async function query(prompt: string) {
   try {
     const response = await axios.post(
       baseURL,
       {
-        model: "google/gemini-2.0-flash-exp:free",
+        model: "deepseek/deepseek-chat-v3-0324:free",
         messages: [
-          { role: "system", content: [{ type: "text", text: systemPrompt }] },
-          { role: "user", content: [{ type: "text", text: prompt }] },
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt },
         ],
       },
       {
@@ -30,7 +30,7 @@ async function query(prompt: string) {
       return response.data.choices[0].message.content;
     } else {
       console.log("Connection to the API failed.");
-      return;
+      throw response.data.error;
     }
   } catch (error) {
     if (error instanceof AxiosError)
@@ -79,7 +79,7 @@ export const assessAnswer = async (
   jobRole: string
 ): Promise<any> => {
   try {
-    const prompt = `Assess the following answer to the interview question: '{${questionText}}'\. Answer\: '</span>{${answerText}}'. The job role is ${jobRole} and job description is ${description}. Provide a score (0-10), a list of relevant keywords, a sentiment analysis (positive, negative, neutral), and brief feedback. Format the response as JSON: {"score": ..., "keywords": [...], "sentiment": "...", "feedback": "..."}`;
+    const prompt = `<Question>${questionText}</Question> <Answer>${answerText}</Answer> <Job Role>${jobRole}</Job Role> <Job Description>${description}</Job Description>. For the given question and answer, provide a score (0-10), a list of relevant keywords, a sentiment analysis (positive, negative, neutral), and brief feedback. Format the response as JSON: {"score": ..., "keywords": [...], "sentiment": "...", "feedback": "..."}`;
 
     const output = await query(prompt);
 

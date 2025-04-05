@@ -31,13 +31,18 @@ const protect = async (
       // Get token from header
       token = req.headers.authorization.split(" ")[1];
 
+      if (!token) {
+        res.status(401).json({ message: "Not authorized, no token" });
+        return;
+      }
+
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
         id: string;
       }; // Type assertion
 
       // Get user from the token
-      req.user = await User.findById(decoded.id).select("-password"); // Exclude password
+      req.user = await User.findById(decoded.id).select("_id email role");
 
       if (!req.user) {
         res.status(401).json({ message: "Not authorized, user not found" });
@@ -48,10 +53,6 @@ const protect = async (
       console.error(error);
       res.status(401).json({ message: "Not authorized, token failed" });
     }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: "Not authorized, no token" });
   }
 };
 

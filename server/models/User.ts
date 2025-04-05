@@ -1,11 +1,11 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose, { Schema, Document, Model } from "mongoose";
+import bcrypt from "bcryptjs";
 
 // Interface for User document
-interface IUser extends Document {
+export interface IUser extends Document {
   email: string;
-  password?: string; // Make password optional, as it may not be present in all queries (e.g., when excluding it)
-  role: 'recruiter' | 'candidate';
+  password?: string;
+  role: "recruiter" | "candidate";
   name?: string;
   isVerified: boolean;
   verificationToken?: string;
@@ -30,7 +30,7 @@ const UserSchema: Schema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['recruiter', 'candidate'],
+    enum: ["recruiter", "candidate"],
     required: true,
   },
   name: {
@@ -57,8 +57,8 @@ const UserSchema: Schema = new mongoose.Schema({
 });
 
 // Hash password before saving
-UserSchema.pre<IUser>('save', async function (next) {
-  if (!this.isModified('password')) {
+UserSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) {
     return next();
   }
   const salt = await bcrypt.genSalt(10);
@@ -67,11 +67,13 @@ UserSchema.pre<IUser>('save', async function (next) {
 });
 
 // Method to compare password (using the correct `this` context)
-UserSchema.methods.matchPassword = async function (enteredPassword: string): Promise<boolean> {
+UserSchema.methods.matchPassword = async function (
+  enteredPassword: string
+): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, this.password!); // Non-null assertion
 };
 
 // Create and export the model
-const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);
+const User: Model<IUser> = mongoose.model<IUser>("User", UserSchema);
 
 export default User;
