@@ -7,7 +7,7 @@ interface props {
   isAuthenticated: boolean;
 }
 
-export const SharedRoutes = ({ isAuthenticated }: props) => {
+export default function SharedRoutes({ isAuthenticated }: props) {
   console.log("SharedRoutes", isAuthenticated);
 
   if (!isAuthenticated) return <Navigate to="/auth/login" />;
@@ -18,4 +18,4 @@ export const SharedRoutes = ({ isAuthenticated }: props) => {
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
-};
+}

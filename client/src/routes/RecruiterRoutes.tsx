@@ -38,8 +38,9 @@ export default function RecruiterRoutes({
       <Route path="schedule" element={<ScheduleInterviewPage />} />
       <Route path="schedule/:id" element={<ScheduleInterviewPage />} />
       <Route path="interview-details" element={<InterviewDetailsPage />} />
+      <Route path="interview-details/:id" element={<InterviewDetailsPage />} />
       <Route path="edit-interview" element={<EditInterviewPage />} />
-      <Route path="invite-candidate" element={<InviteCandidatePage />} />
+      <Route path="invite-candidate/:id" element={<InviteCandidatePage />} />
       <Route path="*" element={<Navigate to="/recruiter/dashboard" />} />
     </Routes>
   );

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Interview from "../models/Interview";
+import Interview, { IQuestion } from "../models/Interview";
 import { Types } from "mongoose";
 import {
   generateQuestions as aiGenerateQuestions,
@@ -188,22 +188,25 @@ export const generateAIQuestions = async (
   res: Response
 ): Promise<void> => {
   try {
-    const interviewId = req.params.id;
-    const interview = await Interview.findById(interviewId);
+    const { id } = req.params;
+    const interview = await Interview.findById(id);
     if (!interview) {
       res.status(404).json({ message: "Interview not found" });
+      return;
     }
 
-    const questions = await aiGenerateQuestions(
-      interview!.jobRole!,
-      interview!.description!
+    const questions: IQuestion[] = await aiGenerateQuestions(
+      interview.jobRole!,
+      interview.description!
     );
 
-    const updatedInterview = interview!.set("questions", questions);
+    const updatedInterview = interview!.set({ questions });
+    await updatedInterview.save();
+
     res.status(200).json(updatedInterview);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: error });
   }
 };
 

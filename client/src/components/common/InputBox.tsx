@@ -28,7 +28,7 @@ function InputBox({
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
   return (
     <label
-      htmlFor={placeholder}
+      htmlFor={id ?? placeholder}
       className="relative flex-grow block rounded-md border border-gray-200 shadow-xs focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
     >
       {password ? (
@@ -71,7 +71,7 @@ function InputBox({
           disabled={disabled}
         />
       )}
-      <span className="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-white p-0.5 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs">
+      <span className="pointer-events-none absolute start-2.5 -translate-y-1/2 p-0.5 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:-top-[0.8rem] peer-focus:text-xs peer-focus:font-semibold duration-300 ease-in-out">
         {placeholder}
       </span>
     </label>

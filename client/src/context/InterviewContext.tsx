@@ -1,11 +1,11 @@
-import React, {
+import {
   createContext,
   ReactNode,
   useContext,
   useEffect,
   useState,
 } from "react";
-import { Interview, InterviewForm, Question } from "../utils/types";
+import { Interview, InterviewForm } from "../utils/types";
 import { handleError } from "../utils/errorHandler";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -21,7 +21,9 @@ interface loadingType {
   submittingAnswers: boolean;
   submittingInterview: boolean;
   fetchingInterviews: boolean;
+  fetchingInterviewWithId: boolean;
   schedulingInterview: boolean;
+  invitingCandidate: boolean;
 }
 
 interface errorType {
@@ -35,7 +37,9 @@ interface errorType {
   submittingAnswers: string | null;
   submittingInterview: string | null;
   fetchingInterviews: string | null;
+  fetchingInterviewWithId: string | null;
   schedulingInterview: string | null;
+  invitingCandidate: string | null;
 }
 
 interface InterviewContextType {
@@ -46,11 +50,12 @@ interface InterviewContextType {
   setInterviews: (interviews: Interview[]) => void;
   setSelectedInterview: (interview: Interview | null) => void;
   createInterview: (interview: InterviewForm) => Promise<Interview>;
+  fetchInterviewWithId: (id: string) => Promise<void>;
   updateInterviews: () => Promise<void>;
   updateInterview: (interview: Interview) => Promise<void>;
   startInterview: () => Promise<void>;
   deleteInterview: () => Promise<void>;
-  generateQuestions: () => Promise<Question[]>;
+  generateQuestions: () => Promise<void>;
   saveAnswer: (questionId: string, answer: string) => Promise<void>;
   submitAnswers: () => Promise<void>;
   assessAnswer: (questionIndex: number, answer: string) => Promise<void>;
@@ -72,9 +77,7 @@ export const useInterview = () => {
   return context;
 };
 
-export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export function InterviewProvider({ children }: { children: ReactNode }) {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
     null
@@ -89,14 +92,17 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
     submittingAnswers: false,
     submittingInterview: false,
     fetchingInterviews: false,
+    fetchingInterviewWithId: false,
     creatingInterview: false,
     schedulingInterview: false,
+    invitingCandidate: false,
   });
   const [error, setError] = useState<errorType>({
     assessingAnswer: null,
     creatingInterview: null,
     deletingInterview: null,
     fetchingInterviews: null,
+    fetchingInterviewWithId: null,
     generatingQuestions: null,
     savingAnswer: null,
     schedulingInterview: null,
@@ -104,31 +110,59 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
     submittingAnswers: null,
     submittingInterview: null,
     updatingInterview: null,
+    invitingCandidate: null,
   });
 
-  const isCandidate = useAuth().user?.role === "candidate";
+  const { isAuthenticated, isCandidate } = useAuth();
 
   useEffect(() => {
-    const fetchInterviews = async () => {
-      try {
-        setLoading((prev) => ({ ...prev, fetchingInterviews: true }));
-        const response = isCandidate
-          ? await api.get("/interviews/candidate")
-          : await api.get("/interviews/recruiter");
+    async function fetchInterviews() {
+      if (isAuthenticated) {
+        console.log("Fetching Interviews");
+        try {
+          setLoading((prev) => ({ ...prev, fetchingInterviews: true }));
+          const response = isCandidate
+            ? await api.get("/interviews/candidate")
+            : await api.get("/interviews/recruiter");
 
-        setInterviews(Array.isArray(response.data) ? response.data : []);
-      } catch (err) {
-        setError((prev) => ({
-          ...prev,
-          fetchingInterviews: handleError(err, "Failed to fetch interviews"),
-        }));
-      } finally {
-        setLoading((prev) => ({ ...prev, fetchingInterviews: false }));
+          setInterviews(Array.isArray(response.data) ? response.data : []);
+        } catch (err) {
+          setError((prev) => ({
+            ...prev,
+            fetchingInterviews: handleError(err, "Failed to fetch interviews"),
+          }));
+        } finally {
+          setLoading((prev) => ({ ...prev, fetchingInterviews: false }));
+        }
       }
-    };
+      console.log("Initialized Interviews");
+    }
 
     fetchInterviews();
-  }, [isCandidate]);
+  }, [isAuthenticated, isCandidate]);
+
+  async function fetchInterviewWithId(id: string) {
+    setLoading((prev) => ({ ...prev, fetchingInterviewWithId: true }));
+    try {
+      const interviewResponse = await api.get(`/interviews/${id}`);
+      console.log("Fetched interview", interviewResponse.data);
+      setSelectedInterview(interviewResponse.data);
+      setError((prev) => ({
+        ...prev,
+        fetchingInterviewWithId: null,
+      }));
+    } catch (error) {
+      setError((prev) => ({
+        ...prev,
+        fetchingInterviewWithId: handleError(
+          error,
+          "Failed to fetch interview details!"
+        ),
+      }));
+    } finally {
+      setLoading((prev) => ({ ...prev, fetchingInterviewWithId: false }));
+    }
+  }
 
   async function updateInterviews() {
     try {
@@ -187,6 +221,7 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
       setLoading({ ...loading, startingInterview: true });
       await api.post(`/interviews/${selectedInterview!._id}/start`, {});
       await updateInterviews();
+      setError({ ...error, startingInterview: null });
     } catch (err) {
       setError({
         ...error,
@@ -213,8 +248,11 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   async function generateQuestions() {
-    if (!selectedInterview) return [];
-    else if (selectedInterview.questions.length === 0) {
+    if (!selectedInterview) return;
+
+    console.log(selectedInterview);
+
+    if (selectedInterview.questions.length === 0) {
       try {
         setLoading({ ...loading, generatingQuestions: true });
 
@@ -222,9 +260,9 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
           `/interviews/${selectedInterview!._id}/generate-questions`
         );
 
+        console.log("Generated questions", response.data.questions);
+        setError({ ...error, generatingQuestions: null });
         setSelectedInterview(response.data);
-
-        return response.data.questions;
       } catch (err) {
         setError({
           ...error,
@@ -236,8 +274,6 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
       } finally {
         setLoading({ ...loading, generatingQuestions: false });
       }
-    } else {
-      return selectedInterview.questions;
     }
   }
 
@@ -342,27 +378,27 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
     }
   }
 
-  const inviteCandidate = async (
+  async function inviteCandidate(
     interviewId: string,
     inviteData: { email: string; scheduledTime: string }
-  ) => {
-    setLoading({ ...loading, schedulingInterview: true });
+  ) {
+    setLoading({ ...loading, invitingCandidate: true });
 
     try {
       await api.post(`/interviews/${interviewId}/invite`, inviteData);
 
       await updateInterviews();
 
-      setError({ ...error, schedulingInterview: null });
+      setError({ ...error, invitingCandidate: null });
     } catch (err) {
       setError({
         ...error,
-        schedulingInterview: handleError(err, "Failed to invite candidate"),
+        invitingCandidate: handleError(err, "Failed to invite candidate"),
       });
     } finally {
-      setLoading({ ...loading, schedulingInterview: false });
+      setLoading({ ...loading, invitingCandidate: false });
     }
-  };
+  }
 
   return (
     <InterviewContext.Provider
@@ -373,6 +409,7 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
         error,
         setInterviews,
         setSelectedInterview,
+        fetchInterviewWithId,
         createInterview,
         updateInterviews,
         updateInterview,
@@ -389,4 +426,4 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({
       {children}
     </InterviewContext.Provider>
   );
-};
+}

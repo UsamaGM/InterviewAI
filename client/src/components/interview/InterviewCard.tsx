@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Interview } from "../../utils/types";
-import { useInterview } from "../../context/InterviewContext";
-import { useMemo } from "react";
+import { formatDate, statusConfig } from "../../utils/helpers";
 
 interface ActionLink {
   label: string;
@@ -20,53 +19,21 @@ const InterviewCard = ({
   role,
   actions = [],
 }: InterviewCardProps) => {
-  const { setSelectedInterview } = useInterview();
   const navigate = useNavigate();
 
-  function formatDate(dateString?: string) {
-    if (!dateString) return "Not scheduled";
-    return new Date(dateString).toLocaleString();
-  }
-
-  const statusDetails = useMemo(
-    () => ({
-      draft: {
-        title: "Draft",
-        styles: "bg-gray-200 text-gray-800",
-      },
-      scheduled: {
-        title: "Scheduled",
-        styles: "bg-blue-200 text-blue-800",
-      },
-      "in-progress": {
-        title: "In Progress",
-        styles: "bg-yellow-200 text-yellow-800",
-      },
-      completed: {
-        title: "Completed",
-        styles: "bg-gray-200 text-gray-800",
-      },
-      cancelled: {
-        title: "Cancelled",
-        styles: "bg-red-200 text-red-800",
-      },
-    }),
-    []
-  );
-
   return (
-    <div className="w-[calc(50%-0.5rem)] bg-white rounded-lg ring-2 ring-gray-300 hover:ring-gray-400 shadow-lg p-6 hover:shadow-none transition-all duration-300">
+    <div className="w-[calc(50%-0.5rem)] bg-white/80 backdrop-blur-lg rounded-lg ring-2 ring-gray-300 hover:ring-gray-400 shadow-xl drop-shadow-lg p-6 hover:shadow-none transition-all duration-300">
       <div>
         <div className="flex justify-between">
-          <h3 className="text-xl font-semibold text-justify line-clamp-1 h-6 text-gray-800">
+          <h3 className="text-xl font-semibold text-justify line-clamp-1 h-7 text-gray-800">
             {interview.title}
           </h3>
           <span
             className={`px-3 py-1 min-w-fit rounded-full text-sm font-medium ${
-              statusDetails[interview.status].styles
+              statusConfig[interview.status].styles
             }`}
           >
-            {statusDetails[interview.status].title}
+            {statusConfig[interview.status].title}
           </span>
         </div>
         <p className="text-gray-600 text-wrap text-justify line-clamp-2 h-12 overflow-ellipsis mt-2">
@@ -113,10 +80,9 @@ const InterviewCard = ({
             ))}
         <button
           className="text-blue-500 hover:text-blue-800 hover:bg-blue-100 hover:shadow transition-all duration-300 font-medium cursor-pointer p-2 rounded-md"
-          onClick={() => {
-            setSelectedInterview(interview);
-            navigate(`/${role}/interview-details`);
-          }}
+          onClick={() =>
+            navigate(`/${role}/interview-details/${interview._id}`)
+          }
         >
           View Details
         </button>

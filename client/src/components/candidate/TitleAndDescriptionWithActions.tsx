@@ -1,19 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import { useInterview } from "../../context/InterviewContext";
 import { LoadingSpinner } from "../common";
+import { Interview } from "../../utils/types";
 
-export default function TitleAndDescriptionWithActions() {
-  const { selectedInterview } = useInterview();
+export default function TitleAndDescriptionWithActions({
+  interview,
+}: {
+  interview: Interview;
+}) {
   return (
-    <div className="w-1/4 overflow-y-auto">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-        {selectedInterview?.title}
-      </h2>
-      <p className="text-gray-600 text-justify">
-        {selectedInterview?.description}
-      </p>
-
-      <div className="flex flex-col gap-4 mt-6">
+    <div className="w-1/4 p-4 border-r border-gray-200 flex flex-col h-full">
+      <div className="flex-1">
+        <h2 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">
+          {interview.title}
+        </h2>
+        <p className="text-sm text-gray-600 line-clamp-4">
+          {interview.description}
+        </p>
+      </div>
+      <div className="flex gap-2 mt-4">
         <SaveAnswersButton />
         <SubmitInterviewButton />
       </div>

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import InputBox from "../common/InputBox";
 import { useAuth } from "../../context/AuthContext";
-import LoadingSpinner from "../common/LoadingSpinner";
+import { LoadingSpinner, InputBox } from "../common";
 
 function RegisterForm() {
   const [name, setName] = useState<string>("");
@@ -16,10 +15,10 @@ function RegisterForm() {
     loading: { registering },
   } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     register({ email, password, role, name });
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

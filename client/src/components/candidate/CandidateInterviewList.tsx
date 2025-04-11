@@ -25,17 +25,17 @@ function CandidateInterviewList() {
                 actions={[
                   {
                     label: "Start Interview",
-                    to: `/candidate/interview/${interview._id}`,
+                    to: `/candidate/take-interview/${interview._id}`,
                     condition: interview.status === "scheduled",
                   },
                   {
                     label: "Continue Interview",
-                    to: `/candidate/interview/${interview._id}`,
+                    to: `/candidate/take-interview/${interview._id}`,
                     condition: interview.status === "in-progress",
                   },
                   {
                     label: "View Results",
-                    to: `/candidate/interview/${interview._id}/results`,
+                    to: `/candidate/interview-results/${interview._id}`,
                     condition: interview.status === "completed",
                   },
                 ]}

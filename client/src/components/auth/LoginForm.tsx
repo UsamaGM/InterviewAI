@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import InputBox from "../common/InputBox";
-import { LoadingSpinner } from "../common";
+import { LoadingSpinner, InputBox } from "../common";
 
 function LoginForm() {
   const [email, setEmail] = useState<string>("");
@@ -14,11 +13,11 @@ function LoginForm() {
     loading: { loggingIn },
   } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    await login(email, password);
-  };
+    login(email, password);
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

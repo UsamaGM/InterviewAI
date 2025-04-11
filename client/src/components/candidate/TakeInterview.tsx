@@ -1,38 +1,61 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { ErrorAlert, LoadingSpinner } from "../common";
 import { useInterview } from "../../context/InterviewContext";
 import TitleAndDescriptionWithActions from "./TitleAndDescriptionWithActions";
 import QuestionWithAnswerTextBoxAndAssessmentButton from "./QuestionWithAnswerTextboxAndAssessmentButton";
 import AiAssessmentResults from "./AiAssessmentResults";
-import { useState } from "react";
 
 function TakeInterview() {
+  const { id } = useParams<{ id: string }>();
   const [index, setIndex] = useState<number>(0);
-  const { selectedInterview } = useInterview();
 
-  function handleNextQuestion() {
-    if (selectedInterview && index < selectedInterview.questions.length! - 1) {
-      setIndex(index + 1);
-    }
-  }
+  const {
+    selectedInterview,
+    fetchInterviewWithId,
+    loading: { fetchingInterviewWithId },
+    error: { fetchingInterviewWithId: fetchError },
+  } = useInterview();
 
-  function handlePreviousQuestion() {
-    if (index > 0) {
-      setIndex(index - 1);
+  useEffect(() => {
+    async function fetchInterview() {
+      if (id) await fetchInterviewWithId(id);
     }
+
+    fetchInterview();
+  }, [id]);
+
+  if (fetchingInterviewWithId) {
+    return <LoadingSpinner size="lg" />;
   }
 
   if (!selectedInterview) {
-    return <p className="text-center">Interview not found.</p>;
+    return (
+      <ErrorAlert
+        title="No interview for the URL!"
+        subtitle="Please check if you have entered the correct URL."
+      />
+    );
   }
 
   return (
     <div className="flex space-x-6">
-      <TitleAndDescriptionWithActions />
+      {fetchError && (
+        <ErrorAlert
+          title="Could not fetch interview!"
+          subtitle="Please check if you have entered a valid interview id."
+        />
+      )}
+      <TitleAndDescriptionWithActions interview={selectedInterview} />
       <QuestionWithAnswerTextBoxAndAssessmentButton
         currentQuestionIndex={index}
-        handleNextQuestion={handleNextQuestion}
-        handlePreviousQuestion={handlePreviousQuestion}
+        setIndex={setIndex}
+        questions={selectedInterview.questions}
       />
-      <AiAssessmentResults currentQuestionIndex={index} />
+      <AiAssessmentResults
+        questions={selectedInterview.questions}
+        index={index}
+      />
     </div>
   );
 }

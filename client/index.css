@@ -23,7 +23,15 @@
 }
 
 body {
-  background-color: #f2f4f5;
+  background: linear-gradient(
+    0.75turn,
+    #ff3f4f5f,
+    25%,
+    #3f4fff5f,
+    75%,
+    #3fff4f5f
+  );
+  backdrop-filter: blur(100px);
 }
 
 ::-webkit-scrollbar {

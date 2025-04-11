@@ -1,46 +1,41 @@
 import { useEffect, useRef, useState } from "react";
 import { useInterview } from "../../context/InterviewContext";
 import { Question } from "../../utils/types";
-import { LoadingSpinner } from "../common";
+import { ErrorAlert, LoadingSpinner, TextArea } from "../common";
 
 interface props {
   currentQuestionIndex: number;
-  handleNextQuestion: () => void;
-  handlePreviousQuestion: () => void;
+  setIndex: React.Dispatch<React.SetStateAction<number>>;
+  questions: Question[];
 }
 
 export default function QuestionWithAnswerTextBoxAndAssessmentButton({
   currentQuestionIndex,
-  handleNextQuestion,
-  handlePreviousQuestion,
+  setIndex,
+  questions,
 }: props) {
+  console.log(questions);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const saveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const {
-    error: {
-      assessingAnswer: assessError,
-      generatingQuestions: generateError,
-      savingAnswer: saveError,
-    },
-    selectedInterview,
     assessAnswer,
     generateQuestions,
     saveAnswer,
     loading: { assessingAnswer, generatingQuestions, savingAnswer },
+    error: { generatingQuestions: generateError },
   } = useInterview();
 
-  const question: Question =
-    selectedInterview?.questions[currentQuestionIndex] || ({} as Question);
-  const questionsLength = selectedInterview?.questions.length || 0;
-  const isLastQuestion = currentQuestionIndex === questionsLength - 1;
+  const currentQuestion = questions[currentQuestionIndex];
+  const totalQuestions = questions?.length;
+  const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
   const isFirstQuestion = currentQuestionIndex === 0;
-  const hasAssessment = question?.aiAssessment?.score !== undefined;
-  const currentAnswer = answers[question?._id] || "";
+  const hasAssessment = currentQuestion?.aiAssessment?.score !== undefined;
+  const currentAnswer = answers[currentQuestion?._id] || "";
 
   useEffect(() => {
     async function initializeQuestions() {
-      const questions = await generateQuestions();
+      if (questions?.length === 0) await generateQuestions();
 
       const initialAnswers = questions.reduce(
         (acc, question: Question) => ({
@@ -56,6 +51,18 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
     initializeQuestions();
   }, []);
 
+  function handleNextQuestion() {
+    if (!isLastQuestion) {
+      setIndex((prev) => prev + 1);
+    }
+  }
+
+  function handlePreviousQuestion() {
+    if (!isFirstQuestion) {
+      setIndex((prev) => prev - 1);
+    }
+  }
+
   function handleAnswerChange(questionId: string, answer: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
 
@@ -68,46 +75,25 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
     }, 1000);
   }
 
-  function renderNavigationDots() {
-    return selectedInterview?.questions.map((_, i) => (
-      <div
-        key={i}
-        className={`w-3 h-3 rounded-full mx-1 transition-all duration-600 transform ${
-          currentQuestionIndex === i
-            ? "bg-blue-500 scale-125 shadow-md"
-            : "bg-gray-300 hover:bg-gray-400"
-        } ${i < currentQuestionIndex ? "opacity-70" : ""}`}
-        title={`Question ${i + 1}`}
-        style={{
-          cursor: currentQuestionIndex !== i ? "pointer" : "default",
-        }}
-      />
-    ));
-  }
-
-  if (generatingQuestions) {
-    return (
-      <div className="w-2/4 bg-white rounded-lg items-center justify-center shadow-lg p-6">
-        <LoadingSpinner size="lg" />
-        <p className="text-center text-gray-500">Generating questions...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-2/4 bg-white rounded-lg shadow-lg p-6">
-      {(generateError || assessError || saveError) && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-6">
-          <strong className="font-semibold">Error!</strong>
-          <span className="ml-2">{`${generateError} ${assessError} ${saveError}`}</span>
+    <div className="w-2/4 bg-white/50 min-h-[300px] h-fit backdrop-blur-lg rounded-md p-6">
+      {generatingQuestions && (
+        <div className="flex flex-col gap-6 justify-center items-center">
+          <LoadingSpinner size="lg" />
+          <p>Generating Questions</p>
         </div>
       )}
-
-      {question && (
+      {generateError && (
+        <ErrorAlert
+          title="Failed to generate questions!"
+          subtitle="It seems the server is too busy at the moment! Let's try again after some time."
+        />
+      )}
+      {currentQuestion && (
         <>
           <div className="flex justify-between items-center mb-4">
             <button
-              className="text-blue-500 disabled:text-gray-400"
+              className="px-4 py-2 rounded-md disabled:cursor-default cursor-pointer text-blue-400 hover:text-blue-800 disabled:hover:bg-transparent hover:bg-blue-100  disabled:text-gray-400 font-semibold transition duration-200"
               onClick={handlePreviousQuestion}
               disabled={isFirstQuestion}
             >
@@ -115,7 +101,7 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
             </button>
             <div className="flex space-x-2">{renderNavigationDots()}</div>
             <button
-              className="text-blue-500 disabled:text-gray-400"
+              className="px-4 py-2 rounded-md disabled:cursor-default cursor-pointer text-blue-400 hover:text-blue-800 disabled:hover:bg-transparent hover:bg-blue-100  disabled:text-gray-400 font-semibold transition duration-200"
               onClick={handleNextQuestion}
               disabled={isLastQuestion}
             >
@@ -123,29 +109,65 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
             </button>
           </div>
 
-          <h3 className="text-lg text-justify font-semibold text-gray-800 mb-6">
-            {question.questionText}
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            {currentQuestion.questionText}
           </h3>
 
-          <textarea
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[200px]"
+          <TextArea
             disabled={hasAssessment}
             placeholder="Type your answer here..."
             value={currentAnswer}
-            onChange={(e) => handleAnswerChange(question._id, e.target.value)}
+            onChange={(e) =>
+              handleAnswerChange(currentQuestion._id, e.target.value)
+            }
           />
 
-          <button
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-blue-400 focus:ring-offset-2 ring-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-            onClick={() => assessAnswer(currentQuestionIndex, currentAnswer)}
-            disabled={
-              !currentAnswer || hasAssessment || savingAnswer || assessingAnswer
-            }
-          >
-            {assessingAnswer ? <LoadingSpinner size="sm" /> : "Assess Answer"}
-          </button>
+          <div className="mt-4">
+            <button
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-200"
+              onClick={() => assessAnswer(currentQuestionIndex, currentAnswer)}
+              disabled={
+                !currentAnswer ||
+                hasAssessment ||
+                savingAnswer ||
+                assessingAnswer
+              }
+            >
+              {assessingAnswer ? (
+                <>
+                  <LoadingSpinner size="sm" />
+                  Assessing...
+                </>
+              ) : (
+                "Assess Answer"
+              )}
+            </button>
+          </div>
         </>
       )}
     </div>
   );
+
+  function renderNavigationDots() {
+    return Array.from({ length: totalQuestions }).map((_, i) => (
+      <div
+        key={i}
+        className={`relative group flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${
+          currentQuestionIndex === i
+            ? "bg-blue-500 text-white"
+            : "bg-gray-100 hover:bg-gray-200"
+        } ${i < currentQuestionIndex ? "bg-blue-200" : ""}`}
+        style={{
+          cursor: currentQuestionIndex !== i ? "pointer" : "default",
+        }}
+        onClick={() => setIndex(i)}
+        title={`Question ${i + 1}`}
+      >
+        <span className="text-xs font-medium">{i + 1}</span>
+        {currentQuestionIndex === i && (
+          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full" />
+        )}
+      </div>
+    ));
+  }
 }

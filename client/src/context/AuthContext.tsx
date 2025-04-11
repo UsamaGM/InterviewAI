@@ -16,6 +16,7 @@ interface errorType {
   loggingIn: string | null;
   registering: string | null;
   updatingUser: string | null;
+  fetchingCandidates: string | null;
 }
 
 interface loadingType {
@@ -23,18 +24,21 @@ interface loadingType {
   loggingIn: boolean;
   registering: boolean;
   updatingUser: boolean;
+  fetchingCandidates: boolean;
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isCandidate: boolean | null;
   user: User | null;
+  candidates: User[];
   error: errorType;
   loading: loadingType;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: User) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => Promise<void>;
+  fetchCandidates: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -51,25 +55,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     !!localStorage.getItem("token")
   );
-  const [isCandidate, setIsCandidate] = useState<boolean | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [candidates, setCandidates] = useState<User[]>([]);
+  const isCandidate = user && user.role === "candidate";
   const [loading, setLoading] = useState<loadingType>({
     initializing: false,
     loggingIn: false,
     registering: false,
     updatingUser: false,
+    fetchingCandidates: false,
   });
   const [error, setError] = useState<errorType>({
     initializing: null,
     loggingIn: null,
     registering: null,
     updatingUser: null,
+    fetchingCandidates: null,
   });
 
   useEffect(() => {
     async function fetchUser() {
-      console.log("Initializing...");
       if (isAuthenticated) {
+        console.log("Initializing...");
         try {
           setLoading((prev) => ({ ...prev, initializing: true }));
 
@@ -77,7 +84,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             "/users/profile"
           );
 
-          setIsCandidate(userResponse.data.role === "candidate");
           setUser(userResponse.data);
 
           setError({
@@ -85,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             registering: null,
             updatingUser: null,
             loggingIn: null,
+            fetchingCandidates: null,
           });
         } catch (err) {
           setError((prev) => ({
@@ -95,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading((prev) => ({ ...prev, initializing: false }));
         }
       }
+      console.log("Initialized Auth");
     }
 
     fetchUser();
@@ -147,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loggingIn: null,
       registering: null,
       updatingUser: null,
+      fetchingCandidates: null,
     });
   }, []);
 
@@ -166,18 +175,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  async function fetchCandidates() {
+    try {
+      setLoading((prev) => ({ ...prev, fetchingCandidates: true }));
+      const { data } = await api.get("/users/candidate");
+      setCandidates(data);
+      setError((prev) => ({ ...prev, fetchingCandidates: null }));
+    } catch (error) {
+      setError((prev) => ({
+        ...prev,
+        fetchingCandidates: handleError(error, "Failed to load candidates!"),
+      }));
+    } finally {
+      setLoading((prev) => ({ ...prev, fetchingCandidates: false }));
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
         isCandidate,
         user,
+        candidates,
         loading,
         error,
         login,
         register,
         logout,
         updateUser,
+        fetchCandidates,
       }}
     >
       {children}

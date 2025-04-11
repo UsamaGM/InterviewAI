@@ -7,6 +7,9 @@ const CandidateDashboard = lazy(
 const TakeInterviewPage = lazy(
   () => import("../pages/candidate/TakeInterviewPage")
 );
+const InterviewDetailsPage = lazy(
+  () => import("../pages/common/InterviewDetailsPage")
+);
 
 interface props {
   isAuthenticated: boolean;
@@ -25,7 +28,10 @@ export default function CandidateRoutes({
   return (
     <Routes>
       <Route path="dashboard" element={<CandidateDashboard />} />
+      <Route path="interview-details" element={<InterviewDetailsPage />} />
+      <Route path="interview-details/:id" element={<InterviewDetailsPage />} />
       <Route path="take-interview" element={<TakeInterviewPage />} />
+      <Route path="take-interview/:id" element={<TakeInterviewPage />} />
       <Route path="*" element={<Navigate to="/candidate/dashboard" />} />
     </Routes>
   );

@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { LoadingSpinner } from "../common";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ErrorAlert, LoadingSpinner } from "../common";
 import {
   ClockIcon,
   UserIcon,
@@ -10,90 +10,101 @@ import {
   PencilIcon,
   TrashIcon,
   XMarkIcon,
-  PlayIcon,
-  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
+import { formatDate, statusConfig } from "../../utils/helpers";
 import { useInterview } from "../../context/InterviewContext";
 import { useAuth } from "../../context/AuthContext";
 
 function InterviewDetails() {
-  const navigate = useNavigate();
+  const { id } = useParams();
   const [showModal, setShowModal] = useState<"delete" | "cancel" | null>(null);
+  const navigate = useNavigate();
 
+  const { isCandidate } = useAuth();
   const {
     selectedInterview,
-    loading: { startingInterview, deletingInterview },
-    error: { startingInterview: startError, deletingInterview: deleteError },
+    fetchInterviewWithId,
+    updateInterview,
+    loading: {
+      fetchingInterviewWithId,
+      startingInterview,
+      deletingInterview,
+      updatingInterview,
+    },
+    error: {
+      fetchingInterviewWithId: fetchError,
+      startingInterview: startError,
+      deletingInterview: deleteError,
+      updatingInterview: updateError,
+    },
     startInterview,
     deleteInterview,
   } = useInterview();
-  const { isCandidate } = useAuth();
 
-  const statusConfig = useMemo(
-    () => ({
-      draft: {
-        status: "Draft",
-        color: "bg-gray-100 text-gray-800",
-        action: "Start Interview",
-        icon: PlayIcon,
-      },
-      "in-progress": {
-        status: "In Progress",
-        color: "bg-blue-100 text-blue-800",
-        action: "Continue Interview",
-        icon: PlayIcon,
-      },
-      completed: {
-        status: "Completed",
-        color: "bg-green-100 text-green-800",
-        action: "Review Interview",
-        icon: StarIcon,
-      },
-      scheduled: {
-        status: "Scheduled",
-        color: "bg-purple-100 text-purple-800",
-        action: "Join Interview",
-        icon: ClockIcon,
-      },
-      cancelled: {
-        status: "Cancelled",
-        color: "bg-red-100 text-red-800",
-        action: "",
-        icon: XMarkIcon,
-      },
-    }),
-    []
-  );
+  useEffect(() => {
+    async function fetchInterview() {
+      if (id) {
+        await fetchInterviewWithId(id);
+      }
+    }
+    fetchInterview();
+  }, [id]);
 
   const handleStartInterview = async () => {
     if (!selectedInterview) return;
 
     if (selectedInterview.status === "in-progress") {
-      navigate("/shared/interviews/take");
+      navigate("/candidate/take-interview/" + selectedInterview._id);
       return;
     }
 
     await startInterview();
-    navigate("/shared/interviews/take");
+    navigate("/candidate/take-interview/" + selectedInterview._id);
   };
+
+  async function handleCancel() {
+    if (!selectedInterview) return;
+
+    await updateInterview({
+      ...selectedInterview,
+      status: "cancelled",
+    });
+
+    navigate("/recruiter/dashboard");
+  }
 
   async function handleDelete() {
     if (!selectedInterview) return;
 
     await deleteInterview();
-    navigate("/interviews");
+    navigate("/recruiter/dashboard");
+  }
+
+  if (fetchingInterviewWithId) {
+    return <LoadingSpinner size="lg" />;
   }
 
   if (!selectedInterview) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Interview not found</p>
-      </div>
+      <ErrorAlert
+        title="Invalid Interview!"
+        subtitle="No interview for this URL. Please check the URL again!"
+      />
     );
   }
 
   return (
     <div>
+      {fetchingInterviewWithId && <LoadingSpinner size="lg" />}
+      {fetchError && (
+        <ErrorAlert title="Failed to fetch interview!" subtitle={fetchError} />
+      )}
+      {!selectedInterview && !fetchingInterviewWithId && (
+        <ErrorAlert
+          title="Interview not found!"
+          subtitle="The interview you are looking for does not exist."
+        />
+      )}
       <div className="place-self-center bg-white py-8 px-4 rounded-lg shadow-md w-full max-w-4xl mx-auto">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -104,10 +115,10 @@ function InterviewDetails() {
               </h1>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  statusConfig[selectedInterview.status].color
+                  statusConfig[selectedInterview.status].styles
                 }`}
               >
-                {statusConfig[selectedInterview.status].status}
+                {statusConfig[selectedInterview.status].title}
               </span>
             </div>
             <p className="mt-4 text-gray-600">
@@ -139,9 +150,17 @@ function InterviewDetails() {
                   icon={ClockIcon}
                   label="Status"
                   value={
-                    statusConfig[selectedInterview.status].status ?? "Unknown"
+                    statusConfig[selectedInterview.status].title ?? "Unknown"
                   }
                 />
+                {selectedInterview.status === "scheduled" && (
+                  <DetailItem
+                    icon={ClockIcon}
+                    label="Scheduled Time"
+                    value={formatDate(selectedInterview.scheduledTime!)}
+                  />
+                )}
+
                 {selectedInterview.status === "completed" && (
                   <>
                     <DetailItem
@@ -163,12 +182,7 @@ function InterviewDetails() {
             {/* Actions */}
             <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 flex flex-wrap gap-4">
               {startError && (
-                <div className="bg-red-50 text-red-700 p-4 rounded-lg max-w-md w-full">
-                  <div className="flex items-center gap-2">
-                    <ExclamationTriangleIcon className="h-5 w-5" />
-                    <span>{startError}</span>
-                  </div>
-                </div>
+                <ErrorAlert title="Failed to start!" subtitle={startError} />
               )}
 
               {isCandidate && statusConfig[selectedInterview.status].action && (
@@ -193,7 +207,7 @@ function InterviewDetails() {
                 <>
                   {" "}
                   <button
-                    onClick={() => navigate("/interviews/edit")}
+                    onClick={() => navigate("/recruiter/edit-interview")}
                     className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     <PencilIcon className="h-5 w-5 mr-2" />
@@ -230,17 +244,14 @@ function InterviewDetails() {
                   : "Cancel Interview"}
               </h3>
               <p className="mt-2 text-sm text-gray-500">
-                Are you sure you want to{" "}
-                {showModal === "delete" ? "delete" : "cancel"} this interview?
-                This action cannot be undone.
+                Are you sure you want to {showModal} this interview? This action
+                cannot be undone.
               </p>
+              {updateError && (
+                <ErrorAlert title="Failed to cancel!" subtitle={updateError} />
+              )}
               {deleteError && (
-                <div className="bg-red-50 text-red-700 p-4 rounded-lg max-w-md w-full">
-                  <div className="flex items-center gap-2">
-                    <ExclamationTriangleIcon className="h-5 w-5" />
-                    <span>{deleteError}</span>
-                  </div>
-                </div>
+                <ErrorAlert title="Failed to delete!" subtitle={deleteError} />
               )}
               <div className="mt-4 flex justify-end gap-3">
                 <button
@@ -251,17 +262,20 @@ function InterviewDetails() {
                 </button>
                 <button
                   onClick={async () => {
-                    await handleDelete();
+                    if (showModal === "delete") await handleDelete();
+                    else await handleCancel();
                     setShowModal(null);
                   }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  className="px-4 py-2 text-sm font-medium hover:scale-105 cursor-crosshair transition-transform duration-300 text-white border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  style={{
+                    backgroundColor: showModal === "delete" ? "red" : "olive",
+                  }}
                 >
-                  {deletingInterview ? (
+                  {(showModal === "delete" && deletingInterview) ||
+                  (showModal === "cancel" && updatingInterview) ? (
                     <LoadingSpinner size="sm" />
-                  ) : showModal === "delete" ? (
-                    "Delete"
                   ) : (
-                    "Cancel Interview"
+                    "Confirm"
                   )}
                 </button>
               </div>

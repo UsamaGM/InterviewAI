@@ -27,10 +27,9 @@ async function query(prompt: string) {
     );
 
     if (response.data.choices) {
-      return response.data.choices[0].message.content;
+      return cleanOutput(response.data.choices[0].message.content);
     } else {
-      console.log("Connection to the API failed.");
-      throw response.data.error;
+      console.log("Connection to the API failed.", response.data.error.message);
     }
   } catch (error) {
     if (error instanceof AxiosError)
@@ -47,20 +46,7 @@ export const generateQuestions = async (
     const prompt = `Generate 5 interview questions for a ${jobRole} position, the description for interview is: ${interviewDescription}. The response should be an array of objects with the pattern: {questionText: "Why are lemons red?"}. Return just this array and nothing else.`;
     const output = await query(prompt);
 
-    if (output) {
-      try {
-        return JSON.parse(
-          output
-            .replace(/```(json)?\n?/i, "")
-            .replace(/```/i, "")
-            .trim()
-        );
-      } catch (jsonError) {
-        console.error("error parsing json", jsonError);
-        return [];
-      }
-    }
-    return [];
+    return output;
   } catch (error) {
     console.error(
       `Error generating questions: ${
@@ -68,7 +54,7 @@ export const generateQuestions = async (
       }`
     );
 
-    return [];
+    throw error;
   }
 };
 
@@ -83,20 +69,7 @@ export const assessAnswer = async (
 
     const output = await query(prompt);
 
-    if (output) {
-      try {
-        return JSON.parse(
-          output
-            .replace(/```(json)?\n?/i, "")
-            .replace(/```/i, "")
-            .trim()
-        );
-      } catch (jsonError) {
-        console.error("error parsing json", jsonError);
-        return {};
-      }
-    }
-    return {};
+    return output;
   } catch (error) {
     console.error("Error assessing answer:", error);
     return {};
@@ -113,23 +86,20 @@ export const rateInterview = async (
       assessments
     )}. Give a score of the interview from 0 to 10 and give overall feedback. Format the response as JSON: {"score": ..., "feedback": "..."}`;
 
-    const response = await query(prompt);
+    const { score, feedback } = await query(prompt);
 
-    try {
-      const { score, feedback } = JSON.parse(
-        response
-          .replace(/```(json)?\n?/i, "")
-          .replace(/```/i, "")
-          .trim()
-      );
-
-      return { score: score, feedback: feedback };
-    } catch (jsonError) {
-      console.error("error parsing json", jsonError);
-      return {};
-    }
+    return { score, feedback };
   } catch (error) {
     console.error("Error rating interview:", error);
     return {};
   }
 };
+
+function cleanOutput(output: string) {
+  return JSON.parse(
+    output
+      .replace(/```(json)?\n?/i, "")
+      .replace(/```/i, "")
+      .trim()
+  );
+}

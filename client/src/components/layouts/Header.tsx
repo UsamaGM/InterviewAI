@@ -34,7 +34,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white/70 backdrop-blur-md text-gray-800 p-4 sticky top-0 w-full z-50 shadow-md">
+    <header className="bg-white/80 backdrop-blur-lg text-gray-800 p-4 sticky top-0 w-full z-50 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-xl font-semibold">
           InterviewAI

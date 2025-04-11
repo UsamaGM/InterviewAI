@@ -39,7 +39,7 @@ function RecruiterDashboard() {
               actions={[
                 {
                   label: "Invite Candidate",
-                  to: `/recruiter/schedule/${interview._id}`,
+                  to: `/recruiter/invite-candidate/${interview._id}`,
                   condition: !interview.candidate,
                 },
               ]}

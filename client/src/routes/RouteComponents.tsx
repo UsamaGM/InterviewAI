@@ -1,12 +1,12 @@
 import { Suspense } from "react";
 import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
-import { SharedRoutes } from "./SharedRoutes";
-import { useAuth } from "../context/AuthContext";
-import { LoadingSpinner } from "../components/common";
+import SharedRoutes from "./SharedRoutes";
 import RootRedirect from "./RootRedirect";
 import AuthRoutes from "./AuthRoutes";
 import RecruiterRoutes from "./RecruiterRoutes";
 import CandidateRoutes from "./CandidateRoutes";
+import { LoadingSpinner } from "../components/common";
+import { useAuth } from "../context/AuthContext";
 
 export function AppRoutes() {
   const {
@@ -15,7 +15,7 @@ export function AppRoutes() {
     loading: { initializing },
   } = useAuth();
 
-  if (initializing || isCandidate === null) {
+  if (initializing) {
     return <LoadingSpinner fullScreen size="lg" />;
   }
 

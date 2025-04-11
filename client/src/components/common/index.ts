@@ -1,18 +1,12 @@
-import { lazy } from "react";
-
-const InputBox = lazy(() => import("./InputBox"));
-const TextArea = lazy(() => import("./TextArea"));
-const DatetimeSelector = lazy(() => import("./DatetimeSelector"));
-const Dropdown = lazy(() => import("./Dropdown"));
-const RotatingButton = lazy(() => import("./RotatingButton"));
-const SlidingIconButton = lazy(() => import("./SlidingIconButton"));
-const ErrorAlert = lazy(() => import("./ErrorAlert"));
-const LoadingSpinner = lazy(() => import("./LoadingSpinner"));
-const StyledNavLink = lazy(() => import("./StyledNavLink"));
-
-const IconButton = lazy(() => import("./IconButton"));
-const AlertWithOptions = lazy(() => import("./AlertWithOptions"));
-const SuccessAlert = lazy(() => import("./SuccessAlert"));
+import DatetimeSelector from "./DatetimeSelector";
+import Dropdown from "./Dropdown";
+import ErrorAlert from "./ErrorAlert";
+import InputBox from "./InputBox";
+import LoadingSpinner from "./LoadingSpinner";
+import RotatingButton from "./RotatingButton";
+import SlidingIconButton from "./SlidingIconButton";
+import StyledNavLink from "./StyledNavLink";
+import TextArea from "./TextArea";
 
 export {
   InputBox,
@@ -24,7 +18,4 @@ export {
   ErrorAlert,
   LoadingSpinner,
   StyledNavLink,
-  // IconButton,
-  // AlertWithOptions,
-  // SuccessAlert,
 };
