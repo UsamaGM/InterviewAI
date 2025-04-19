@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useInterview } from "../../context/InterviewContext";
+import useInterview from "../../hooks/useInterview";
 import { Question } from "../../utils/types";
 import { ErrorAlert, LoadingSpinner, TextArea } from "../common";
 

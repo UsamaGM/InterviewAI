@@ -1,63 +1,16 @@
-import {
-  createContext,
-  useState,
-  ReactNode,
-  useContext,
-  useEffect,
-  useCallback,
-} from "react";
+import { useState, ReactNode, useEffect, useCallback } from "react";
 import { handleError } from "../utils/errorHandler";
 import { AxiosResponse } from "axios";
 import { User } from "../utils/types";
+import { AuthContext, errorType, loadingType } from "./AuthContext";
 import api from "../services/api";
 
-interface errorType {
-  initializing: string | null;
-  loggingIn: string | null;
-  registering: string | null;
-  updatingUser: string | null;
-  fetchingCandidates: string | null;
-}
-
-interface loadingType {
-  initializing: boolean;
-  loggingIn: boolean;
-  registering: boolean;
-  updatingUser: boolean;
-  fetchingCandidates: boolean;
-}
-
-interface AuthContextType {
-  isAuthenticated: boolean;
-  isCandidate: boolean | null;
-  user: User | null;
-  candidates: User[];
-  error: errorType;
-  loading: loadingType;
-  login: (email: string, password: string) => Promise<void>;
-  register: (userData: User) => Promise<void>;
-  logout: () => void;
-  updateUser: (user: User) => Promise<void>;
-  fetchCandidates: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | null>(null);
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-    !!localStorage.getItem("token")
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isReady, setIsReady] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const [candidates, setCandidates] = useState<User[]>([]);
-  const isCandidate = user && user.role === "candidate";
+  const isCandidate = user ? user.role === "candidate" : null;
   const [loading, setLoading] = useState<loadingType>({
     initializing: false,
     loggingIn: false,
@@ -75,6 +28,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function fetchUser() {
+      const token = localStorage.getItem("token");
+      const isAuthenticated = !!token;
+      setIsAuthenticated(isAuthenticated);
       if (isAuthenticated) {
         console.log("Initializing...");
         try {
@@ -83,23 +39,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userResponse: AxiosResponse<User> = await api.get(
             "/users/profile"
           );
-
           setUser(userResponse.data);
 
-          setError({
-            initializing: null,
-            registering: null,
-            updatingUser: null,
-            loggingIn: null,
-            fetchingCandidates: null,
-          });
+          setError((prev) => ({ ...prev, initializing: null }));
         } catch (err) {
           setError((prev) => ({
             ...prev,
-            initializing: handleError(err, "Failed to fetch user role"),
+            initializing: handleError(err, "Failed to fetch user"),
           }));
         } finally {
           setLoading((prev) => ({ ...prev, initializing: false }));
+          setIsReady(true);
         }
       }
       console.log("Initialized Auth");
@@ -175,10 +125,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  async function fetchCandidates() {
+  const fetchCandidates = useCallback(async () => {
     try {
       setLoading((prev) => ({ ...prev, fetchingCandidates: true }));
-      const { data } = await api.get("/users/candidate");
+      const { data } = await api.get("/users/candidates");
       setCandidates(data);
       setError((prev) => ({ ...prev, fetchingCandidates: null }));
     } catch (error) {
@@ -189,12 +139,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading((prev) => ({ ...prev, fetchingCandidates: false }));
     }
-  }
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
+        isReady,
         isCandidate,
         user,
         candidates,

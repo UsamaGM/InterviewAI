@@ -1,13 +1,11 @@
 import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 const UserProfilePage = lazy(() => import("../pages/common/UserProfilePage"));
 
-interface props {
-  isAuthenticated: boolean;
-}
-
-export default function SharedRoutes({ isAuthenticated }: props) {
+export default function SharedRoutes() {
+  const { isAuthenticated } = useAuth();
   console.log("SharedRoutes", isAuthenticated);
 
   if (!isAuthenticated) return <Navigate to="/auth/login" />;

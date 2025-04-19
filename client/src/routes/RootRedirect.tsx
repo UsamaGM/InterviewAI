@@ -1,15 +1,23 @@
 import { Navigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
-interface props {
-  isAuthenticated: boolean;
-  isCandidate: boolean;
-}
+function RootRedirect() {
+  const { isAuthenticated, isCandidate, isReady } = useAuth();
 
-function RootRedirect({ isAuthenticated, isCandidate }: props) {
-  console.log("RootRedirect", isAuthenticated, isCandidate);
-  if (!isAuthenticated) return <Navigate to="/auth/login" />;
-  if (isCandidate) return <Navigate to="/candidate/dashboard" />;
-  return <Navigate to="/recruiter/dashboard" />;
+  if (!isReady) {
+    return <LoadingSpinner />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  if (isCandidate) {
+    return <Navigate to="/candidate/dashboard" replace />;
+  }
+
+  return <Navigate to="/recruiter/dashboard" replace />;
 }
 
 export default RootRedirect;

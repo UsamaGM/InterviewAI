@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { LoadingSpinner, InputBox } from "../common";
+import useAuth from "../../hooks/useAuth";
+import { LoadingSpinner, InputBox, ErrorAlert } from "../common";
+import PasswordBox from "../common/PasswordBox";
 
 function LoginForm() {
   const [email, setEmail] = useState<string>("");
@@ -20,16 +21,8 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {loginError && (
-        <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
-          <strong className="font-bold">Error!</strong>
-          <span className="block sm:inline ml-2">{loginError}</span>
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {loginError && <ErrorAlert title="Error!" subtitle={loginError} />}
 
       <InputBox
         id="email"
@@ -40,9 +33,8 @@ function LoginForm() {
         required
       />
 
-      <InputBox
+      <PasswordBox
         id="password"
-        type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}

@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import User from "../models/User";
-import mongoose, { Types } from "mongoose";
 import bcrypt from "bcryptjs";
 
 // Get all users (admin only)
-export const getAllUsers = async (req: Request, res: Response) => {
+export async function getAllUsers(req: Request, res: Response): Promise<void> {
   try {
     const users = await User.find();
     res.status(200).json(users);
@@ -12,13 +11,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
+}
 
 // Get a specific user
-export const getUserById = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export async function getUserById(req: Request, res: Response): Promise<void> {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId);
@@ -30,12 +26,38 @@ export const getUserById = async (
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
+}
 
-export const getCurrentUserProfile = async (
+export async function getCandidates(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const candidates = await User.find({ role: "candidate" });
+    res.status(200).json(candidates);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+export async function getRecruiters(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const recruiters = await User.find({ role: "recruiter" });
+    res.status(200).json(recruiters);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+export async function getCurrentUserProfile(
   req: any,
   res: Response
-): Promise<void> => {
+): Promise<void> {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId);
@@ -47,13 +69,13 @@ export const getCurrentUserProfile = async (
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
+}
 
 // Update a user (admin or self)
-export const updateUserProfile = async (
+export async function updateUserProfile(
   req: Request,
   res: Response
-): Promise<void> => {
+): Promise<void> {
   try {
     const userId = (req as any).user._id;
     const { password, ...updateData } = req.body;
@@ -73,13 +95,10 @@ export const updateUserProfile = async (
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
+}
 
 // Delete a user (admin only)
-export const deleteUser = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export async function deleteUser(req: Request, res: Response): Promise<void> {
   try {
     const userId = req.params.id;
     const deletedUser = await User.findByIdAndDelete(userId);
@@ -91,4 +110,4 @@ export const deleteUser = async (
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
+}

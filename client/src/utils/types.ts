@@ -1,12 +1,12 @@
-export interface User {
+export type User = {
   _id?: string;
   name: string;
   email: string;
   role: string;
   password: string;
-}
+};
 
-export interface Question {
+export type Question = {
   _id: string;
   questionText: string;
   answerText?: string;
@@ -17,9 +17,9 @@ export interface Question {
     feedback?: string;
   };
   questionType?: string;
-}
+};
 
-export interface Interview {
+export type Interview = {
   _id: string;
   title: string;
   description?: string;
@@ -32,7 +32,7 @@ export interface Interview {
   feedback?: string;
   createdAt: Date;
   jobRole?: string;
-}
+};
 
 export enum JobRole {
   BACKEND_DEVELOPER = "Backend Developer",
@@ -59,14 +59,14 @@ export enum JobRole {
   WEB_DEVELOPER = "Web Developer",
 }
 
-export interface InterviewForm {
+export type InterviewForm = {
   title: string;
   description: string;
   jobRole: JobRole;
-  sheduledTime: string;
-}
+  scheduledTime?: string;
+};
 
-export interface RouteProps {
+export type RouteProps = {
   isAuthenticated: boolean;
   userRole?: string;
-}
+};

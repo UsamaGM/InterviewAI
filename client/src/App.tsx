@@ -1,5 +1,5 @@
-import { AuthProvider } from "./context/AuthContext";
-import { InterviewProvider } from "./context/InterviewContext";
+import { AuthProvider } from "./context/AuthProvider";
+import { InterviewProvider } from "./context/InterviewProvider";
 import { AppRoutes } from "./routes/RouteComponents";
 
 function App() {

@@ -1,15 +1,9 @@
-import Particles from "../../Backgrounds/Particles/Particles";
 import GradientText from "../../TextAnimations/GradientText/GradientText";
 import LoginForm from "../../components/auth/LoginForm";
 
 function LoginPage() {
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-      <Particles
-        moveParticlesOnHover
-        particleCount={100}
-        className="fixed top-0 left-0 right-0 bottom-0 z-0"
-      />
       <div className="bg-white p-8 rounded-lg shadow-lg lg:w-md md:w-sm sm:w-xs fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
         <GradientText>
           <h2 className="font-bold text-5xl">Login</h2>

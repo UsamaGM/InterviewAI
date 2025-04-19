@@ -1,15 +1,12 @@
 import { lazy, ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
 
-interface props {
-  isAuthenticated: boolean;
-  isCandidate: boolean;
-}
-
-export default function AuthRoutes({ isAuthenticated, isCandidate }: props) {
+export default function AuthRoutes() {
+  const { isAuthenticated, isCandidate } = useAuth();
   console.log("AuthRoutes", isAuthenticated, isCandidate);
 
   function AuthenticateRoute({ route }: { route: ReactNode }) {

@@ -1,7 +1,5 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { JobRole } from "../../utils/types";
-import { useInterview } from "../../context/InterviewContext";
 import {
   InputBox,
   Dropdown,
@@ -10,6 +8,8 @@ import {
   ErrorAlert,
   TextArea,
 } from "../common";
+import { JobRole } from "../../utils/types";
+import useInterview from "../../hooks/useInterview";
 
 interface FormDataType {
   title: string;
@@ -69,26 +69,29 @@ function ScheduleInterviewForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (id && formData.candidateEmail && formData.scheduledTime) {
+    if (id) {
       await inviteCandidate(id, {
-        email: formData.candidateEmail,
-        scheduledTime: new Date(formData.scheduledTime).toISOString(),
+        email: formData.candidateEmail!,
+        scheduledTime: new Date(formData.scheduledTime!).toISOString(),
       });
-    } else if (formData.scheduledTime) {
+    } else {
       const newInterview = await createInterview({
         title: formData.title,
         description: formData.description,
         jobRole: formData.jobRole as JobRole,
-        sheduledTime: formData.scheduledTime,
+        scheduledTime: formData.scheduledTime,
       });
-
-      if (newInterview?._id && formData.candidateEmail) {
-        await inviteCandidate(newInterview._id, {
-          email: formData.candidateEmail,
-          scheduledTime: new Date(formData.scheduledTime).toISOString(),
-        });
+      if (formData.scheduleNow) {
+        if (newInterview?._id && formData.candidateEmail) {
+          await inviteCandidate(newInterview._id, {
+            email: formData.candidateEmail,
+            scheduledTime: new Date(formData.scheduledTime!).toISOString(),
+          });
+        }
       }
     }
+
+    if (createError || scheduleError) return;
 
     navigate("/recruiter/dashboard");
   }
@@ -114,7 +117,7 @@ function ScheduleInterviewForm() {
       )}
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 bg-white/80 backdrop-blur-lg p-6 rounded-lg shadow-md"
+        className="space-y-8 bg-white/80 backdrop-blur-lg p-6 rounded-lg shadow-md h-fit transition-all duration-300 ease-in-out"
       >
         <h2 className="text-2xl font-bold mb-6 text-gray-800">
           Schedule Interview
@@ -151,34 +154,36 @@ function ScheduleInterviewForm() {
           </>
         )}
 
-        <label>
-          <input
-            type="checkbox"
-            name="schedule"
-            checked={formData.scheduleNow}
-            onChange={(e) =>
-              setFormData({ ...formData, scheduleNow: e.target.checked })
-            }
-          />
-          Schedule now?
-        </label>
+        {formData.scheduleNow && (
+          <>
+            <InputBox
+              id="candidateEmail"
+              placeholder="Candidate Email"
+              value={formData.candidateEmail!}
+              onChange={handleChange}
+              type="email"
+            />
 
-        <InputBox
-          id="candidateEmail"
-          placeholder="Candidate Email"
-          value={formData.candidateEmail!}
-          onChange={handleChange}
-          type="email"
-        />
+            <DatetimeSelector
+              id="scheduledTime"
+              placeholder="Interview Date & Time"
+              value={formData.scheduledTime?.slice(0, 16) || ""}
+              onChange={(value) =>
+                setFormData({ ...formData, scheduledTime: value })
+              }
+            />
+          </>
+        )}
 
-        <DatetimeSelector
-          id="scheduledTime"
-          placeholder="Interview Date & Time"
-          value={formData.scheduledTime?.slice(0, 16) || ""}
-          onChange={(value) =>
-            setFormData({ ...formData, scheduledTime: value })
+        <button
+          type="button"
+          onClick={() =>
+            setFormData({ ...formData, scheduleNow: !formData.scheduleNow })
           }
-        />
+          className="transition-colors duration-300 ease-in-out text-blue-500 hover:bg-blue-100 hover:text-blue-700 p-2 rounded-md cursor-pointer"
+        >
+          {formData.scheduleNow ? "Schedule Later?" : "Schedule Now?"}
+        </button>
 
         <div className="flex justify-end">
           <button

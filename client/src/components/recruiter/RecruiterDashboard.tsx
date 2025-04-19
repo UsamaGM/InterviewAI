@@ -1,18 +1,14 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { LoadingSpinner } from "../common";
-import { useInterview } from "../../context/InterviewContext";
 import InterviewCard from "../interview/InterviewCard";
+import useInterview from "../../hooks/useInterview";
 
 function RecruiterDashboard() {
   const {
     interviews,
-    setSelectedInterview,
     loading: { fetchingInterviews: loading },
     error: { fetchingInterviews: error },
   } = useInterview();
-
-  useEffect(() => setSelectedInterview(null), []);
 
   return (
     <div className="container mx-auto px-4">
@@ -20,9 +16,9 @@ function RecruiterDashboard() {
         <h1 className="text-2xl font-bold text-gray-800">Your Interviews</h1>
         <Link
           to="/recruiter/schedule"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-100/80 hover:bg-blue-300/80 backdrop-blur-lg text-blue-600 hover:text-blue-700 font-bold py-2 px-4 rounded-md shadow-md hover:shadow-lg transition duration-300 ease-in-out"
         >
-          Schedule New Interview
+          Create New Interview
         </Link>
       </div>
 

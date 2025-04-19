@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useInterview } from "../../context/InterviewContext";
 import { LoadingSpinner } from "../common";
 import { Interview } from "../../utils/types";
+import useInterview from "../../hooks/useInterview";
 
 export default function TitleAndDescriptionWithActions({
   interview,

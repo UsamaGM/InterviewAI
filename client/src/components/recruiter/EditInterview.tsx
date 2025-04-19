@@ -9,7 +9,7 @@ import {
   ErrorAlert,
   LoadingSpinner,
 } from "../../components/common";
-import { useInterview } from "../../context/InterviewContext";
+import useInterview from "../../hooks/useInterview";
 
 function EditInterview() {
   const {
@@ -78,7 +78,9 @@ function EditInterview() {
         <DatetimeSelector
           id="scheduledTime"
           placeholder="Date & Time"
-          value={interview.scheduledTime!.slice(0, 16)}
+          value={
+            interview.scheduledTime ? interview.scheduledTime.slice(0, 16) : ""
+          }
           onChange={(value) => {
             console.log(value);
             handleInputChange("scheduledTime", value);

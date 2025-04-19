@@ -18,13 +18,13 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   const spinner = (
     <div
-      className={`animate-spin rounded-full ${sizeClasses[size]} place-self-center border-t-blue-500 border-b-blue-500 border-gray-200`}
+      className={`animate-spin rounded-full ${sizeClasses[size]} mx-auto border-t-blue-500 border-b-blue-500 border-gray-200`}
     ></div>
   );
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+      <div className="fixed inset-0 w-screen h-screen flex items-center justify-center bg-white bg-opacity-75 z-50">
         {spinner}
       </div>
     );

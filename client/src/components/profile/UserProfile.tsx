@@ -1,6 +1,6 @@
-import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { InputBox, LoadingSpinner } from "../common";
+import useAuth from "../../hooks/useAuth";
 
 function UserProfile() {
   const {

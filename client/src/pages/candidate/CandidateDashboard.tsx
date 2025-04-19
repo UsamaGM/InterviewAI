@@ -1,6 +1,6 @@
-import { InterviewProvider } from "../../context/InterviewContext";
-import CandidateInterviewList from "../../components/candidate/CandidateInterviewList";
 import MainLayout from "../../components/layouts/MainLayout";
+import CandidateInterviewList from "../../components/candidate/CandidateInterviewList";
+import { InterviewProvider } from "../../context/InterviewProvider";
 
 function CandidateDashboardPage() {
   return (

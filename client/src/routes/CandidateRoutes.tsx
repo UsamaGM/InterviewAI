@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 const CandidateDashboard = lazy(
   () => import("../pages/candidate/CandidateDashboard")
@@ -11,15 +12,8 @@ const InterviewDetailsPage = lazy(
   () => import("../pages/common/InterviewDetailsPage")
 );
 
-interface props {
-  isAuthenticated: boolean;
-  isCandidate: boolean;
-}
-
-export default function CandidateRoutes({
-  isAuthenticated,
-  isCandidate,
-}: props) {
+export default function CandidateRoutes() {
+  const { isAuthenticated, isCandidate } = useAuth();
   console.log("CandidateRoutes", isAuthenticated, isCandidate);
 
   if (!isAuthenticated) return <Navigate to="/auth/login" />;

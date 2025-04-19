@@ -1,81 +1,9 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Interview, InterviewForm } from "../utils/types";
 import { handleError } from "../utils/errorHandler";
-import { useAuth } from "../context/AuthContext";
+import { errorType, InterviewContext, loadingType } from "./InterviewContext";
+import useAuth from "../hooks/useAuth";
 import api from "../services/api";
-
-interface loadingType {
-  generatingQuestions: boolean;
-  creatingInterview: boolean;
-  updatingInterview: boolean;
-  startingInterview: boolean;
-  deletingInterview: boolean;
-  savingAnswer: boolean;
-  assessingAnswer: boolean;
-  submittingAnswers: boolean;
-  submittingInterview: boolean;
-  fetchingInterviews: boolean;
-  fetchingInterviewWithId: boolean;
-  schedulingInterview: boolean;
-  invitingCandidate: boolean;
-}
-
-interface errorType {
-  generatingQuestions: string | null;
-  creatingInterview: string | null;
-  updatingInterview: string | null;
-  startingInterview: string | null;
-  deletingInterview: string | null;
-  savingAnswer: string | null;
-  assessingAnswer: string | null;
-  submittingAnswers: string | null;
-  submittingInterview: string | null;
-  fetchingInterviews: string | null;
-  fetchingInterviewWithId: string | null;
-  schedulingInterview: string | null;
-  invitingCandidate: string | null;
-}
-
-interface InterviewContextType {
-  interviews: Interview[];
-  selectedInterview: Interview | null;
-  loading: loadingType;
-  error: errorType;
-  setInterviews: (interviews: Interview[]) => void;
-  setSelectedInterview: (interview: Interview | null) => void;
-  createInterview: (interview: InterviewForm) => Promise<Interview>;
-  fetchInterviewWithId: (id: string) => Promise<void>;
-  updateInterviews: () => Promise<void>;
-  updateInterview: (interview: Interview) => Promise<void>;
-  startInterview: () => Promise<void>;
-  deleteInterview: () => Promise<void>;
-  generateQuestions: () => Promise<void>;
-  saveAnswer: (questionId: string, answer: string) => Promise<void>;
-  submitAnswers: () => Promise<void>;
-  assessAnswer: (questionIndex: number, answer: string) => Promise<void>;
-  submitInterview: () => Promise<void>;
-  inviteCandidate: (
-    interviewId: string,
-    inviteData: { email: string; scheduledTime: string }
-  ) => Promise<void>;
-}
-
-const InterviewContext = createContext<InterviewContextType | undefined>(
-  undefined
-);
-
-export const useInterview = () => {
-  const context = useContext(InterviewContext);
-  if (!context)
-    throw new Error("useInterview must be used within a InterviewProvider");
-  return context;
-};
 
 export function InterviewProvider({ children }: { children: ReactNode }) {
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -117,7 +45,7 @@ export function InterviewProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function fetchInterviews() {
-      if (isAuthenticated) {
+      if (isAuthenticated && isCandidate !== null) {
         console.log("Fetching Interviews");
         try {
           setLoading((prev) => ({ ...prev, fetchingInterviews: true }));

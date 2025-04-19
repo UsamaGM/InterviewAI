@@ -1,4 +1,4 @@
-import { useInterview } from "../../context/InterviewContext";
+import useInterview from "../../hooks/useInterview";
 import { Question } from "../../utils/types";
 import { LoadingSpinner } from "../common";
 

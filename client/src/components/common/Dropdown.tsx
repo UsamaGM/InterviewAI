@@ -1,14 +1,25 @@
 import { useState, useRef, useEffect } from "react";
-import { JobRole } from "../../utils/types";
+
+export interface Option {
+  value: string;
+  label: string;
+}
 
 interface DropdownProps {
   id: string;
   value: string;
+  options: Option[];
   placeholder: string;
-  onChange: (value: JobRole) => void;
+  onChange: (value: string) => void;
 }
 
-const Dropdown = ({ id, value, placeholder, onChange }: DropdownProps) => {
+function Dropdown({
+  id,
+  value,
+  options,
+  placeholder,
+  onChange,
+}: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLLabelElement>(null);
 
@@ -16,14 +27,10 @@ const Dropdown = ({ id, value, placeholder, onChange }: DropdownProps) => {
     setIsOpen(!isOpen);
   };
 
-  const handleOptionClick = (optionValue: JobRole) => {
+  const handleOptionClick = (optionValue: string) => {
     onChange(optionValue);
     setIsOpen(false);
   };
-
-  interface MouseEvent {
-    target: EventTarget | null;
-  }
 
   const handleClickOutside = (e: MouseEvent): void => {
     if (
@@ -51,7 +58,7 @@ const Dropdown = ({ id, value, placeholder, onChange }: DropdownProps) => {
         className="peer w-full px-2 py-2 border-none bg-transparent placeholder-transparent focus:border-transparent focus:ring-0 focus:outline-hidden cursor-pointer flex justify-between items-center"
         onClick={toggleDropdown}
       >
-        {value ? value : placeholder}
+        {options.find((opt) => opt.value === value)?.label ?? placeholder}
         <svg
           className={`w-4 h-4 transition-transform ${
             isOpen ? "transform rotate-180" : ""
@@ -75,15 +82,13 @@ const Dropdown = ({ id, value, placeholder, onChange }: DropdownProps) => {
       {isOpen && (
         <div className="absolute z-10 mt-1 w-full max-h-40 overflow-y-scroll bg-white/50 backdrop-blur-lg rounded-md shadow-lg ring-2 ring-gray-300 ring-opacity-5">
           <div className="py-1">
-            {Object.keys(JobRole).map((key) => (
+            {options.map((option) => (
               <div
-                key={key}
-                onClick={() =>
-                  handleOptionClick(JobRole[key as keyof typeof JobRole])
-                }
+                key={option.value}
+                onClick={() => handleOptionClick(option.value)}
                 className="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-100 cursor-pointer"
               >
-                {JobRole[key as keyof typeof JobRole]}
+                {option.label}
               </div>
             ))}
           </div>
@@ -91,6 +96,6 @@ const Dropdown = ({ id, value, placeholder, onChange }: DropdownProps) => {
       )}
     </label>
   );
-};
+}
 
 export default Dropdown;

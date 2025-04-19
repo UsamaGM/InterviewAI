@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { LoadingSpinner, InputBox } from "../common";
+import useAuth from "../../hooks/useAuth";
+import { LoadingSpinner, InputBox, ErrorAlert } from "../common";
+import PasswordBox from "../common/PasswordBox";
 
 function RegisterForm() {
   const [name, setName] = useState<string>("");
@@ -21,18 +22,8 @@ function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {registerError && (
-        <div className="mb-4">
-          <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-            role="alert"
-          >
-            <strong className="font-bold">Error!</strong>{" "}
-            <span className="block sm:inline">{registerError}</span>
-          </div>
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {registerError && <ErrorAlert title="Error!" subtitle={registerError} />}
       <InputBox
         id="name"
         type="text"
@@ -47,13 +38,32 @@ function RegisterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <InputBox
-        password
+      <PasswordBox
         id="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+      <RoleRadioGroup />
+      <p className="text-center text-sm mt-4">
+        Already have an account?{" "}
+        <Link to="/login" className="text-blue-500 hover:underline">
+          Login
+        </Link>
+      </p>
+      <div className="mt-6">
+        <button
+          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="submit"
+        >
+          {registering ? <LoadingSpinner size="sm" /> : "Register"}
+        </button>
+      </div>
+    </form>
+  );
+
+  function RoleRadioGroup() {
+    return (
       <div className="mb-4">
         <label
           className="block text-gray-700 text-sm font-bold mb-2"
@@ -90,22 +100,8 @@ function RegisterForm() {
           </div>
         </div>
       </div>
-      <p className="text-center text-sm mt-4">
-        Already have an account?{" "}
-        <Link to="/login" className="text-blue-500 hover:underline">
-          Login
-        </Link>
-      </p>
-      <div className="mt-6">
-        <button
-          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          type="submit"
-        >
-          {registering ? <LoadingSpinner size="sm" /> : "Register"}
-        </button>
-      </div>
-    </form>
-  );
+    );
+  }
 }
 
 export default RegisterForm;

@@ -6,73 +6,25 @@ import AuthRoutes from "./AuthRoutes";
 import RecruiterRoutes from "./RecruiterRoutes";
 import CandidateRoutes from "./CandidateRoutes";
 import { LoadingSpinner } from "../components/common";
-import { useAuth } from "../context/AuthContext";
 
 export function AppRoutes() {
-  const {
-    isAuthenticated,
-    isCandidate,
-    loading: { initializing },
-  } = useAuth();
-
-  if (initializing) {
-    return <LoadingSpinner fullScreen size="lg" />;
-  }
-
   return (
     <BrowserRouter>
-      <Suspense fallback={<LoadingSpinner fullScreen />}>
+      <Suspense
+        name="RouteComponents Suspense"
+        fallback={
+          <div>
+            <LoadingSpinner fullScreen />
+            Using fallback...
+          </div>
+        }
+      >
         <Routes>
-          {/* Root redirect */}
-          <Route
-            path="/"
-            element={
-              <RootRedirect
-                isAuthenticated={isAuthenticated}
-                isCandidate={isCandidate}
-              />
-            }
-          />
-
-          {/* Public routes */}
-          <Route
-            path="/auth/*"
-            element={
-              <AuthRoutes
-                isAuthenticated={isAuthenticated}
-                isCandidate={isCandidate}
-              />
-            }
-          />
-
-          {/* Protected routes by role */}
-          <Route
-            path="/recruiter/*"
-            element={
-              <RecruiterRoutes
-                isAuthenticated={isAuthenticated}
-                isCandidate={isCandidate}
-              />
-            }
-          />
-
-          <Route
-            path="/candidate/*"
-            element={
-              <CandidateRoutes
-                isAuthenticated={isAuthenticated}
-                isCandidate={isCandidate}
-              />
-            }
-          />
-
-          {/* Shared protected routes */}
-          <Route
-            path="/shared/*"
-            element={<SharedRoutes isAuthenticated={isAuthenticated} />}
-          />
-
-          {/* Catch-all route */}
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/auth/*" element={<AuthRoutes />} />
+          <Route path="/recruiter/*" element={<RecruiterRoutes />} />
+          <Route path="/candidate/*" element={<CandidateRoutes />} />
+          <Route path="/shared/*" element={<SharedRoutes />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

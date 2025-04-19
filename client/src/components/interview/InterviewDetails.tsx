@@ -12,8 +12,8 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { formatDate, statusConfig } from "../../utils/helpers";
-import { useInterview } from "../../context/InterviewContext";
-import { useAuth } from "../../context/AuthContext";
+import useInterview from "../../hooks/useInterview";
+import useAuth from "../../hooks/useAuth";
 
 function InterviewDetails() {
   const { id } = useParams();
@@ -25,18 +25,8 @@ function InterviewDetails() {
     selectedInterview,
     fetchInterviewWithId,
     updateInterview,
-    loading: {
-      fetchingInterviewWithId,
-      startingInterview,
-      deletingInterview,
-      updatingInterview,
-    },
-    error: {
-      fetchingInterviewWithId: fetchError,
-      startingInterview: startError,
-      deletingInterview: deleteError,
-      updatingInterview: updateError,
-    },
+    loading,
+    error,
     startInterview,
     deleteInterview,
   } = useInterview();
@@ -80,7 +70,7 @@ function InterviewDetails() {
     navigate("/recruiter/dashboard");
   }
 
-  if (fetchingInterviewWithId) {
+  if (loading.fetchingInterviewWithId) {
     return <LoadingSpinner size="lg" />;
   }
 
@@ -95,14 +85,11 @@ function InterviewDetails() {
 
   return (
     <div>
-      {fetchingInterviewWithId && <LoadingSpinner size="lg" />}
-      {fetchError && (
-        <ErrorAlert title="Failed to fetch interview!" subtitle={fetchError} />
-      )}
-      {!selectedInterview && !fetchingInterviewWithId && (
+      {loading.fetchingInterviewWithId && <LoadingSpinner size="lg" />}
+      {error.fetchingInterviewWithId && (
         <ErrorAlert
-          title="Interview not found!"
-          subtitle="The interview you are looking for does not exist."
+          title="Failed to fetch interview!"
+          subtitle={error.fetchingInterviewWithId}
         />
       )}
       <div className="place-self-center bg-white py-8 px-4 rounded-lg shadow-md w-full max-w-4xl mx-auto">
@@ -121,9 +108,7 @@ function InterviewDetails() {
                 {statusConfig[selectedInterview.status].title}
               </span>
             </div>
-            <p className="mt-4 text-gray-600">
-              {selectedInterview.description}
-            </p>
+            <DescriptionText description={selectedInterview.description!} />
           </div>
 
           {/* Main Content */}
@@ -142,8 +127,9 @@ function InterviewDetails() {
                   value={
                     isCandidate
                       ? selectedInterview.recruiter!.name
-                      : selectedInterview.candidate!.name ??
-                        selectedInterview.candidate!.email
+                      : selectedInterview.candidate?.name ??
+                        (selectedInterview.candidate?.email ||
+                          "No Candidate yet")
                   }
                 />
                 <DetailItem
@@ -181,8 +167,11 @@ function InterviewDetails() {
 
             {/* Actions */}
             <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 flex flex-wrap gap-4">
-              {startError && (
-                <ErrorAlert title="Failed to start!" subtitle={startError} />
+              {error.startingInterview && (
+                <ErrorAlert
+                  title="Failed to start!"
+                  subtitle={error.startingInterview}
+                />
               )}
 
               {isCandidate && statusConfig[selectedInterview.status].action && (
@@ -196,7 +185,7 @@ function InterviewDetails() {
                       className: "h-5 w-5 mr-2",
                     }
                   )}
-                  {startingInterview ? (
+                  {loading.startingInterview ? (
                     <LoadingSpinner size="sm" />
                   ) : (
                     statusConfig[selectedInterview.status].action
@@ -234,65 +223,94 @@ function InterviewDetails() {
             </div>
           </div>
         </div>
-
-        {showModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-medium text-gray-900">
-                {showModal === "delete"
-                  ? "Delete Interview"
-                  : "Cancel Interview"}
-              </h3>
-              <p className="mt-2 text-sm text-gray-500">
-                Are you sure you want to {showModal} this interview? This action
-                cannot be undone.
-              </p>
-              {updateError && (
-                <ErrorAlert title="Failed to cancel!" subtitle={updateError} />
-              )}
-              {deleteError && (
-                <ErrorAlert title="Failed to delete!" subtitle={deleteError} />
-              )}
-              <div className="mt-4 flex justify-end gap-3">
-                <button
-                  onClick={() => setShowModal(null)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={async () => {
-                    if (showModal === "delete") await handleDelete();
-                    else await handleCancel();
-                    setShowModal(null);
-                  }}
-                  className="px-4 py-2 text-sm font-medium hover:scale-105 cursor-crosshair transition-transform duration-300 text-white border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  style={{
-                    backgroundColor: showModal === "delete" ? "red" : "olive",
-                  }}
-                >
-                  {(showModal === "delete" && deletingInterview) ||
-                  (showModal === "cancel" && updatingInterview) ? (
-                    <LoadingSpinner size="sm" />
-                  ) : (
-                    "Confirm"
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <Modal />
       </div>
+    </div>
+  );
+
+  function Modal() {
+    if (!showModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <h3 className="text-lg font-medium text-gray-900">
+            {showModal === "delete" ? "Delete Interview" : "Cancel Interview"}
+          </h3>
+          <p className="mt-2 text-sm text-gray-500">
+            Are you sure you want to {showModal} this interview? This action
+            cannot be undone.
+          </p>
+          {error.updatingInterview && (
+            <ErrorAlert
+              title="Failed to cancel!"
+              subtitle={error.updatingInterview}
+            />
+          )}
+          {error.deletingInterview && (
+            <ErrorAlert
+              title="Failed to delete!"
+              subtitle={error.deletingInterview}
+            />
+          )}
+          <div className="mt-4 flex justify-end gap-3">
+            <button
+              onClick={() => setShowModal(null)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => {
+                if (showModal === "delete") await handleDelete();
+                else await handleCancel();
+                setShowModal(null);
+              }}
+              className="px-4 py-2 text-sm font-medium hover:scale-105 cursor-crosshair transition-transform duration-300 text-white border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              style={{
+                backgroundColor: showModal === "delete" ? "red" : "olive",
+              }}
+            >
+              {loading.deletingInterview || loading.updatingInterview ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                "Confirm"
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+function DescriptionText({ description }: { description: string }) {
+  const [readMore, setReadMore] = useState<boolean>(false);
+  return (
+    <div className="flex flex-col">
+      <p
+        className={`mt-4 text-gray-700 text-justify p-2 ${
+          readMore ? "" : "line-clamp-4"
+        }`}
+      >
+        {description}
+      </p>
+      <span
+        className="text-blue-500 hover:text-blue-800 cursor-pointer w-fit"
+        onClick={() => setReadMore(!readMore)}
+      >
+        {readMore ? "Hide" : "Show More"}
+      </span>
     </div>
   );
 }
 
-interface DetailItemProps {
+type DetailItemProps = {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string;
   fullWidth?: boolean;
-}
+};
 
 function DetailItem({ icon: Icon, label, value, fullWidth }: DetailItemProps) {
   return (

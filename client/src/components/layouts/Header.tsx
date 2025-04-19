@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import useAuth from "../../hooks/useAuth";
 import { StyledNavLink } from "../common";
 
-const Header: React.FC = () => {
+function Header() {
   const { isCandidate, logout } = useAuth();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState<boolean>(false);
   const logoutMenuRef = useRef<HTMLDivElement>(null);
@@ -107,6 +107,6 @@ const Header: React.FC = () => {
       </div>
     </header>
   );
-};
+}
 
 export default Header;

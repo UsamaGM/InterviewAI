@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ErrorAlert, LoadingSpinner } from "../common";
-import { useInterview } from "../../context/InterviewContext";
+import useInterview from "../../hooks/useInterview";
 import TitleAndDescriptionWithActions from "./TitleAndDescriptionWithActions";
 import QuestionWithAnswerTextBoxAndAssessmentButton from "./QuestionWithAnswerTextboxAndAssessmentButton";
 import AiAssessmentResults from "./AiAssessmentResults";

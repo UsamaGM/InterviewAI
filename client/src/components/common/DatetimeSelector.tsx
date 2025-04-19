@@ -27,7 +27,7 @@ function DatetimeSelector({
         className="peer w-full px-2 py-2 border-none bg-transparent placeholder-transparent focus:border-transparent focus:ring-0 focus:outline-hidden"
         placeholder={placeholder}
       />
-      <span className="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-white p-0.5 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs">
+      <span className="pointer-events-none absolute start-2.5 -translate-y-1/2 p-0.5 text-xs text-gray-700 -top-[0.8rem] font-semibold">
         {placeholder}
       </span>
     </label>
