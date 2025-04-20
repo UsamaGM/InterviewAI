@@ -46,7 +46,7 @@ export interface InterviewContextType {
   updateInterview: (interview: Interview) => Promise<void>;
   startInterview: () => Promise<void>;
   deleteInterview: () => Promise<void>;
-  generateQuestions: () => Promise<void>;
+  generateQuestions: (interviewId: string) => Promise<void>;
   saveAnswer: (questionId: string, answer: string) => Promise<void>;
   submitAnswers: () => Promise<void>;
   assessAnswer: (questionIndex: number, answer: string) => Promise<void>;

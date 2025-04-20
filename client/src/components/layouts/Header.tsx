@@ -46,10 +46,7 @@ function Header() {
           ) : (
             <>
               <StyledNavLink title="Interviews" to="/recruiter/dashboard" />
-              <StyledNavLink
-                title="Schedule New Interview"
-                to="/recruiter/schedule"
-              />
+              <StyledNavLink title="New Interview" to="/recruiter/schedule" />
             </>
           )}
 

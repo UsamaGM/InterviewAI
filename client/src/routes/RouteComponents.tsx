@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
+import { LoadingSpinner } from "../components/common";
 import SharedRoutes from "./SharedRoutes";
 import RootRedirect from "./RootRedirect";
 import AuthRoutes from "./AuthRoutes";
 import RecruiterRoutes from "./RecruiterRoutes";
 import CandidateRoutes from "./CandidateRoutes";
-import { LoadingSpinner } from "../components/common";
 
 export function AppRoutes() {
   return (

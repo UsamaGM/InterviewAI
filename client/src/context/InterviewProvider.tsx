@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { Interview, InterviewForm } from "../utils/types";
 import { handleError } from "../utils/errorHandler";
 import { errorType, InterviewContext, loadingType } from "./InterviewContext";
@@ -69,7 +69,7 @@ export function InterviewProvider({ children }: { children: ReactNode }) {
     fetchInterviews();
   }, [isAuthenticated, isCandidate]);
 
-  async function fetchInterviewWithId(id: string) {
+  const fetchInterviewWithId = useCallback(async function (id: string) {
     setLoading((prev) => ({ ...prev, fetchingInterviewWithId: true }));
     try {
       const interviewResponse = await api.get(`/interviews/${id}`);
@@ -90,243 +90,262 @@ export function InterviewProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading((prev) => ({ ...prev, fetchingInterviewWithId: false }));
     }
-  }
+  }, []);
 
-  async function updateInterviews() {
-    try {
-      setLoading({ ...loading, fetchingInterviews: true });
-      const response = isCandidate
-        ? await api.get("/interviews/candidate")
-        : await api.get("/interviews/recruiter");
-      setInterviews(Array.isArray(response.data) ? response.data : []);
-    } catch (err) {
-      setError({
-        ...error,
-        fetchingInterviews: handleError(err, "Failed to fetch interviews"),
-      });
-    } finally {
-      setLoading({ ...loading, fetchingInterviews: false });
-    }
-  }
+  const updateInterviews = useCallback(
+    async function () {
+      try {
+        setLoading((prev) => ({ ...prev, fetchingInterviews: true }));
+        const response = isCandidate
+          ? await api.get("/interviews/candidate")
+          : await api.get("/interviews/recruiter");
+        setInterviews(Array.isArray(response.data) ? response.data : []);
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          fetchingInterviews: handleError(err, "Failed to fetch interviews"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, fetchingInterviews: false }));
+      }
+    },
+    [isCandidate]
+  );
 
-  async function createInterview(interview: InterviewForm) {
+  const createInterview = useCallback(async function (
+    interview: InterviewForm
+  ) {
     try {
-      setLoading({ ...loading, creatingInterview: true });
+      setLoading((prev) => ({ ...prev, creatingInterview: true }));
       const { data } = await api.post("/interviews", interview);
-      setInterviews([...interviews, data]);
+      setInterviews((prev) => [...prev, data]);
       return data;
     } catch (err) {
-      setError({
-        ...error,
+      setError((prev) => ({
+        ...prev,
         creatingInterview: handleError(err, "Error creating interview"),
-      });
+      }));
     } finally {
-      setLoading({ ...loading, creatingInterview: false });
+      setLoading((prev) => ({ ...prev, creatingInterview: false }));
     }
-  }
+  },
+  []);
 
-  async function updateInterview(interview: Interview) {
+  const updateInterview = useCallback(async function (interview: Interview) {
     try {
-      setLoading({ ...loading, updatingInterview: true });
+      setLoading((prev) => ({ ...prev, updatingInterview: true }));
       const { data } = await api.put(`/interviews/${interview._id}`, interview);
-      setInterviews(
-        interviews.map((interview) =>
-          interview._id === data._id ? data : interview
-        )
+      setInterviews((prev) =>
+        prev.map((interview) => (interview._id === data._id ? data : interview))
       );
     } catch (err) {
-      setError({
-        ...error,
+      setError((prev) => ({
+        ...prev,
         updatingInterview: handleError(err, "Error updating interview!"),
-      });
+      }));
     } finally {
-      setLoading({ ...loading, updatingInterview: false });
+      setLoading((prev) => ({ ...prev, updatingInterview: false }));
     }
-  }
+  }, []);
 
-  async function startInterview() {
-    try {
-      setLoading({ ...loading, startingInterview: true });
-      await api.post(`/interviews/${selectedInterview!._id}/start`, {});
-      await updateInterviews();
-      setError({ ...error, startingInterview: null });
-    } catch (err) {
-      setError({
-        ...error,
-        startingInterview: handleError(err, "Unable to start interview!"),
-      });
-    } finally {
-      setLoading((prev) => ({ ...prev, startingInterview: false }));
-    }
-  }
-
-  async function deleteInterview() {
-    try {
-      setLoading({ ...loading, deletingInterview: true });
-      await api.delete(`/interviews/${selectedInterview!._id}`);
-      await updateInterviews();
-    } catch (err) {
-      setError({
-        ...error,
-        deletingInterview: handleError(err, "Unable to delete interview!"),
-      });
-    } finally {
-      setLoading({ ...loading, deletingInterview: false });
-    }
-  }
-
-  async function generateQuestions() {
-    if (!selectedInterview) return;
-
-    console.log(selectedInterview);
-
-    if (selectedInterview.questions.length === 0) {
+  const startInterview = useCallback(
+    async function () {
       try {
-        setLoading({ ...loading, generatingQuestions: true });
+        setLoading((prev) => ({ ...prev, startingInterview: true }));
+        await api.post(`/interviews/${selectedInterview!._id}/start`, {});
+        await updateInterviews();
+        setError((prev) => ({ ...prev, startingInterview: null }));
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          startingInterview: handleError(err, "Unable to start interview!"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, startingInterview: false }));
+      }
+    },
+    [selectedInterview, updateInterviews]
+  );
 
+  const deleteInterview = useCallback(
+    async function () {
+      try {
+        setLoading((prev) => ({ ...prev, deletingInterview: true }));
+        await api.delete(`/interviews/${selectedInterview!._id}`);
+        await updateInterviews();
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          deletingInterview: handleError(err, "Unable to delete interview!"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, deletingInterview: false }));
+      }
+    },
+    [updateInterviews, selectedInterview]
+  );
+
+  const generateQuestions = useCallback(async function (interviewId: string) {
+    try {
+      setLoading((prev) => ({ ...prev, generatingQuestions: true }));
+
+      const response = await api.post(
+        `/interviews/${interviewId}/generate-questions`
+      );
+
+      setError((prev) => ({ ...prev, generatingQuestions: null }));
+      setSelectedInterview(response.data);
+    } catch (err) {
+      setError((prev) => ({
+        ...prev,
+        generatingQuestions: handleError(err, "Failed to generate questions!"),
+      }));
+    } finally {
+      setLoading((prev) => ({ ...prev, generatingQuestions: false }));
+    }
+  }, []);
+
+  const saveAnswer = useCallback(async function (
+    questionId: string,
+    answer: string
+  ) {
+    try {
+      setLoading((prev) => ({ ...prev, savingAnswer: true }));
+
+      setSelectedInterview((prevInterview) => {
+        if (!prevInterview) return null;
+
+        const updatedQuestions = prevInterview.questions.map((question) => {
+          if (question._id === questionId) {
+            return { ...question, answerText: answer };
+          }
+          return question;
+        });
+
+        api.put(`/interviews/${prevInterview._id}`, {
+          questions: updatedQuestions,
+        });
+
+        return {
+          ...prevInterview,
+          questions: updatedQuestions,
+        };
+      });
+    } catch (err) {
+      setError((prev) => ({
+        ...prev,
+        savingAnswer: handleError(err, "Failed to save answer!"),
+      }));
+    } finally {
+      setLoading((prev) => ({ ...prev, savingAnswer: false }));
+    }
+  },
+  []);
+
+  const assessAnswer = useCallback(
+    async function (questionIndex: number, answer: string) {
+      if (!selectedInterview) return;
+
+      try {
+        setLoading((prev) => ({ ...prev, assessingAnswer: true }));
         const response = await api.post(
-          `/interviews/${selectedInterview!._id}/generate-questions`
+          `/interviews/${selectedInterview!._id}/assess-answer`,
+          {
+            questionIndex,
+            answerText: answer,
+          }
         );
 
-        console.log("Generated questions", response.data.questions);
-        setError({ ...error, generatingQuestions: null });
-        setSelectedInterview(response.data);
+        setSelectedInterview((prev) => ({
+          ...prev!,
+          questions: response.data.questions,
+        }));
       } catch (err) {
-        setError({
-          ...error,
-          generatingQuestions: handleError(
-            err,
-            "Failed to generate questions!"
-          ),
-        });
+        setError((prev) => ({
+          ...prev,
+          assessingAnswer: handleError(err, "Failed to assess answer!"),
+        }));
       } finally {
-        setLoading({ ...loading, generatingQuestions: false });
+        setLoading((prev) => ({ ...prev, assessingAnswer: false }));
       }
-    }
-  }
+    },
+    [selectedInterview]
+  );
 
-  async function saveAnswer(questionId: string, answer: string) {
-    if (!selectedInterview) return;
+  const submitAnswers = useCallback(
+    async function () {
+      if (!selectedInterview) return;
 
-    try {
-      setLoading({ ...loading, savingAnswer: true });
-      const updatedQuestions = selectedInterview.questions.map((question) => {
-        if (question._id === questionId) {
-          return { ...question, answerText: answer };
-        }
-        return question;
-      });
+      try {
+        setLoading((prev) => ({ ...prev, submittingAnswers: true }));
 
-      await api.put(`/interviews/${selectedInterview!._id}`, {
-        questions: updatedQuestions,
-      });
+        const questionsWithAnswers = selectedInterview.questions.map(
+          (question) => ({
+            ...question,
+            answerText: question.answerText || "",
+          })
+        );
 
-      setSelectedInterview({
-        ...selectedInterview,
-        questions: updatedQuestions,
-      });
-    } catch (err) {
-      setError({
-        ...error,
-        savingAnswer: handleError(err, "Failed to save answer!"),
-      });
-    } finally {
-      setLoading({ ...loading, savingAnswer: false });
-    }
-  }
+        await api.put(`/interviews/${selectedInterview!._id}`, {
+          questions: questionsWithAnswers,
+        });
+        await updateInterviews();
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          submittingAnswers: handleError(err, "Failed to submit answers!"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, submittingAnswers: false }));
+      }
+    },
+    [selectedInterview, updateInterviews]
+  );
 
-  async function assessAnswer(questionIndex: number, answer: string) {
-    if (!selectedInterview) return;
+  const submitInterview = useCallback(
+    async function () {
+      try {
+        setLoading((prev) => ({ ...prev, submittingInterview: true }));
 
-    try {
-      setLoading({ ...loading, assessingAnswer: true });
-      const response = await api.post(
-        `/interviews/${selectedInterview!._id}/assess-answer`,
-        {
-          questionIndex,
-          answerText: answer,
-        }
-      );
+        await api.post(`/interviews/${selectedInterview!._id}/rate-interview`);
 
-      setSelectedInterview({
-        ...selectedInterview,
-        questions: response.data.questions,
-      });
-    } catch (err) {
-      setError({
-        ...error,
-        assessingAnswer: handleError(err, "Failed to assess answer!"),
-      });
-    } finally {
-      setLoading({ ...loading, assessingAnswer: false });
-    }
-  }
+        await updateInterviews();
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          submittingInterview: handleError(err, "Failed to submit interview!"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, submittingInterview: false }));
+      }
+    },
+    [updateInterviews, selectedInterview]
+  );
 
-  async function submitAnswers() {
-    if (!selectedInterview) return;
+  const inviteCandidate = useCallback(
+    async function (
+      interviewId: string,
+      inviteData: { email: string; scheduledTime: string }
+    ) {
+      setLoading((prev) => ({ ...prev, invitingCandidate: true }));
 
-    try {
-      setLoading({ ...loading, submittingAnswers: true });
+      try {
+        await api.post(`/interviews/${interviewId}/invite`, inviteData);
 
-      const questionsWithAnswers = selectedInterview.questions.map(
-        (question) => ({
-          ...question,
-          answerText: question.answerText || "",
-        })
-      );
+        await updateInterviews();
 
-      await api.put(`/interviews/${selectedInterview!._id}`, {
-        questions: questionsWithAnswers,
-      });
-      await updateInterviews();
-    } catch (err) {
-      setError({
-        ...error,
-        submittingAnswers: handleError(err, "Failed to submit answers!"),
-      });
-    } finally {
-      setLoading({ ...loading, submittingAnswers: false });
-    }
-  }
-
-  async function submitInterview() {
-    try {
-      setLoading({ ...loading, submittingInterview: true });
-
-      await api.post(`/interviews/${selectedInterview!._id}/rate-interview`);
-
-      await updateInterviews();
-    } catch (err) {
-      setError({
-        ...error,
-        submittingInterview: handleError(err, "Failed to submit interview!"),
-      });
-    } finally {
-      setLoading({ ...loading, submittingInterview: false });
-    }
-  }
-
-  async function inviteCandidate(
-    interviewId: string,
-    inviteData: { email: string; scheduledTime: string }
-  ) {
-    setLoading({ ...loading, invitingCandidate: true });
-
-    try {
-      await api.post(`/interviews/${interviewId}/invite`, inviteData);
-
-      await updateInterviews();
-
-      setError({ ...error, invitingCandidate: null });
-    } catch (err) {
-      setError({
-        ...error,
-        invitingCandidate: handleError(err, "Failed to invite candidate"),
-      });
-    } finally {
-      setLoading({ ...loading, invitingCandidate: false });
-    }
-  }
+        setError((prev) => ({ ...prev, invitingCandidate: null }));
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          invitingCandidate: handleError(err, "Failed to invite candidate"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, invitingCandidate: false }));
+      }
+    },
+    [updateInterviews]
+  );
 
   return (
     <InterviewContext.Provider

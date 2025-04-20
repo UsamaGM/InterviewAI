@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ErrorAlert,
@@ -6,6 +6,7 @@ import {
   InputBox,
   DatetimeSelector,
   Dropdown,
+  Toggle,
 } from "../common";
 import { User } from "../../utils/types";
 import { Option } from "../common/Dropdown";
@@ -43,6 +44,14 @@ function InviteCandidate() {
     (async () => await fetchCandidates())();
   }, [fetchCandidates]);
 
+  const toggleOptions = useMemo(
+    () => [
+      { label: "existing", value: "Existing" },
+      { label: "new", value: "New" },
+    ],
+    []
+  );
+
   if (fetchingCandidates) return <LoadingSpinner size="lg" />;
 
   return (
@@ -61,59 +70,20 @@ function InviteCandidate() {
         />
       )}
 
-      {NewExistingToggle()}
+      <Toggle
+        checked={formData.inviteMode === "new"}
+        options={toggleOptions}
+        onChange={(e) =>
+          setFormData((prev) => ({
+            ...prev,
+            inviteMode: e.target.checked ? "new" : "existing",
+          }))
+        }
+      />
 
       <InviteForm formData={formData} setFormData={setFormData} />
     </div>
   );
-
-  function NewExistingToggle() {
-    return (
-      <div className="mb-4 flex items-center justify-center">
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={formData.inviteMode === "new"}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                inviteMode: e.target.checked ? "new" : "existing",
-              }))
-            }
-            className="sr-only peer"
-          />
-          <div className="w-[200px] h-10 bg-blue-100 shadow-md rounded-md relative" />
-          <div
-            className={`absolute top-0.5 bg-blue-300 rounded-md h-9 w-[99px] transition-transform duration-300 ease-in-out transform ${
-              formData.inviteMode === "new"
-                ? "translate-x-[calc(197.5px-100%)]"
-                : "translate-x-0.5"
-            }`}
-          />
-          <div className="absolute inset-0 flex items-center justify-between text-sm font-medium">
-            <span
-              className={`flex-1 text-center transition-all duration-300 ease-in-out transform ${
-                formData.inviteMode === "existing"
-                  ? "text-blue-700 font-semibold text-[1rem]"
-                  : "text-blue-500"
-              }`}
-            >
-              Existing
-            </span>
-            <span
-              className={`flex-1 text-center transition-all duration-300 ease-in-out ${
-                formData.inviteMode === "new"
-                  ? "text-blue-700 font-semibold text-[1rem]"
-                  : "text-blue-500"
-              }`}
-            >
-              New
-            </span>
-          </div>
-        </label>
-      </div>
-    );
-  }
 }
 
 const InviteForm = React.memo(function InviteForm({
@@ -128,6 +98,7 @@ const InviteForm = React.memo(function InviteForm({
   const {
     inviteCandidate,
     loading: { invitingCandidate },
+    error: { invitingCandidate: inviteError },
   } = useInterview();
   const navigate = useNavigate();
 
@@ -149,6 +120,8 @@ const InviteForm = React.memo(function InviteForm({
         scheduledTime: formData.scheduleTime,
       });
     }
+
+    if (inviteError) return;
 
     navigate("/recruiter/dashboard");
   }
@@ -199,11 +172,9 @@ const InviteForm = React.memo(function InviteForm({
       <button
         type="submit"
         disabled={invitingCandidate}
-        className={`w-full md:w-auto px-6 py-2 rounded-md text-white font-medium transition-colors duration-200 ${
-          invitingCandidate
-            ? "bg-blue-400 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-blue-600"
-        }`}
+        className={
+          "w-full px-6 py-2 rounded-md bg-blue-200 text-blue-600 hover:bg-blue-300 hover:text-blue-800 cursor-pointer font-semibold shadow transition-colors duration-200"
+        }
       >
         {invitingCandidate ? <LoadingSpinner size="sm" /> : "Send Invitation"}
       </button>

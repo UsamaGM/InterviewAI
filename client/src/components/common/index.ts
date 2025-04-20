@@ -7,6 +7,7 @@ import RotatingButton from "./RotatingButton";
 import SlidingIconButton from "./SlidingIconButton";
 import StyledNavLink from "./StyledNavLink";
 import TextArea from "./TextArea";
+import Toggle from "./Toggle";
 
 export {
   InputBox,
@@ -18,4 +19,5 @@ export {
   ErrorAlert,
   LoadingSpinner,
   StyledNavLink,
+  Toggle,
 };
