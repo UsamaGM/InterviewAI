@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import useInterview from "../../hooks/useInterview";
-import { Question } from "../../utils/types";
-import { ErrorAlert, LoadingSpinner, TextArea } from "../common";
+import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { ErrorAlert, LoadingSpinner, TextArea } from "@/components/common";
+import { useInterview } from "@/hooks";
+import { Question } from "@/utils/types";
 
 interface props {
   currentQuestionIndex: number;
@@ -9,7 +10,7 @@ interface props {
   questions: Question[];
 }
 
-export default function QuestionWithAnswerTextBoxAndAssessmentButton({
+const QuestionWithAnswerTextBoxAndAssessmentButton = React.memo(function ({
   currentQuestionIndex,
   setIndex,
   questions,
@@ -32,10 +33,11 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
   const isFirstQuestion = currentQuestionIndex === 0;
   const hasAssessment = currentQuestion?.aiAssessment?.score !== undefined;
   const currentAnswer = answers[currentQuestion?._id] || "";
+  const { id } = useParams();
 
   useEffect(() => {
     async function initializeQuestions() {
-      if (questions?.length === 0) await generateQuestions();
+      if (questions?.length === 0) await generateQuestions(id as string);
 
       const initialAnswers = questions.reduce(
         (acc, question: Question) => ({
@@ -49,7 +51,7 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
     }
 
     initializeQuestions();
-  }, []);
+  }, [questions, id, generateQuestions]);
 
   function handleNextQuestion() {
     if (!isLastQuestion) {
@@ -75,14 +77,10 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
     }, 1000);
   }
 
+  if (generatingQuestions) return <LoadingSpinner size="lg" />;
+
   return (
-    <div className="w-2/4 bg-white/50 min-h-[300px] h-fit backdrop-blur-lg rounded-md p-6">
-      {generatingQuestions && (
-        <div className="flex flex-col gap-6 justify-center items-center">
-          <LoadingSpinner size="lg" />
-          <p>Generating Questions</p>
-        </div>
-      )}
+    <div className="w-2/4 bg-white/80 backdrop-blur-md min-h-[300px] h-fit rounded-md p-6">
       {generateError && (
         <ErrorAlert
           title="Failed to generate questions!"
@@ -99,7 +97,13 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
             >
               Previous
             </button>
-            <div className="flex space-x-2">{renderNavigationDots()}</div>
+            <div className="flex space-x-2">
+              <NavigationDots
+                currentQuestionIndex={currentQuestionIndex}
+                onClick={(i) => setIndex(i)}
+                totalQuestions={totalQuestions}
+              />
+            </div>
             <button
               className="px-4 py-2 rounded-md disabled:cursor-default cursor-pointer text-blue-400 hover:text-blue-800 disabled:hover:bg-transparent hover:bg-blue-100  disabled:text-gray-400 font-semibold transition duration-200"
               onClick={handleNextQuestion}
@@ -109,7 +113,7 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
             </button>
           </div>
 
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+          <h3 className="text-lg text-justify font-semibold text-gray-800 mt-6 mb-12">
             {currentQuestion.questionText}
           </h3>
 
@@ -124,7 +128,7 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
 
           <div className="mt-4">
             <button
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-200"
+              className="w-full bg-blue-500 text-blue-900 hover:bg-blue-400 hover:scale-95 disabled:bg-blue-200 disabled:cursor-not-allowed font-semibold cursor-pointer py-2 px-4 rounded transition-all duration-300 ease-in-out"
               onClick={() => assessAnswer(currentQuestionIndex, currentAnswer)}
               disabled={
                 !currentAnswer ||
@@ -133,41 +137,48 @@ export default function QuestionWithAnswerTextBoxAndAssessmentButton({
                 assessingAnswer
               }
             >
-              {assessingAnswer ? (
-                <>
-                  <LoadingSpinner size="sm" />
-                  Assessing...
-                </>
-              ) : (
-                "Assess Answer"
-              )}
+              {assessingAnswer ? <LoadingSpinner size="sm" /> : "Assess Answer"}
             </button>
           </div>
         </>
       )}
     </div>
   );
+});
 
-  function renderNavigationDots() {
-    return Array.from({ length: totalQuestions }).map((_, i) => (
-      <div
-        key={i}
-        className={`relative group flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${
-          currentQuestionIndex === i
-            ? "bg-blue-500 text-white"
-            : "bg-gray-100 hover:bg-gray-200"
-        } ${i < currentQuestionIndex ? "bg-blue-200" : ""}`}
-        style={{
-          cursor: currentQuestionIndex !== i ? "pointer" : "default",
-        }}
-        onClick={() => setIndex(i)}
-        title={`Question ${i + 1}`}
-      >
-        <span className="text-xs font-medium">{i + 1}</span>
-        {currentQuestionIndex === i && (
-          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full" />
-        )}
-      </div>
-    ));
-  }
-}
+type NavigationDotProps = {
+  totalQuestions: number;
+  currentQuestionIndex: number;
+  onClick: (index: number) => void;
+};
+
+const NavigationDots = React.memo(function (props: NavigationDotProps) {
+  return Array.from({ length: props.totalQuestions }).map((_, i) => (
+    <div
+      key={i}
+      className={`relative group flex items-center justify-center w-8 h-8 mx-1 rounded-full transition-all duration-300 ease-in-out ${
+        props.currentQuestionIndex === i
+          ? "bg-blue-500 text-white shadow-lg scale-110"
+          : "bg-gray-200 hover:bg-gray-300 hover:scale-105"
+      } ${
+        i < props.currentQuestionIndex
+          ? "bg-blue-100 border-2 border-blue-300"
+          : "border-2 border-transparent"
+      }`}
+      style={{
+        cursor: props.currentQuestionIndex !== i ? "pointer" : "default",
+      }}
+      onClick={() => props.onClick(i)}
+      title={`Question ${i + 1}`}
+    >
+      <span className="text-sm font-semibold">{i + 1}</span>
+      {props.currentQuestionIndex === i && (
+        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" />
+        </div>
+      )}
+    </div>
+  ));
+});
+
+export default QuestionWithAnswerTextBoxAndAssessmentButton;

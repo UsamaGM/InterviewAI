@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
-import { LoadingSpinner } from "../common";
-import InterviewCard from "../interview/InterviewCard";
-import useInterview from "../../hooks/useInterview";
+import { LoadingSpinner } from "@/components/common";
+import { InterviewCard } from "@/components/interview";
+import { useInterview } from "@/hooks";
 
 function RecruiterDashboard() {
   const {
     interviews,
-    loading: { fetchingInterviews: loading },
-    error: { fetchingInterviews: error },
+    loading: { fetchingInterviews },
+    error: { fetchingInterviews: fetchError },
   } = useInterview();
+
+  if (fetchingInterviews) return <LoadingSpinner size="lg" />;
 
   return (
     <div className="container mx-auto px-4">
@@ -22,11 +24,9 @@ function RecruiterDashboard() {
         </Link>
       </div>
 
-      {loading ? (
-        <LoadingSpinner />
-      ) : interviews && interviews.length > 0 ? (
+      {interviews && interviews.length > 0 ? (
         <div className="flex flex-wrap gap-4">
-          {error && <p className="text-red-500">{error}</p>}
+          {fetchError && <p className="text-red-500">{fetchError}</p>}
           {interviews.map((interview) => (
             <InterviewCard
               key={interview._id}

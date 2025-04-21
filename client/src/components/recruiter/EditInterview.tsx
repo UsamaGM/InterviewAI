@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Interview } from "../../utils/types";
 import {
   InputBox,
   TextArea,
@@ -8,8 +7,9 @@ import {
   Dropdown,
   ErrorAlert,
   LoadingSpinner,
-} from "../../components/common";
-import useInterview from "../../hooks/useInterview";
+} from "@/components/common";
+import { useInterview } from "@/hooks";
+import { Interview, JobRole } from "@/utils/types";
 
 function EditInterview() {
   const {
@@ -52,7 +52,7 @@ function EditInterview() {
   if (updatingInterview) return <LoadingSpinner size="lg" />;
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-md">
+    <div className="max-w-2xl mx-auto p-8 bg-white/80 backdrop-blur-md rounded-lg shadow-md">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">
         Edit Interview
       </h1>
@@ -81,22 +81,23 @@ function EditInterview() {
           value={
             interview.scheduledTime ? interview.scheduledTime.slice(0, 16) : ""
           }
-          onChange={(value) => {
-            console.log(value);
-            handleInputChange("scheduledTime", value);
-          }}
+          onChange={(value) => handleInputChange("scheduledTime", value)}
         />
         <Dropdown
           id="jobRole"
           placeholder="Job Role"
           value={interview.jobRole!}
           onChange={(value) => handleInputChange("jobRole", value)}
+          options={Object.values(JobRole).map((role) => ({
+            label: role,
+            value: role,
+          }))}
         />
         <div className="flex gap-4">
           <button
             type="submit"
             disabled={updatingInterview}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="flex-2/3 px-4 py-2 bg-blue-500 text-blue-50 rounded-lg hover:bg-blue-700 cursor-pointer disabled:opacity-50"
           >
             {updatingInterview ? <LoadingSpinner size="sm" /> : "Save Changes"}
           </button>
@@ -104,7 +105,7 @@ function EditInterview() {
             type="button"
             onClick={handleCancel}
             disabled={updatingInterview}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+            className="flex-1/3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 cursor-pointer disabled:opacity-50"
           >
             Cancel
           </button>

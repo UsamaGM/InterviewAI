@@ -1,6 +1,6 @@
-import useInterview from "../../hooks/useInterview";
-import { Question } from "../../utils/types";
-import { LoadingSpinner } from "../common";
+import { useInterview } from "@/hooks";
+import { LoadingSpinner } from "@/components/common";
+import { Question } from "@/utils/types";
 
 interface props {
   questions: Question[];

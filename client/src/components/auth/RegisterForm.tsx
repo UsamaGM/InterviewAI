@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import useAuth from "../../hooks/useAuth";
-import { LoadingSpinner, InputBox, ErrorAlert } from "../common";
-import PasswordBox from "../common/PasswordBox";
+import {
+  LoadingSpinner,
+  InputBox,
+  PasswordBox,
+  ErrorAlert,
+} from "@/components/common";
+import { useAuth } from "@/hooks";
 
 function RegisterForm() {
   const [name, setName] = useState<string>("");

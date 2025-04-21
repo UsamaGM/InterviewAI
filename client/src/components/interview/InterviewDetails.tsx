@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ErrorAlert, LoadingSpinner } from "../common";
 import {
   ClockIcon,
   UserIcon,
@@ -11,9 +10,9 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { formatDate, statusConfig } from "../../utils/helpers";
-import useInterview from "../../hooks/useInterview";
-import useAuth from "../../hooks/useAuth";
+import { ErrorAlert, LoadingSpinner } from "@/components/common";
+import { formatDate, statusConfig } from "@/utils/helpers";
+import { useAuth, useInterview } from "@/hooks";
 
 function InterviewDetails() {
   const { id } = useParams();
@@ -38,7 +37,7 @@ function InterviewDetails() {
       }
     }
     fetchInterview();
-  }, [id]);
+  }, [id, fetchInterviewWithId]);
 
   const handleStartInterview = async () => {
     if (!selectedInterview) return;
@@ -194,30 +193,25 @@ function InterviewDetails() {
               )}
               {!isCandidate && (
                 <>
-                  {" "}
-                  <button
+                  <StyledButton
                     onClick={() => navigate("/recruiter/edit-interview")}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     <PencilIcon className="h-5 w-5 mr-2" />
                     Edit
-                  </button>
+                  </StyledButton>
                   {selectedInterview.status !== "cancelled" && (
-                    <button
-                      onClick={() => setShowModal("cancel")}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
+                    <StyledButton onClick={() => setShowModal("cancel")}>
                       <XMarkIcon className="h-5 w-5 mr-2" />
                       Cancel
-                    </button>
+                    </StyledButton>
                   )}
-                  <button
+                  <StyledButton
                     onClick={() => setShowModal("delete")}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    color="#BC3B44"
                   >
-                    <TrashIcon className="h-5 w-5 mr-2" />
-                    Delete
-                  </button>
+                    <TrashIcon className="h-5 w-5 mr-2 text-gray-100" />
+                    <span className="text-gray-100">Delete</span>
+                  </StyledButton>
                 </>
               )}
             </div>
@@ -231,8 +225,16 @@ function InterviewDetails() {
   function Modal() {
     if (!showModal) return null;
 
+    function handleClick(): () => void {
+      return async () => {
+        if (showModal === "delete") await handleDelete();
+        else await handleCancel();
+        setShowModal(null);
+      };
+    }
+
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-xs shadow flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-lg max-w-md w-full p-6">
           <h3 className="text-lg font-medium text-gray-900">
             {showModal === "delete" ? "Delete Interview" : "Cancel Interview"}
@@ -254,29 +256,19 @@ function InterviewDetails() {
             />
           )}
           <div className="mt-4 flex justify-end gap-3">
-            <button
-              onClick={() => setShowModal(null)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
+            <StyledButton onClick={() => setShowModal(null)}>
               Cancel
-            </button>
-            <button
-              onClick={async () => {
-                if (showModal === "delete") await handleDelete();
-                else await handleCancel();
-                setShowModal(null);
-              }}
-              className="px-4 py-2 text-sm font-medium hover:scale-105 cursor-crosshair transition-transform duration-300 text-white border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              style={{
-                backgroundColor: showModal === "delete" ? "red" : "olive",
-              }}
+            </StyledButton>
+            <StyledButton
+              onClick={handleClick}
+              color={showModal === "delete" ? "#BC3B44" : "#AF7E46"}
             >
               {loading.deletingInterview || loading.updatingInterview ? (
                 <LoadingSpinner size="sm" />
               ) : (
-                "Confirm"
+                <span className="text-gray-100">Confirm</span>
               )}
-            </button>
+            </StyledButton>
           </div>
         </div>
       </div>
@@ -284,23 +276,60 @@ function InterviewDetails() {
   }
 }
 
-function DescriptionText({ description }: { description: string }) {
+type propType = {
+  onClick: () => void;
+  children: ReactNode;
+  color?: string;
+};
+
+function StyledButton(props: propType) {
+  return (
+    <button
+      onClick={props.onClick}
+      className="inline-flex items-center px-4 py-2 border cursor-pointer border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      style={{ backgroundColor: props.color }}
+    >
+      {props.children}
+    </button>
+  );
+}
+
+export function DescriptionText({ description }: { description: string }) {
   const [readMore, setReadMore] = useState<boolean>(false);
   return (
-    <div className="flex flex-col">
-      <p
-        className={`mt-4 text-gray-700 text-justify p-2 ${
-          readMore ? "" : "line-clamp-4"
-        }`}
-      >
-        {description}
-      </p>
-      <span
-        className="text-blue-500 hover:text-blue-800 cursor-pointer w-fit"
-        onClick={() => setReadMore(!readMore)}
-      >
-        {readMore ? "Hide" : "Show More"}
-      </span>
+    <div className="flex flex-col mt-6">
+      {description.split("\n").map((line, index) => {
+        if (index === 0) {
+          return (
+            <p
+              key={index}
+              className={`text-justify text-gray-500 mb-1 ${
+                readMore ? "line-clamp-none" : "line-clamp-3"
+              }`}
+            >
+              {line}
+            </p>
+          );
+        }
+        return (
+          <p
+            key={index}
+            className={`text-justify text-gray-500 mb-1 ${
+              readMore ? "line-clamp-none" : "hidden"
+            }`}
+          >
+            {line}
+          </p>
+        );
+      })}
+      {description.length > 200 && (
+        <button
+          className="text-blue-500 hover:text-blue-800 cursor-pointer w-fit text-sm font-medium mt-1"
+          onClick={() => setReadMore(!readMore)}
+        >
+          {readMore ? "Show less" : "Show more"}
+        </button>
+      )}
     </div>
   );
 }

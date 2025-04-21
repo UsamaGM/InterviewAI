@@ -290,6 +290,7 @@ export function InterviewProvider({ children }: { children: ReactNode }) {
           questions: questionsWithAnswers,
         });
         await updateInterviews();
+        setError((prev) => ({ ...prev, submittingAnswers: null }));
       } catch (err) {
         setError((prev) => ({
           ...prev,

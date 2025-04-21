@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ErrorAlert, LoadingSpinner } from "../common";
-import useInterview from "../../hooks/useInterview";
-import TitleAndDescriptionWithActions from "./TitleAndDescriptionWithActions";
-import QuestionWithAnswerTextBoxAndAssessmentButton from "./QuestionWithAnswerTextboxAndAssessmentButton";
-import AiAssessmentResults from "./AiAssessmentResults";
+import {
+  TitleAndDescriptionWithActions,
+  QuestionWithAnswerTextBoxAndAssessmentButton,
+  AiAssessmentResults,
+} from "@/components/candidate";
+import { ErrorAlert, LoadingSpinner } from "@/components/common";
+import { useInterview } from "@/hooks";
 
 function TakeInterview() {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +25,7 @@ function TakeInterview() {
     }
 
     fetchInterview();
-  }, [id]);
+  }, []);
 
   if (fetchingInterviewWithId) {
     return <LoadingSpinner size="lg" />;
