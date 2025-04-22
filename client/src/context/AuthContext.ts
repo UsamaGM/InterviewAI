@@ -17,7 +17,7 @@ export type loadingType = {
   fetchingCandidates: boolean;
 };
 
-interface AuthContextType {
+export type AuthContextType = {
   isAuthenticated: boolean;
   isCandidate: boolean | null;
   isReady: boolean;
@@ -30,6 +30,6 @@ interface AuthContextType {
   logout: () => void;
   updateUser: (user: User) => Promise<void>;
   fetchCandidates: () => Promise<void>;
-}
+};
 
 export const AuthContext = createContext<AuthContextType | null>(null);

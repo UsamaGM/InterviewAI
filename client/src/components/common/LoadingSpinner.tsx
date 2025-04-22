@@ -1,15 +1,9 @@
-// components/common/LoadingSpinner.tsx
-import React from "react";
-
-interface LoadingSpinnerProps {
+type props = {
   fullScreen?: boolean;
   size?: "sm" | "md" | "lg";
-}
+};
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  fullScreen = false,
-  size = "md",
-}) => {
+function LoadingSpinner({ fullScreen = false, size = "md" }: props) {
   const sizeClasses = {
     sm: "h-6 w-6 border-2",
     md: "h-12 w-12 border-3",
@@ -31,6 +25,6 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   }
 
   return spinner;
-};
+}
 
 export default LoadingSpinner;

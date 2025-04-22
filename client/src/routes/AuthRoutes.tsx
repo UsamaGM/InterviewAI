@@ -2,34 +2,46 @@ import { lazy, ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
-const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
-const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
+const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
+const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
 
 export default function AuthRoutes() {
   const { isAuthenticated, isCandidate } = useAuth();
   console.log("AuthRoutes", isAuthenticated, isCandidate);
 
-  function AuthenticateRoute({ route }: { route: ReactNode }) {
+  function AuthenticateRoute({ children }: { children: ReactNode }) {
     if (isAuthenticated) {
       if (isCandidate) return <Navigate to="/candidate/dashboard" />;
       return <Navigate to="/recruiter/dashboard" />;
     }
-    return route;
+    return children;
   }
 
   return (
     <Routes>
       <Route
         path="login"
-        element={<AuthenticateRoute route={<LoginPage />} />}
+        element={
+          <AuthenticateRoute>
+            <LoginPage />
+          </AuthenticateRoute>
+        }
       />
       <Route
         path="register"
-        element={<AuthenticateRoute route={<RegisterPage />} />}
+        element={
+          <AuthenticateRoute>
+            <RegisterPage />
+          </AuthenticateRoute>
+        }
       />
       <Route
         path="*"
-        element={<AuthenticateRoute route={<Navigate to="/" />} />}
+        element={
+          <AuthenticateRoute>
+            <Navigate to="/" />
+          </AuthenticateRoute>
+        }
       />
     </Routes>
   );

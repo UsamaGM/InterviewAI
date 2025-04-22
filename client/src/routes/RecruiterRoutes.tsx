@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
 const RecruiterDashboardPage = lazy(
-  () => import("../pages/recruiter/RecruiterDashboardPage")
+  () => import("../pages/recruiter/RecruiterDashboard")
 );
 const ScheduleInterviewPage = lazy(
   () => import("../pages/recruiter/ScheduleInterviewPage")

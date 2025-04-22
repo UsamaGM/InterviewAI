@@ -12,6 +12,13 @@ function AiAssessmentResults({ questions, index }: props) {
     loading: { assessingAnswer },
   } = useInterview();
 
+  if (assessingAnswer)
+    return (
+      <div className="flex w-full max-w-1/4 p-4 items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+
   const currentQuestion = questions ? questions[index] : null;
 
   return (
@@ -19,11 +26,9 @@ function AiAssessmentResults({ questions, index }: props) {
       <h4 className="text-xl font-semibold text-gray-800 mb-3">
         AI Assessment
       </h4>
-      {assessingAnswer ? (
-        <LoadingSpinner size="lg" />
-      ) : currentQuestion &&
-        currentQuestion.aiAssessment &&
-        currentQuestion.aiAssessment.score ? (
+      {currentQuestion &&
+      currentQuestion.aiAssessment &&
+      currentQuestion.aiAssessment.score !== undefined ? (
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between bg-gray-50 p-2 rounded">
             <span className="font-medium">Score:</span>

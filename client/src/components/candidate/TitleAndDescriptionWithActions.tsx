@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { ErrorAlert, LoadingSpinner } from "@/components/common";
+import { ErrorAlert, LoadingSpinner, StyledButton } from "@/components/common";
 import { useInterview } from "@/hooks";
 import { Interview } from "@/utils/types";
 import { DescriptionText } from "../interview";
-import { ReactNode } from "react";
 
 type mainPropType = {
   interview: Interview;
@@ -65,23 +64,5 @@ export default function TitleAndDescriptionWithActions(props: mainPropType) {
         )}
       </StyledButton>
     </div>
-  );
-}
-
-type propType = {
-  children: ReactNode;
-  disabled: boolean;
-  onClick: () => void;
-};
-
-function StyledButton(props: propType) {
-  return (
-    <button
-      disabled={props.disabled}
-      onClick={props.onClick}
-      className="w-full bg-blue-200 hover:bg-blue-400 text-blue-500 hover:text-blue-800 font-semibold cursor-pointer m-1 py-2 px-4 rounded-md transition-all ease-in-out duration-300"
-    >
-      {props.children}
-    </button>
   );
 }

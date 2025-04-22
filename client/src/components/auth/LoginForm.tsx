@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
+  ErrorAlert,
   LoadingSpinner,
   InputBox,
   PasswordBox,
-  ErrorAlert,
+  StyledButton,
 } from "@/components/common";
-import { useAuth } from "@/hooks";
+import useAuth from "@/hooks/useAuth";
 
 function LoginForm() {
   const [email, setEmail] = useState<string>("");
@@ -45,23 +46,22 @@ function LoginForm() {
         required
       />
 
-      <div className="flex items-center justify-between">
-        <div className="text-sm">
-          <Link
-            to="/auth/register"
-            className="text-blue-600 hover:text-blue-800"
-          >
-            Don't have an account? Register
-          </Link>
-        </div>
-        <button
-          type="submit"
-          disabled={loggingIn}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      <div className="flex justify-center text-sm gap-1">
+        Don't have an account?
+        <Link
+          to="/auth/register"
+          className="w-fit text-blue-600 hover:text-blue-800 hover:underline"
         >
-          {loggingIn ? <LoadingSpinner size="sm" /> : "Login"}
-        </button>
+          Register
+        </Link>
       </div>
+      <StyledButton
+        type="submit"
+        disabled={loggingIn}
+        style={{ backgroundColor: "blue" }}
+      >
+        {loggingIn ? <LoadingSpinner size="sm" /> : "Login"}
+      </StyledButton>
     </form>
   );
 }

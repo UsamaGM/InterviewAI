@@ -1,6 +1,6 @@
 import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import useAuth from "@/hooks/useAuth";
 
 const CandidateDashboard = lazy(
   () => import("../pages/candidate/CandidateDashboard")

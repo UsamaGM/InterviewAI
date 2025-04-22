@@ -1,0 +1,435 @@
+Project Title: InterviewAI
+
+Technology Stack:
+
+    Frontend:
+
+        React (with functional components and hooks)
+
+        Redux (for global state management)
+
+        React Router (for navigation)
+
+        Axios (for API requests)
+
+        Material-UI or Ant Design (for UI components - choose one)
+
+        Date-fns or Moment.js (for date/time handling)
+
+        react-beautiful-dnd (optional, for drag-and-drop question ordering if desired)
+
+    Backend:
+
+        Node.js
+
+        Express.js
+
+        MongoDB (with Mongoose for object modeling)
+
+        JSON Web Tokens (JWT) for authentication
+
+        Nodemailer (for sending emails)
+
+        OpenAI API (or a similar large language model API)
+
+        Multer (for file uploads, if you allow uploading resumes)
+
+    AI Integration:
+
+        OpenAI API (or a similar powerful LLM) - This is the core for question generation, answer assessment, and scoring. You'll need to carefully craft prompts to get the desired results.
+
+    Deployment:
+
+        Heroku, Netlify, AWS, or similar platforms.
+
+Project Structure (Directory Layout):
+
+
+interview-ai/
+├── client/          # Frontend (React)
+│   ├── public/
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   │   ├── Auth/        # Login, Register
+│   │   │   ├── Dashboard/   # Recruiter and Candidate dashboards
+│   │   │   ├── Interview/    # Interview creation, listing, taking
+│   │   │   ├── User/       # User management
+│   │   │   └── ...
+│   │   ├── contexts/     #  For managing authentication, etc.
+│   │   ├── hooks/        #  Custom React hooks
+│   │   ├── pages/        # Top-level route components
+│   │   ├── services/     # API interaction logic
+│   │   ├── store/        # Redux store, actions, reducers
+│   │   ├── App.js
+│   │   ├── index.js
+│   │   └── ...
+│   ├── package.json
+│   └── ...
+├── server/          # Backend (Node.js/Express)
+│   ├── config/        # Database connection, environment variables
+│   ├── controllers/   # Logic for handling requests
+│   │   ├── authController.js
+│   │   ├── interviewController.js
+│   │   ├── userController.js
+│   │   └── ...
+│   ├── middleware/    # Authentication, authorization, error handling
+│   ├── models/        # Mongoose schemas (User, Interview, Question, etc.)
+│   │   ├── Interview.js
+│   │   ├── User.js
+│   │   └── ...
+│   ├── routes/        # API endpoints
+│   │   ├── authRoutes.js
+│   │   ├── interviewRoutes.js
+│   │   ├── userRoutes.js
+│   │   └── ...
+│   ├── services/      # Email sending, AI interaction
+│   │   ├── emailService.js
+│   │   ├── aiService.js  # Handles OpenAI API calls
+│   │   └── ...
+│   ├── utils/        # Helper functions
+│   ├── app.js         # Main Express application setup
+│   ├── server.js      # Starts the server
+│   ├── package.json
+│   └── ...
+├── .env             # Environment variables (API keys, database URL, etc.)
+└── README.md
+
+
+
+IGNORE_WHEN_COPYING_START
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Database Models (Mongoose Schemas):
+
+    User:
+
+        email (String, required, unique)
+
+        password (String, required)
+
+        role (String, enum: ['recruiter', 'candidate'], required)
+
+        name (String)
+
+        isVerified (Boolean, default: false)
+
+        verificationToken (String)
+
+        resetPasswordToken (String, optional) //For password reset
+
+        resetPasswordExpires (Date, optional)
+
+        createdAt (Date, default: Date.now)
+
+        ... (other relevant user information)
+
+    Interview:
+
+        title (String, required)
+
+        description (String)
+
+        recruiter (ObjectId, ref: 'User', required) // Link to the recruiter
+
+        candidate (ObjectId, ref: 'User') // Link to the candidate (can be null initially)
+
+        scheduledTime (Date)
+
+        questions (Array of question objects - see below)
+
+        status (String, enum: ['draft', 'scheduled', 'in-progress', 'completed', 'cancelled'], default: 'draft')
+
+        score (Number) // Overall interview score
+
+        feedback (String) // Overall feedback from the AI
+
+        createdAt (Date, default: Date.now)
+
+        ...
+
+    Question (Embedded within Interview):
+
+        questionText (String, required)
+
+        answerText (String) // Candidate's answer
+
+        aiAssessment (Object) // Store AI's analysis
+
+            score (Number)
+
+            keywords (Array of strings)
+
+            sentiment (String, e.g., 'positive', 'negative', 'neutral')
+
+            feedback (String)
+
+        questionType (String, enum: ['text', 'multiple-choice', ...]) // Optional, for different question types.
+
+API Endpoints (Example):
+
+    Authentication (/api/auth):
+
+        POST /register: Register a new user (send verification email)
+
+        POST /login: Login a user (return JWT)
+
+        GET /verify/:token: Verify user email
+
+        POST /forgot-password: Send password reset email.
+
+        POST /reset-password/:token: Reset user password.
+
+        GET /me: Get current user's information (requires authentication)
+
+    User Management (/api/users):
+
+        GET /: Get all users (admin only)
+
+        GET /:id: Get a specific user
+
+        PUT /:id: Update a user (admin or self)
+
+        DELETE /:id: Delete a user (admin only)
+
+    Interview Management (/api/interviews):
+
+        GET /: Get all interviews (for recruiter) or assigned interviews (for candidate)
+
+        GET /:id: Get a specific interview
+
+        POST /: Create a new interview (recruiter only)
+
+        PUT /:id: Update an interview (recruiter only, or candidate to submit answers)
+
+        DELETE /:id: Delete an interview (recruiter only)
+
+        POST /:id/schedule: Schedule an interview
+
+        POST /:id/start: Start an interview (change status)
+
+        POST /:id/submit: Submit answers to an interview (candidate)
+
+        POST /:id/generate-questions : Generate AI Questions.
+
+        POST /:id/assess-answer: Assess the answer for an Interview Question.
+
+Detailed Feature Breakdown:
+
+    Interview Creation and Management:
+
+        Frontend:
+
+            A form for recruiters to create interviews (title, description, job role).
+
+            A list view of existing interviews, with filtering and sorting options.
+
+            An edit view to modify interview details.
+
+            Ability to add/remove/reorder questions (potentially with drag-and-drop).
+
+        Backend:
+
+            CRUD operations for the Interview model.
+
+            Middleware to ensure only recruiters can create/edit/delete interviews.
+
+            Logic to handle question generation (see AI section below).
+
+    User Creation and Management:
+
+        Frontend:
+
+            Registration and login forms.
+
+            User profile pages.
+
+            Admin panel for user management (if you have an admin role).
+
+        Backend:
+
+            User registration with email verification (using Nodemailer and a unique token).
+
+            User login with JWT authentication.
+
+            Password reset functionality.
+
+            CRUD operations for the User model.
+
+            Middleware for role-based access control (e.g., only admins can delete users).
+
+    Ability to Schedule Interviews for Future:
+
+        Frontend:
+
+            A date/time picker in the interview creation/edit form.
+
+            Display of scheduled time on interview details.
+
+        Backend:
+
+            Store the scheduledTime in the Interview model.
+
+            A scheduled task (using a library like node-cron or a database-backed queue like Bull) to send reminder emails before the interview starts.
+
+    Emails for Verification and Reminders:
+
+        Backend:
+
+            Use Nodemailer to send emails:
+
+                Verification: After registration, send an email with a verification link containing a unique token.
+
+                Reminders: Use node-cron (or similar) to schedule email sending before the scheduledTime.
+
+                Password Reset: Send emails with reset tokens for forgotten passwords.
+
+            Create email templates (using a templating engine like EJS or Handlebars, or just plain HTML).
+
+    AI that Generates Interview Questions, Assesses Answers, and Rates the Interview:
+
+        Backend (aiService.js):
+
+            Question Generation:
+
+                generateQuestions(jobRole, interviewDescription):
+
+                    Construct a prompt for the OpenAI API. Example prompt: "Generate 5 interview questions for a [jobRole] position, focusing on [interviewDescription]. Format the questions as a JSON array: [{ "question": "..." }, { "question": "..." }, ...]". Be very specific in your prompt!
+
+                    Call the OpenAI API.
+
+                    Parse the response (which should be JSON) and save the questions to the Interview model.
+
+            Answer Assessment:
+
+                assessAnswer(questionText, answerText, jobRole):
+
+                    Construct a prompt for the OpenAI API. Example prompt: "Assess the following answer to the interview question: '[questionText]'. Answer: '[answerText]'. The job role is [jobRole]. Provide a score (0-10), a list of relevant keywords, a sentiment analysis (positive, negative, neutral), and brief feedback. Format the response as JSON: {"score": ..., "keywords": [...], "sentiment": "...", "feedback": "..."}".
+
+                    Call the OpenAI API.
+
+                    Parse the response and save the aiAssessment to the Question object.
+
+            Overall Interview Rating:
+
+                rateInterview(interviewId):
+
+                    Retrieve the interview and all its questions with their aiAssessment.
+
+                    Calculate an overall score (e.g., average of question scores).
+
+                    Generate overall feedback (you could use OpenAI for this too, summarizing the individual assessments).
+
+                    Update the Interview model with the score and feedback.
+
+        Frontend:
+
+            Display the generated questions to the candidate.
+
+            Provide input fields for answers.
+
+            Display the AI assessment and overall rating to the recruiter (after the interview is completed).
+
+Key Considerations and Best Practices:
+
+    Error Handling: Implement robust error handling throughout the application (try-catch blocks, error middleware in Express).
+
+    Security:
+
+        Sanitize all user inputs to prevent XSS and other vulnerabilities.
+
+        Use HTTPS.
+
+        Store passwords securely (using bcrypt).
+
+        Protect API keys and other sensitive information using environment variables.
+
+        Implement rate limiting to prevent abuse.
+
+    Scalability: Design your database schema and API to handle a large number of users and interviews.
+
+    Testing: Write unit tests and integration tests to ensure your code works correctly.
+
+    User Experience:
+
+        Provide clear instructions and feedback to users.
+
+        Make the interface intuitive and easy to use.
+
+        Design for responsiveness (mobile-friendly).
+
+    OpenAI API Usage:
+
+        Monitor your API usage and costs.
+
+        Implement error handling for API calls (e.g., rate limits, network errors).
+
+        Consider caching API responses (with appropriate invalidation) to improve performance and reduce costs.
+
+    Asynchronous Operations: Handle Promises and async/await properly, especially with database operations and API calls.
+
+Development Steps:
+
+    Set up the Project:
+
+        Create the project directory structure.
+
+        Initialize Node.js projects for both client and server (npm init -y).
+
+        Install necessary dependencies in both client and server.
+
+    Backend - Authentication:
+
+        Create the User model.
+
+        Implement registration, login, and email verification routes.
+
+        Set up JWT authentication middleware.
+
+    Backend - Interview and User Models:
+
+        Create the Interview model.
+
+        Implement basic CRUD routes for interviews and users (without AI integration yet).
+
+    Frontend - Basic UI:
+
+        Create basic React components for login, registration, dashboard, and interview listing.
+
+        Connect the frontend to the backend API.
+
+    Backend - AI Integration:
+
+        Create the aiService.js file.
+
+        Implement the generateQuestions, assessAnswer, and rateInterview functions.
+
+        Integrate these functions into the interview routes.
+
+    Frontend - AI Features:
+
+        Update the interview components to display generated questions and AI assessments.
+
+        Add input fields for candidate answers.
+
+    Backend - Scheduling and Emails:
+
+        Implement the scheduling logic using node-cron (or similar).
+
+        Set up email sending using Nodemailer.
+
+    Frontend - Scheduling:
+
+        Add a date/time picker to the interview form.
+
+    Testing and Refinement:
+
+        Write tests for your API endpoints and frontend components.
+
+        Refactor your code for better organization and performance.
+
+        Thoroughly test the AI integration and adjust prompts as needed.
+
+    Deployment:
+
+        Deploy the frontend and backend to your chosen hosting platforms.

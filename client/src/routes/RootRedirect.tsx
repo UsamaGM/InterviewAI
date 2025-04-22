@@ -4,6 +4,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 
 function RootRedirect() {
   const { isAuthenticated, isCandidate, isReady } = useAuth();
+  console.log("Root Redirect");
 
   if (!isReady) {
     return <LoadingSpinner />;

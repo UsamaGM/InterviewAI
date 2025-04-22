@@ -29,11 +29,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function fetchUser() {
       const token = localStorage.getItem("token");
-      const isAuthenticated = !!token;
-      setIsAuthenticated(isAuthenticated);
-      if (isAuthenticated) {
-        console.log("Initializing...");
-        try {
+      setIsAuthenticated(!!token);
+      console.log("Initializing...");
+      try {
+        if (isAuthenticated) {
           setLoading((prev) => ({ ...prev, initializing: true }));
 
           const userResponse: AxiosResponse<User> = await api.get(
@@ -42,18 +41,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(userResponse.data);
 
           setError((prev) => ({ ...prev, initializing: null }));
-        } catch (err) {
-          setError((prev) => ({
-            ...prev,
-            initializing: handleError(err, "Failed to fetch user"),
-          }));
-        } finally {
-          setLoading((prev) => ({ ...prev, initializing: false }));
-          setIsReady(true);
         }
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          initializing: handleError(err, "Failed to fetch user"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, initializing: false }));
+        console.log("Data Ready");
+        setIsReady(true);
       }
-      console.log("Initialized Auth");
     }
+    console.log("Initialized Auth");
 
     fetchUser();
   }, [isAuthenticated]);

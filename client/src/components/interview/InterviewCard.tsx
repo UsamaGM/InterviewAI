@@ -22,7 +22,7 @@ const InterviewCard = ({
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-w-[150px] max-w-[49%] bg-white/80 backdrop-blur-lg rounded-lg ring-2 ring-blue-200 hover:ring-blue-400 hover:scale-102 shadow-xl p-4 hover:shadow-none transition-all duration-300 flex flex-col gap-3">
+    <div className="relative w-[49%] bg-white/80 backdrop-blur-lg rounded-lg ring-2 ring-blue-200 hover:ring-blue-400 hover:scale-102 shadow-xl p-4 hover:shadow-none transition-all duration-300 flex flex-col gap-3">
       <div className="flex justify-between items-start">
         <h3 className="text-lg font-semibold text-justify line-clamp-1 text-gray-800">
           {interview.title}

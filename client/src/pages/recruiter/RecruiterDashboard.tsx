@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
+import InterviewCard from "@/components/interview/InterviewCard";
 import { LoadingSpinner } from "@/components/common";
-import { InterviewCard } from "@/components/interview";
 import { useInterview } from "@/hooks";
 
 function RecruiterDashboard() {
@@ -24,9 +24,9 @@ function RecruiterDashboard() {
         </Link>
       </div>
 
+      {fetchError && <p className="text-red-500">{fetchError}</p>}
       {interviews && interviews.length > 0 ? (
-        <div className="flex flex-wrap gap-4">
-          {fetchError && <p className="text-red-500">{fetchError}</p>}
+        <div className="flex flex-wrap gap-4 justify-center">
           {interviews.map((interview) => (
             <InterviewCard
               key={interview._id}
