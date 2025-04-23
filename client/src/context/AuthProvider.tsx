@@ -1,9 +1,9 @@
 import { useState, ReactNode, useEffect, useCallback } from "react";
-import { handleError } from "../utils/errorHandler";
 import { AxiosResponse } from "axios";
-import { User } from "../utils/types";
+import { handleError } from "@/utils/errorHandler";
+import { User } from "@/utils/types";
 import { AuthContext, errorType, loadingType } from "./AuthContext";
-import api from "../services/api";
+import api from "@/services/api";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -109,21 +109,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const updateUser = useCallback(async (user: User) => {
-    try {
-      setLoading((prev) => ({ ...prev, updatingUser: true }));
-      const response = await api.put("/users/profile", user);
-      setUser(response.data);
-      setError((prev) => ({ ...prev, updatingUser: null }));
-    } catch (err) {
-      setError((prev) => ({
-        ...prev,
-        updatingUser: handleError(err, "Failed to update user"),
-      }));
-    } finally {
-      setLoading((prev) => ({ ...prev, updatingUser: false }));
-    }
-  }, []);
+  const updateUser = useCallback(
+    async (user: User & { currentPassword?: string; newPassword?: string }) => {
+      try {
+        setLoading((prev) => ({ ...prev, updatingUser: true }));
+        const response = await api.put("/users/profile", user);
+        setUser(response.data);
+        setError((prev) => ({ ...prev, updatingUser: null }));
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          updatingUser: handleError(err, "Failed to update user"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, updatingUser: false }));
+      }
+    },
+    []
+  );
 
   const fetchCandidates = useCallback(async () => {
     try {

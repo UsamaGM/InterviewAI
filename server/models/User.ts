@@ -62,7 +62,7 @@ UserSchema.pre<IUser>("save", async function (next) {
     return next();
   }
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password!, salt); // Non-null assertion, as we checked isModified
+  this.password = await bcrypt.hash(this.password!, salt);
   next();
 });
 
@@ -70,7 +70,7 @@ UserSchema.pre<IUser>("save", async function (next) {
 UserSchema.methods.matchPassword = async function (
   enteredPassword: string
 ): Promise<boolean> {
-  return await bcrypt.compare(enteredPassword, this.password!); // Non-null assertion
+  return await bcrypt.compare(enteredPassword, this.password!);
 };
 
 // Create and export the model

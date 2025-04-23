@@ -190,9 +190,6 @@ const forgotPassword = async (req: Request, res: Response) => {
   }
 };
 
-// @desc Reset password
-// @route POST /api/auth/reset-password/:token
-// @access Public
 const resetPassword = async (req: Request, res: Response) => {
   try {
     const { password } = req.body;

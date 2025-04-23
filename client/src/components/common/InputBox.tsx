@@ -18,10 +18,10 @@ function InputBox(props: InputBoxProps) {
       <input
         type={props.type}
         id={props.id}
-        name={name ?? props.id}
+        name={props.name ?? props.id}
         value={props.value}
         onChange={props.onChange}
-        className="peer w-full px-2 py-2 border-none bg-transparent placeholder-transparent focus:border-transparent focus:ring-0 focus:outline-hidden"
+        className="peer w-full px-2 py-2 border-none bg-transparent placeholder-transparent focus:border-transparent focus:ring-0 focus:outline-hidden disabled:text-gray-500"
         placeholder={props.placeholder}
         required={props.required}
         disabled={props.disabled}

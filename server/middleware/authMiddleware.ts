@@ -39,7 +39,7 @@ const protect = async (
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
         id: string;
-      }; // Type assertion
+      };
 
       // Get user from the token
       req.user = await User.findById(decoded.id).select("_id email role");
