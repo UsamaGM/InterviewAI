@@ -5,8 +5,6 @@ import ErrorBoundary from "./ErrorBoundary";
 import InputBox from "./InputBox";
 import LoadingSpinner from "./LoadingSpinner";
 import PasswordBox from "./PasswordBox";
-import RotatingButton from "./RotatingButton";
-import SlidingIconButton from "./SlidingIconButton";
 import StyledButton from "./StyledButton";
 import StyledNavLink from "./StyledNavLink";
 import SuccessAlert from "./SuccessAlert";
@@ -21,8 +19,6 @@ export {
   InputBox,
   LoadingSpinner,
   PasswordBox,
-  RotatingButton,
-  SlidingIconButton,
   StyledButton,
   StyledNavLink,
   SuccessAlert,

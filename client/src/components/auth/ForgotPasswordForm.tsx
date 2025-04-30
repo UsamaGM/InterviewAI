@@ -1,5 +1,8 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ErrorAlert,
   LoadingSpinner,
@@ -9,9 +12,21 @@ import {
 } from "@/components/common";
 import { useAuth } from "@/hooks";
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+
 function ForgotPasswordForm() {
-  const [email, setEmail] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
 
   const {
     forgotPassword,
@@ -19,18 +34,15 @@ function ForgotPasswordForm() {
     loading: { forgotPassword: isLoading },
   } = useAuth();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (email) {
-      const result = await forgotPassword(email);
-      if (result?.success) {
-        setSuccess("Password reset instructions have been sent to your email.");
-      }
+  const onSubmit = async (data: ForgotPasswordFormData) => {
+    const result = await forgotPassword(data.email);
+    if (result?.success) {
+      setSuccess("Password reset instructions have been sent to your email.");
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {forgotPasswordError && (
         <ErrorAlert title="Error!" subtitle={forgotPasswordError} />
       )}
@@ -40,9 +52,8 @@ function ForgotPasswordForm() {
         id="email"
         type="email"
         placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
+        {...register("email")}
+        error={errors.email?.message}
         disabled={isLoading}
       />
 

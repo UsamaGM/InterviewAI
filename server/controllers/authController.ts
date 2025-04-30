@@ -98,7 +98,6 @@ const loginUser = async (req: AuthRequest, res: Response) => {
     }
 
     const user = await User.findOne({ email });
-    console.log(user);
 
     if (user && (await user.matchPassword(password))) {
       if (!user.isVerified) {
@@ -165,8 +164,6 @@ const forgotPassword = async (req: Request, res: Response) => {
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
     await user.save();
-
-    console.log(process.env.CLIENT_URL);
 
     // Use frontend URL for reset password
     const clientURL = process.env.CLIENT_URL || "http://localhost:3000";

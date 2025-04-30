@@ -1,5 +1,8 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ErrorAlert,
   LoadingSpinner,
@@ -9,11 +12,32 @@ import {
 } from "@/components/common";
 import { useAuth } from "@/hooks";
 
+const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
+type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+
 function ResetPasswordForm() {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [success, setSuccess] = useState<string>("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
+
   const { token } = useParams();
   const navigate = useNavigate();
 
@@ -23,45 +47,30 @@ function ResetPasswordForm() {
     loading: { resetPassword: isLoading },
   } = useAuth();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setPasswordError("");
-
-    if (password !== confirmPassword) {
-      setPasswordError("Passwords do not match");
-      return;
-    }
-
-    if (password.length < 6) {
-      setPasswordError("Password must be at least 6 characters long");
-      return;
-    }
-
-    if (password && token) {
-      const result = await resetPassword(token, password);
+  const onSubmit = async (data: ResetPasswordFormData) => {
+    if (token) {
+      const result = await resetPassword(token, data.password);
       if (result?.success) {
         setSuccess("Password has been reset successfully!");
-        // Redirect to login after 2 seconds
         setTimeout(() => {
           navigate("/auth/login");
         }, 2000);
       }
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {resetPasswordError && (
         <ErrorAlert title="Error!" subtitle={resetPasswordError} />
       )}
-      {passwordError && <ErrorAlert title="Error!" subtitle={passwordError} />}
       {success && <SuccessAlert title="Success!" subtitle={success} />}
 
       <PasswordBox
         id="password"
         placeholder="New Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        {...register("password")}
+        error={errors.password?.message}
         required
         disabled={isLoading}
       />
@@ -69,17 +78,13 @@ function ResetPasswordForm() {
       <PasswordBox
         id="confirmPassword"
         placeholder="Confirm New Password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
+        {...register("confirmPassword")}
+        error={errors.confirmPassword?.message}
         required
         disabled={isLoading}
       />
 
-      <StyledButton
-        type="submit"
-        disabled={isLoading || !password || !confirmPassword}
-        style={{ backgroundColor: "blue" }}
-      >
+      <StyledButton type="submit" disabled={isLoading}>
         {isLoading ? <LoadingSpinner size="sm" /> : "Reset Password"}
       </StyledButton>
     </form>

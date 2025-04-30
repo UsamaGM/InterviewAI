@@ -94,10 +94,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(async (userData: User) => {
     try {
       setLoading((prev) => ({ ...prev, registering: true }));
+      setError((prev) => ({ ...prev, registering: null }));
 
       await api.post("/auth/register", userData);
-
-      setError((prev) => ({ ...prev, registering: null }));
 
       window.location.href = "/auth/login";
     } catch (err) {
@@ -110,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     localStorage.removeItem("token");
     setUser(null);
     setIsAuthenticated(false);
@@ -129,6 +128,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (user: User & { currentPassword?: string; newPassword?: string }) => {
       try {
         setLoading((prev) => ({ ...prev, updatingUser: true }));
+        setError((prev) => ({ ...prev, updatingUser: null }));
+
         const response = await api.put("/users/profile", user);
         setUser(response.data);
         setError((prev) => ({ ...prev, updatingUser: null }));
@@ -147,6 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function updatePassword(currentPassword: string, newPassword: string) {
     try {
       setLoading((prev) => ({ ...prev, updatingUser: true }));
+      setError((prev) => ({ ...prev, updatingUser: null }));
+
       await api.post("/auth/update-password", {
         currentPassword,
         newPassword,

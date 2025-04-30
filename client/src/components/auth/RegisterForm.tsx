@@ -1,73 +1,76 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   LoadingSpinner,
   InputBox,
   PasswordBox,
   ErrorAlert,
+  StyledButton,
 } from "@/components/common";
 import { useAuth } from "@/hooks";
 
-function RegisterForm() {
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [role, setRole] = useState<"recruiter" | "candidate">("candidate");
+const registerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(["recruiter", "candidate"], {
+    required_error: "Please select a role",
+  }),
+});
 
+type RegisterFormData = z.infer<typeof registerSchema>;
+
+function RegisterForm() {
   const {
     register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      role: "candidate",
+    },
+  });
+
+  const {
+    register: authRegister,
     error: { registering: registerError },
     loading: { registering },
   } = useAuth();
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    register({ email, password, role, name });
-  }
+  const onSubmit = async (data: RegisterFormData) => {
+    await authRegister(data);
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {registerError && <ErrorAlert title="Error!" subtitle={registerError} />}
+
       <InputBox
         id="name"
         type="text"
         placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        {...register("name")}
+        error={errors.name?.message}
       />
+
       <InputBox
         id="email"
         type="email"
         placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        {...register("email")}
+        error={errors.email?.message}
       />
+
       <PasswordBox
         id="password"
         placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        {...register("password")}
+        error={errors.password?.message}
       />
-      <RoleRadioGroup />
-      <p className="text-center text-sm mt-4">
-        Already have an account?{" "}
-        <Link to="/login" className="text-blue-500 hover:underline">
-          Login
-        </Link>
-      </p>
-      <div className="mt-6">
-        <button
-          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          type="submit"
-        >
-          {registering ? <LoadingSpinner size="sm" /> : "Register"}
-        </button>
-      </div>
-    </form>
-  );
 
-  function RoleRadioGroup() {
-    return (
       <div className="mb-4">
         <label
           className="block text-gray-700 text-sm font-bold mb-2"
@@ -80,10 +83,8 @@ function RegisterForm() {
             <input
               type="radio"
               id="recruiter"
-              name="role"
               value="recruiter"
-              checked={role === "recruiter"}
-              onChange={() => setRole("recruiter")}
+              {...register("role")}
             />
             <label className="ml-2" htmlFor="recruiter">
               Hire
@@ -93,19 +94,31 @@ function RegisterForm() {
             <input
               type="radio"
               id="candidate"
-              name="role"
               value="candidate"
-              checked={role === "candidate"}
-              onChange={() => setRole("candidate")}
+              {...register("role")}
             />
             <label className="ml-2" htmlFor="candidate">
               Get hired
             </label>
           </div>
         </div>
+        {errors.role?.message && (
+          <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
+        )}
       </div>
-    );
-  }
+
+      <p className="text-center text-sm mt-4">
+        Already have an account?{" "}
+        <Link to="/login" className="text-blue-500 hover:underline">
+          Login
+        </Link>
+      </p>
+
+      <StyledButton type="submit" disabled={registering}>
+        {registering ? <LoadingSpinner size="sm" /> : "Register"}
+      </StyledButton>
+    </form>
+  );
 }
 
 export default RegisterForm;

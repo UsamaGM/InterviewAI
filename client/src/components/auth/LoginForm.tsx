@@ -1,5 +1,7 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ErrorAlert,
   LoadingSpinner,
@@ -9,9 +11,21 @@ import {
 } from "@/components/common";
 import { useAuth } from "@/hooks";
 
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
 function LoginForm() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
   const {
     login,
@@ -19,33 +33,26 @@ function LoginForm() {
     loading: { loggingIn },
   } = useAuth();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (email && password) {
-      await login(email, password);
-    }
-  }
+  const onSubmit = async (data: LoginFormData) => {
+    await login(data.email, data.password);
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {loginError && <ErrorAlert title="Error!" subtitle={loginError} />}
 
       <InputBox
         id="email"
-        type="email"
         placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
+        {...register("email")}
+        error={errors.email?.message}
       />
 
       <PasswordBox
         id="password"
         placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
+        {...register("password")}
+        error={errors.password?.message}
       />
 
       <div className="flex flex-col items-center space-y-2">
@@ -66,11 +73,7 @@ function LoginForm() {
         </Link>
       </div>
 
-      <StyledButton
-        type="submit"
-        disabled={loggingIn}
-        style={{ backgroundColor: "blue" }}
-      >
+      <StyledButton type="submit" disabled={loggingIn}>
         {loggingIn ? <LoadingSpinner size="sm" /> : "Login"}
       </StyledButton>
     </form>

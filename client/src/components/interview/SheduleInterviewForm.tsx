@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useInterview } from "@/hooks";
 import { JobRole } from "@/utils/types";
-import { ChangeEvent, useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   DatetimeSelector,
   Dropdown,
@@ -12,28 +14,62 @@ import {
   Toggle,
 } from "@/components/common";
 
-type FormDataType = {
-  title: string;
-  description: string;
-  jobRole: JobRole | null;
-  scheduleNow: boolean;
-  candidateEmail?: string;
-  scheduledTime?: string;
+const scheduleInterviewSchema = z
+  .object({
+    title: z.string().min(3, "Title must be at least 3 characters"),
+    description: z
+      .string()
+      .min(10, "Description must be at least 10 characters"),
+    jobRole: z.nativeEnum(JobRole, {
+      required_error: "Please select a job role",
+    }),
+    scheduleNow: z.boolean(),
+    candidateEmail: z
+      .string()
+      .email("Invalid email address")
+      .optional()
+      .or(z.literal("")),
+    scheduledTime: z.string().optional().or(z.literal("")),
+  })
+  .refine(
+    (data) => {
+      if (data.scheduleNow) {
+        return !!data.candidateEmail && !!data.scheduledTime;
+      }
+      return true;
+    },
+    {
+      message:
+        "Candidate email and scheduled time are required when scheduling now",
+      path: ["scheduleNow"],
+    }
+  );
+
+type ScheduleFormData = z.infer<typeof scheduleInterviewSchema>;
+
+type Props = {
+  id?: string;
 };
 
-type propTypes = {
-  id: string;
-};
-
-function ScheduleInterviewForm(props: propTypes) {
-  const [formData, setFormData] = useState<FormDataType>({
-    title: "",
-    description: "",
-    scheduleNow: true,
-    jobRole: null,
-    candidateEmail: undefined,
-    scheduledTime: undefined,
+function ScheduleInterviewForm({ id }: Props) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<ScheduleFormData>({
+    resolver: zodResolver(scheduleInterviewSchema),
+    defaultValues: {
+      scheduleNow: true,
+      title: "",
+      description: "",
+      candidateEmail: "",
+      scheduledTime: "",
+    },
   });
+
+  const navigate = useNavigate();
 
   const {
     inviteCandidate,
@@ -45,148 +81,123 @@ function ScheduleInterviewForm(props: propTypes) {
     },
   } = useInterview();
 
-  const navigate = useNavigate();
+  const scheduleNow = watch("scheduleNow");
 
-  const [jobRoles, toggleOptions] = useMemo(
-    () => [
-      Object.values(JobRole).map((role) => ({
-        value: role,
-        label: role.charAt(0).toUpperCase() + role.slice(1),
-      })),
-      [
-        { label: "schedule_later", value: "Schedule Later" },
-        { label: "schedule_now", value: "Schedule Now" },
-      ],
-    ],
-    []
-  );
+  const jobRoles = Object.values(JobRole).map((role) => ({
+    value: role,
+    label: role.charAt(0).toUpperCase() + role.slice(1),
+  }));
 
-  const handleChange = useCallback(function (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.id]: e.target.value,
-    }));
-  },
-  []);
+  const toggleOptions = [
+    { label: "schedule_later", value: "Schedule Later" },
+    { label: "schedule_now", value: "Schedule Now" },
+  ];
 
-  const handleSubmit = useCallback(
-    async function (e: React.FormEvent) {
-      e.preventDefault();
+  const onSubmit = async (data: ScheduleFormData) => {
+    if (id) {
+      await inviteCandidate(id, {
+        email: data.candidateEmail!,
+        scheduledTime: new Date(data.scheduledTime!).toISOString(),
+      });
+    } else {
+      const newInterview = await createInterview({
+        title: data.title,
+        description: data.description,
+        jobRole: data.jobRole,
+        scheduledTime: data.scheduledTime,
+      });
 
-      if (props.id) {
-        await inviteCandidate(props.id, {
-          email: formData.candidateEmail!,
-          scheduledTime: new Date(formData.scheduledTime!).toISOString(),
+      if (data.scheduleNow && newInterview?._id && data.candidateEmail) {
+        await inviteCandidate(newInterview._id, {
+          email: data.candidateEmail,
+          scheduledTime: new Date(data.scheduledTime!).toISOString(),
         });
-      } else {
-        const newInterview = await createInterview({
-          title: formData.title,
-          description: formData.description,
-          jobRole: formData.jobRole as JobRole,
-          scheduledTime: formData.scheduledTime,
-        });
-        if (formData.scheduleNow) {
-          if (newInterview?._id && formData.candidateEmail) {
-            await inviteCandidate(newInterview._id, {
-              email: formData.candidateEmail,
-              scheduledTime: new Date(formData.scheduledTime!).toISOString(),
-            });
-          }
-        }
       }
+    }
 
-      if (createError || scheduleError) return;
-
+    if (!createError && !scheduleError) {
       navigate("/recruiter/dashboard");
-    },
-    [
-      formData,
-      createInterview,
-      inviteCandidate,
-      createError,
-      scheduleError,
-      navigate,
-      props.id,
-    ]
-  );
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 h-fit">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 h-fit">
       <h2 className="text-2xl font-bold mb-8 text-center text-gray-800">
-        {props.id ? "Schedule Interview" : "Create Interview"}
+        {id ? "Schedule Interview" : "Create Interview"}
       </h2>
 
-      {createError ||
-        (scheduleError && (
-          <ErrorAlert
-            title="Creatiog Error!"
-            subtitle={createError || scheduleError}
-          />
-        ))}
+      {(createError || scheduleError) && (
+        <ErrorAlert
+          title="Error!"
+          subtitle={createError || scheduleError || "Something went wrong!"}
+        />
+      )}
 
-      {!props.id && (
+      {!id && (
         <>
           <InputBox
             id="title"
             placeholder="Interview Title"
-            value={formData.title}
-            onChange={handleChange}
+            {...register("title")}
+            error={errors.title?.message}
           />
+
           <TextArea
             id="description"
             placeholder="Job Description"
-            value={formData.description}
-            onChange={handleChange}
+            {...register("description")}
+            error={errors.description?.message}
           />
 
           <Dropdown
             id="jobRole"
             placeholder="Select Job Role"
-            value={formData.jobRole || ""}
             options={jobRoles}
-            onChange={(value) => {
-              console.log(value);
-              setFormData({ ...formData, jobRole: value as JobRole });
-            }}
+            value={watch("jobRole") || ""}
+            onChange={(value) => setValue("jobRole", value as JobRole)}
           />
+          {errors.jobRole?.message && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.jobRole.message}
+            </p>
+          )}
         </>
       )}
 
       <Toggle
-        checked={formData.scheduleNow}
+        checked={scheduleNow}
         options={toggleOptions}
-        onChange={(e) =>
-          setFormData((prev) => ({ ...prev, scheduleNow: e.target.checked }))
-        }
+        onChange={(e) => setValue("scheduleNow", e.target.checked)}
       />
 
-      {formData.scheduleNow && (
+      {scheduleNow && (
         <>
           <InputBox
             id="candidateEmail"
             placeholder="Candidate Email"
-            value={formData.candidateEmail!}
-            onChange={handleChange}
             type="email"
+            {...register("candidateEmail")}
+            error={errors.candidateEmail?.message}
           />
 
           <DatetimeSelector
             id="scheduledTime"
             placeholder="Interview Date & Time"
-            value={formData.scheduledTime?.slice(0, 16) || ""}
-            onChange={(value) =>
-              setFormData({ ...formData, scheduledTime: value })
-            }
+            value={watch("scheduledTime") || ""}
+            onChange={(value) => setValue("scheduledTime", value)}
           />
+          {errors.scheduledTime?.message && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.scheduledTime.message}
+            </p>
+          )}
         </>
       )}
 
       <button
         type="submit"
-        disabled={schedulingInterview}
-        className="bg-blue-200 w-full hover:bg-blue-400 text-blue-500 hover:text-blue-800 cursor-pointer font-bold py-2 px-6 rounded-md shadow transition-colors duration-300 ease-in-out "
+        disabled={creatingInterview || schedulingInterview}
+        className="bg-blue-200 w-full hover:bg-blue-400 text-blue-500 hover:text-blue-800 cursor-pointer font-bold py-2 px-6 rounded-md shadow transition-colors duration-300 ease-in-out"
       >
         {creatingInterview || schedulingInterview ? (
           <LoadingSpinner size="sm" />
