@@ -7,7 +7,7 @@ import {
   PasswordBox,
   StyledButton,
 } from "@/components/common";
-import useAuth from "@/hooks/useAuth";
+import { useAuth } from "@/hooks";
 
 function LoginForm() {
   const [email, setEmail] = useState<string>("");
@@ -19,10 +19,12 @@ function LoginForm() {
     loading: { loggingIn },
   } = useAuth();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    login(email, password);
+    if (email && password) {
+      await login(email, password);
+    }
   }
 
   return (
@@ -46,15 +48,24 @@ function LoginForm() {
         required
       />
 
-      <div className="flex justify-center text-sm gap-1">
-        Don't have an account?
+      <div className="flex flex-col items-center space-y-2">
+        <div className="flex justify-center text-sm gap-1">
+          Don't have an account?
+          <Link
+            to="/auth/register"
+            className="w-fit text-blue-600 hover:text-blue-800 hover:underline"
+          >
+            Register
+          </Link>
+        </div>
         <Link
-          to="/auth/register"
-          className="w-fit text-blue-600 hover:text-blue-800 hover:underline"
+          to="/auth/forgot-password"
+          className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
         >
-          Register
+          Forgot Password?
         </Link>
       </div>
+
       <StyledButton
         type="submit"
         disabled={loggingIn}

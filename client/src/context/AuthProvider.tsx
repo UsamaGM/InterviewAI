@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect, useCallback } from "react";
+import { useState, ReactNode, useEffect, useCallback, useMemo } from "react";
 import { AxiosResponse } from "axios";
 import { handleError } from "@/utils/errorHandler";
 import { User } from "@/utils/types";
@@ -17,6 +17,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     registering: false,
     updatingUser: false,
     fetchingCandidates: false,
+    forgotPassword: false,
+    resetPassword: false,
   });
   const [error, setError] = useState<errorType>({
     initializing: null,
@@ -24,6 +26,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     registering: null,
     updatingUser: null,
     fetchingCandidates: null,
+    forgotPassword: null,
+    resetPassword: null,
   });
 
   useEffect(() => {
@@ -58,24 +62,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fetchUser();
   }, [isAuthenticated]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setLoading((prev) => ({ ...prev, loggingIn: true }));
+  const login = useCallback(
+    async (email: string, password: string): Promise<void> => {
+      try {
+        setLoading((prev) => ({ ...prev, loggingIn: true }));
+        setError((prev) => ({ ...prev, loggingIn: null }));
 
-      const response = await api.post("/auth/login", { email, password });
-      localStorage.setItem("token", response.data.token);
+        const response = await api.post("/auth/login", { email, password });
 
-      setIsAuthenticated(true);
-      setError((prev) => ({ ...prev, loggingIn: null }));
-    } catch (err) {
-      setError((prev) => ({
-        ...prev,
-        loggingIn: handleError(err, "Failed to login"),
-      }));
-    } finally {
-      setLoading((prev) => ({ ...prev, loggingIn: false }));
-    }
-  }, []);
+        if (response.status === 200 && response.data.token) {
+          localStorage.setItem("token", response.data.token);
+          setIsAuthenticated(true);
+        } else {
+          setError((prev) => ({
+            ...prev,
+            loggingIn: "Invalid credentials",
+          }));
+        }
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          loggingIn: handleError(err, "Failed to login"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, loggingIn: false }));
+      }
+    },
+    []
+  );
 
   const register = useCallback(async (userData: User) => {
     try {
@@ -106,6 +120,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       registering: null,
       updatingUser: null,
       fetchingCandidates: null,
+      forgotPassword: null,
+      resetPassword: null,
     });
   }, []);
 
@@ -128,6 +144,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  async function updatePassword(currentPassword: string, newPassword: string) {
+    try {
+      setLoading((prev) => ({ ...prev, updatingUser: true }));
+      await api.post("/auth/update-password", {
+        currentPassword,
+        newPassword,
+      });
+    } catch (err) {
+      setError((prev) => ({
+        ...prev,
+        updatingUser: handleError(err, "Failed to update password"),
+      }));
+    } finally {
+      setLoading((prev) => ({ ...prev, updatingUser: false }));
+    }
+  }
+
   const fetchCandidates = useCallback(async () => {
     try {
       setLoading((prev) => ({ ...prev, fetchingCandidates: true }));
@@ -144,24 +177,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const forgotPassword = useCallback(async (email: string) => {
+    try {
+      setLoading((prev) => ({ ...prev, forgotPassword: true }));
+      setError((prev) => ({ ...prev, forgotPassword: null }));
+
+      await api.post("/auth/forgot-password", { email });
+      return { success: true };
+    } catch (err) {
+      setError((prev) => ({
+        ...prev,
+        forgotPassword: handleError(err, "Failed to process password reset"),
+      }));
+      return { success: false };
+    } finally {
+      setLoading((prev) => ({ ...prev, forgotPassword: false }));
+    }
+  }, []);
+
+  const resetPassword = useCallback(async (token: string, password: string) => {
+    try {
+      setLoading((prev) => ({ ...prev, resetPassword: true }));
+      setError((prev) => ({ ...prev, resetPassword: null }));
+
+      await api.post(`/auth/reset-password/${token}`, { password });
+      return { success: true };
+    } catch (err) {
+      setError((prev) => ({
+        ...prev,
+        resetPassword: handleError(err, "Failed to reset password"),
+      }));
+      return { success: false };
+    } finally {
+      setLoading((prev) => ({ ...prev, resetPassword: false }));
+    }
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({
+      isAuthenticated,
+      isReady,
+      isCandidate,
+      user,
+      candidates,
+      loading,
+      error,
+      login,
+      register,
+      logout,
+      updateUser,
+      updatePassword,
+      fetchCandidates,
+      forgotPassword,
+      resetPassword,
+    }),
+    [
+      isAuthenticated,
+      isReady,
+      isCandidate,
+      user,
+      candidates,
+      loading,
+      error,
+      login,
+      register,
+      logout,
+      updateUser,
+      fetchCandidates,
+      forgotPassword,
+      resetPassword,
+    ]
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        isReady,
-        isCandidate,
-        user,
-        candidates,
-        loading,
-        error,
-        login,
-        register,
-        logout,
-        updateUser,
-        fetchCandidates,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }

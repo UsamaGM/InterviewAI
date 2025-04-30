@@ -9,6 +9,7 @@ import RotatingButton from "./RotatingButton";
 import SlidingIconButton from "./SlidingIconButton";
 import StyledButton from "./StyledButton";
 import StyledNavLink from "./StyledNavLink";
+import SuccessAlert from "./SuccessAlert";
 import TextArea from "./TextArea";
 import Toggle from "./Toggle";
 
@@ -24,6 +25,7 @@ export {
   SlidingIconButton,
   StyledButton,
   StyledNavLink,
+  SuccessAlert,
   TextArea,
   Toggle,
 };

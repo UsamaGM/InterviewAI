@@ -13,11 +13,10 @@ function UserProfilePage() {
   const {
     user,
     updateUser,
+    updatePassword,
     error: { updatingUser: updateError },
     loading: { updatingUser },
   } = useAuth();
-
-  console.log(user);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -94,13 +93,11 @@ function UserProfilePage() {
           ...user,
           name: formData.name,
           email: formData.email,
-          ...(showPasswordFields && {
-            currentPassword: formData.currentPassword,
-            newPassword: formData.newPassword,
-          }),
         };
 
         await updateUser(updateData);
+        if (showPasswordFields)
+          await updatePassword(formData.currentPassword, formData.newPassword);
 
         setFormData((prev) => ({
           ...prev,
@@ -112,7 +109,7 @@ function UserProfilePage() {
         setShowPasswordFields(false);
       }
     },
-    [formData, showPasswordFields, user, updateUser]
+    [formData, showPasswordFields, user, updateUser, updatePassword]
   );
 
   return (

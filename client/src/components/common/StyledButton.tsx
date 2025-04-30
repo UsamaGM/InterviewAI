@@ -14,7 +14,7 @@ function StyledButton(props: propType) {
       type={props.type || "button"}
       disabled={props.disabled}
       onClick={props.onClick}
-      className="w-full bg-blue-200 hover:bg-blue-400 text-blue-500 hover:text-blue-800 font-semibold cursor-pointer m-1 py-2 px-4 rounded-md transition-all ease-in-out duration-300"
+      className="w-full bg-blue-300 hover:bg-blue-400 text-blue-600 hover:text-blue-800 font-semibold cursor-pointer m-1 py-2 px-4 rounded-md transition-all ease-in-out duration-300"
       style={props.style}
     >
       {props.children}

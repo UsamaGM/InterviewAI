@@ -1,5 +1,5 @@
-import GradientText from "../../TextAnimations/GradientText/GradientText";
-import LoginForm from "../../components/auth/LoginForm";
+import GradientText from "@/TextAnimations/GradientText/GradientText";
+import LoginForm from "@/components/auth/LoginForm";
 
 function LoginPage() {
   return (

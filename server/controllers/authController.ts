@@ -85,9 +85,6 @@ const registerUser = async (req: Request, res: Response) => {
   }
 };
 
-// @desc    Authenticate a user
-// @route   POST /api/auth/login
-// @access  Public
 const loginUser = async (req: AuthRequest, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -101,6 +98,7 @@ const loginUser = async (req: AuthRequest, res: Response) => {
     }
 
     const user = await User.findOne({ email });
+    console.log(user);
 
     if (user && (await user.matchPassword(password))) {
       if (!user.isVerified) {
@@ -122,9 +120,6 @@ const loginUser = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// @desc verify user email
-// @route GET /api/auth/verify/:token
-// @access Public
 const verifyUser = async (
   req: Request,
   res: Response,
@@ -144,13 +139,10 @@ const verifyUser = async (
     await user.save();
     res.status(200).send("Email verified successfully. You can now login.");
   } catch (error: any) {
-    next(error); // Pass error to error handler
+    next(error);
   }
 };
 
-// @desc send forgot password link
-// @route POST /api/auth/forgot-password
-// @access Public
 const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
@@ -173,12 +165,16 @@ const forgotPassword = async (req: Request, res: Response) => {
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
     await user.save();
-    const resetURL = `${req.protocol}://${req.get(
-      "host"
-    )}/api/auth/reset-password/${resetToken}`;
+
+    console.log(process.env.CLIENT_URL);
+
+    // Use frontend URL for reset password
+    const clientURL = process.env.CLIENT_URL || "http://localhost:3000";
+    const resetURL = `${clientURL}/auth/reset-password/${resetToken}`;
     const emailHTML = `
-      <p>You have requested to reset your password.  Please use the link below:</p>
+      <p>You have requested to reset your password. Please use the link below:</p>
       <a href="${resetURL}">${resetURL}</a>
+      <p>This link will expire in 1 hour.</p>
     `;
     await sendEmail(email, "Password Reset Request", emailHTML);
     res
@@ -224,13 +220,8 @@ const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-// @desc  Get current user's info
-// @route GET /api/auth/me
-// @access Private
 const getCurrentUser = async (req: AuthRequest, res: Response) => {
-  // Use AuthRequest
   try {
-    // Now TypeScript knows about req.user
     res.status(200).json(req.user);
   } catch (error: any) {
     console.error(error);
@@ -238,10 +229,51 @@ const getCurrentUser = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const updatePassword = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+
+    // Input validation
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({
+        message: "Please provide both current password and new password",
+      });
+      return;
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    // Verify current password
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      res.status(401).json({ message: "Current password is incorrect" });
+      return;
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 export {
   registerUser,
   loginUser,
   verifyUser,
+  updatePassword,
   forgotPassword,
   resetPassword,
   getCurrentUser,

@@ -7,6 +7,8 @@ export type errorType = {
   registering: string | null;
   updatingUser: string | null;
   fetchingCandidates: string | null;
+  forgotPassword: string | null;
+  resetPassword: string | null;
 };
 
 export type loadingType = {
@@ -15,6 +17,8 @@ export type loadingType = {
   registering: boolean;
   updatingUser: boolean;
   fetchingCandidates: boolean;
+  forgotPassword: boolean;
+  resetPassword: boolean;
 };
 
 export type AuthContextType = {
@@ -29,7 +33,16 @@ export type AuthContextType = {
   register: (userData: User) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => Promise<void>;
+  updatePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<void>;
   fetchCandidates: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<{ success: boolean }>;
+  resetPassword: (
+    token: string,
+    password: string
+  ) => Promise<{ success: boolean }>;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);

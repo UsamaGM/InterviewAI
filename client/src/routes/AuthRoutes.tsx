@@ -4,6 +4,8 @@ import useAuth from "../hooks/useAuth";
 
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPasswordPage"));
 
 export default function AuthRoutes() {
   const { isAuthenticated, isCandidate } = useAuth();
@@ -32,6 +34,22 @@ export default function AuthRoutes() {
         element={
           <AuthenticateRoute>
             <RegisterPage />
+          </AuthenticateRoute>
+        }
+      />
+      <Route
+        path="forgot-password"
+        element={
+          <AuthenticateRoute>
+            <ForgotPasswordPage />
+          </AuthenticateRoute>
+        }
+      />
+      <Route
+        path="reset-password/:token"
+        element={
+          <AuthenticateRoute>
+            <ResetPasswordPage />
           </AuthenticateRoute>
         }
       />
