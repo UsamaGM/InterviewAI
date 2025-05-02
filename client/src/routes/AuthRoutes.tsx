@@ -4,21 +4,23 @@ import useAuth from "../hooks/useAuth";
 
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
-const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPasswordPage"));
+const ForgotPasswordPage = lazy(
+  () => import("@/pages/auth/ForgotPasswordPage")
+);
 const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPasswordPage"));
 
-export default function AuthRoutes() {
+function AuthenticateRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isCandidate } = useAuth();
   console.log("AuthRoutes", isAuthenticated, isCandidate);
 
-  function AuthenticateRoute({ children }: { children: ReactNode }) {
-    if (isAuthenticated) {
-      if (isCandidate) return <Navigate to="/candidate/dashboard" />;
-      return <Navigate to="/recruiter/dashboard" />;
-    }
-    return children;
+  if (isAuthenticated) {
+    if (isCandidate) return <Navigate to="/candidate/dashboard" />;
+    return <Navigate to="/recruiter/dashboard" />;
   }
+  return children;
+}
 
+export default function AuthRoutes() {
   return (
     <Routes>
       <Route

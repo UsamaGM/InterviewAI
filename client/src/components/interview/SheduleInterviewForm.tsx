@@ -51,7 +51,7 @@ type Props = {
   id?: string;
 };
 
-function ScheduleInterviewForm({ id }: Props) {
+function ScheduleInterviewForm({ id: interviewId }: Props) {
   const {
     register,
     handleSubmit,
@@ -94,8 +94,8 @@ function ScheduleInterviewForm({ id }: Props) {
   ];
 
   const onSubmit = async (data: ScheduleFormData) => {
-    if (id) {
-      await inviteCandidate(id, {
+    if (interviewId) {
+      await inviteCandidate(interviewId, {
         email: data.candidateEmail!,
         scheduledTime: new Date(data.scheduledTime!).toISOString(),
       });
@@ -123,7 +123,7 @@ function ScheduleInterviewForm({ id }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 h-fit">
       <h2 className="text-2xl font-bold mb-8 text-center text-gray-800">
-        {id ? "Schedule Interview" : "Create Interview"}
+        {interviewId ? "Schedule Interview" : "Create Interview"}
       </h2>
 
       {(createError || scheduleError) && (
@@ -133,7 +133,7 @@ function ScheduleInterviewForm({ id }: Props) {
         />
       )}
 
-      {!id && (
+      {!interviewId && (
         <>
           <InputBox
             id="title"
@@ -155,12 +155,9 @@ function ScheduleInterviewForm({ id }: Props) {
             options={jobRoles}
             value={watch("jobRole") || ""}
             onChange={(value) => setValue("jobRole", value as JobRole)}
+            error={errors.jobRole?.message}
+            register={register("jobRole")}
           />
-          {errors.jobRole?.message && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.jobRole.message}
-            </p>
-          )}
         </>
       )}
 
@@ -168,6 +165,8 @@ function ScheduleInterviewForm({ id }: Props) {
         checked={scheduleNow}
         options={toggleOptions}
         onChange={(e) => setValue("scheduleNow", e.target.checked)}
+        registration={register("scheduleNow")}
+        error={errors.scheduleNow?.message}
       />
 
       {scheduleNow && (

@@ -4,7 +4,7 @@ import RegisterForm from "../../components/auth/RegisterForm";
 function RegisterPage() {
   return (
     <div className="relative flex items-center justify-center min-w-screen min-h-screen">
-      <div className="w-full max-w-xl p-8 bg-white rounded-lg shadow-md shadow-gray-500 drop-shadow-md">
+      <div className="bg-white p-8 rounded-lg shadow-lg lg:w-md md:w-sm sm:w-xs fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
         <GradientText>
           <h2 className="font-bold text-5xl">Register</h2>
         </GradientText>

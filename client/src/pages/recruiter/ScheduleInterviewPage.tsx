@@ -33,7 +33,7 @@ function ScheduleInterviewPage() {
         </div>
       )}
       {fetchError && <div className="text-red-600 mb-4">{fetchError}</div>}
-      <div className="bg-white/80 backdrop-blur-md shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+      <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-10">
         <ScheduleInterviewForm id={id!} />
       </div>
     </div>

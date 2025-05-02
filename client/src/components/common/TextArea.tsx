@@ -18,7 +18,7 @@ const inputStyles = {
   input:
     "peer w-full px-2 py-1.5 border-none bg-transparent placeholder-transparent focus:border-transparent focus:ring-0 focus:outline-hidden disabled:text-gray-500",
   placeholder:
-    "pointer-events-none absolute top-0 start-2.5 -translate-y-1/2 bg-white px-1 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs peer-focus:font-semibold",
+    "pointer-events-none absolute top-0 start-2.5 -translate-y-1/2 bg-white px-1 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/6 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs peer-focus:font-semibold",
   error: "mt-1 text-sm text-red-600",
 };
 
@@ -47,6 +47,8 @@ function TextArea(props: TextAreaProps) {
           placeholder={placeholder}
           required={required}
           disabled={disabled}
+          style={{ resize: "none" }}
+          rows={4}
           {...rest}
         />
         <span className={inputStyles.placeholder}>{placeholder}</span>

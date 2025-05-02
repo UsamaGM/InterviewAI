@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -19,6 +19,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 function ForgotPasswordForm() {
+  console.log("ForgotPasswordForm");
   const [success, setSuccess] = useState<string>("");
   const {
     register,
@@ -34,10 +35,15 @@ function ForgotPasswordForm() {
     loading: { forgotPassword: isLoading },
   } = useAuth();
 
+  const navigate = useNavigate();
+
   const onSubmit = async (data: ForgotPasswordFormData) => {
     const result = await forgotPassword(data.email);
     if (result?.success) {
       setSuccess("Password reset instructions have been sent to your email.");
+      setTimeout(() => {
+        navigate("/auth/login");
+      }, 2000);
     }
   };
 
@@ -54,7 +60,7 @@ function ForgotPasswordForm() {
         placeholder="Email"
         {...register("email")}
         error={errors.email?.message}
-        disabled={isLoading}
+        disabled={isLoading || !!success}
       />
 
       <div className="flex justify-center text-sm gap-1">
@@ -67,7 +73,7 @@ function ForgotPasswordForm() {
         </Link>
       </div>
 
-      <StyledButton type="submit" disabled={isLoading}>
+      <StyledButton type="submit" disabled={isLoading || !!success}>
         {isLoading ? <LoadingSpinner size="sm" /> : "Send Reset Instructions"}
       </StyledButton>
     </form>

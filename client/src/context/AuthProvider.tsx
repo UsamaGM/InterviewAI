@@ -5,6 +5,8 @@ import { User } from "@/utils/types";
 import { AuthContext, errorType, loadingType } from "./AuthContext";
 import api from "@/services/api";
 
+const TOKEN_EXPIRY_BUFFER = 300000; // 5 minutes in milliseconds
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
@@ -29,38 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     forgotPassword: null,
     resetPassword: null,
   });
-
-  useEffect(() => {
-    async function fetchUser() {
-      const token = localStorage.getItem("token");
-      setIsAuthenticated(!!token);
-      console.log("Initializing...");
-      try {
-        if (isAuthenticated) {
-          setLoading((prev) => ({ ...prev, initializing: true }));
-
-          const userResponse: AxiosResponse<User> = await api.get(
-            "/users/profile"
-          );
-          setUser(userResponse.data);
-
-          setError((prev) => ({ ...prev, initializing: null }));
-        }
-      } catch (err) {
-        setError((prev) => ({
-          ...prev,
-          initializing: handleError(err, "Failed to fetch user"),
-        }));
-      } finally {
-        setLoading((prev) => ({ ...prev, initializing: false }));
-        console.log("Data Ready");
-        setIsReady(true);
-      }
-    }
-    console.log("Initialized Auth");
-
-    fetchUser();
-  }, [isAuthenticated]);
 
   const login = useCallback(
     async (email: string, password: string): Promise<void> => {
@@ -124,15 +94,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const fetchUser = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+
+    try {
+      if (token) {
+        setLoading((prev) => ({ ...prev, initializing: true }));
+        setError((prev) => ({ ...prev, initializing: null }));
+
+        const tokenData = JSON.parse(atob(token.split(".")[1]));
+        const expirationTime = tokenData.exp * 1000;
+
+        if (expirationTime - Date.now() < TOKEN_EXPIRY_BUFFER) {
+          await logout();
+          return;
+        }
+
+        const userResponse: AxiosResponse<User> = await api.get(
+          "/users/profile"
+        );
+        setUser(userResponse.data);
+      }
+    } catch (err) {
+      setError((prev) => ({
+        ...prev,
+        initializing: handleError(err, "Failed to fetch user"),
+      }));
+      await logout();
+    } finally {
+      setLoading((prev) => ({ ...prev, initializing: false }));
+      setIsReady(true);
+    }
+  }, [logout]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser, isAuthenticated]);
+
   const updateUser = useCallback(
-    async (user: User & { currentPassword?: string; newPassword?: string }) => {
+    async (
+      userData: Partial<User> & {
+        currentPassword?: string;
+        newPassword?: string;
+      }
+    ) => {
       try {
         setLoading((prev) => ({ ...prev, updatingUser: true }));
         setError((prev) => ({ ...prev, updatingUser: null }));
 
-        const response = await api.put("/users/profile", user);
+        const response = await api.put("/users/profile", userData);
         setUser(response.data);
-        setError((prev) => ({ ...prev, updatingUser: null }));
       } catch (err) {
         setError((prev) => ({
           ...prev,
@@ -145,24 +157,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  async function updatePassword(currentPassword: string, newPassword: string) {
-    try {
-      setLoading((prev) => ({ ...prev, updatingUser: true }));
-      setError((prev) => ({ ...prev, updatingUser: null }));
+  const updatePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      try {
+        setLoading((prev) => ({ ...prev, updatingUser: true }));
+        setError((prev) => ({ ...prev, updatingUser: null }));
 
-      await api.post("/auth/update-password", {
-        currentPassword,
-        newPassword,
-      });
-    } catch (err) {
-      setError((prev) => ({
-        ...prev,
-        updatingUser: handleError(err, "Failed to update password"),
-      }));
-    } finally {
-      setLoading((prev) => ({ ...prev, updatingUser: false }));
-    }
-  }
+        await api.post("/auth/update-password", {
+          currentPassword,
+          newPassword,
+        });
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          updatingUser: handleError(err, "Failed to update password"),
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, updatingUser: false }));
+      }
+    },
+    []
+  );
 
   const fetchCandidates = useCallback(async () => {
     try {
@@ -246,6 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       logout,
       updateUser,
+      updatePassword,
       fetchCandidates,
       forgotPassword,
       resetPassword,

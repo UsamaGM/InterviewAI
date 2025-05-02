@@ -52,7 +52,7 @@ function EditInterviewPage() {
   if (updatingInterview) return <LoadingSpinner size="lg" />;
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-white/80 backdrop-blur-md rounded-lg shadow-md">
+    <div className="max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-md">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">
         Edit Interview
       </h1>
@@ -68,9 +68,9 @@ function EditInterviewPage() {
           placeholder="Title"
           value={interview.title}
           onChange={(e) => handleInputChange("title", e.target.value)}
-          required
         />
         <TextArea
+          id="description"
           placeholder="Description"
           value={interview.description!}
           onChange={(e) => handleInputChange("description", e.target.value)}
