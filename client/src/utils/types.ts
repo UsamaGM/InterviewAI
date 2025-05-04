@@ -6,7 +6,7 @@ export type User = {
   password: string;
 };
 
-export type Question = {
+export interface Question {
   _id: string;
   questionText: string;
   answerText?: string;
@@ -16,8 +16,7 @@ export type Question = {
     sentiment?: string;
     feedback?: string;
   };
-  questionType?: string;
-};
+}
 
 export type Interview = {
   _id: string;

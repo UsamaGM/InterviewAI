@@ -1,9 +1,11 @@
+import QuestionWithAnswerAndAssessment from "./QuestionWithAnswerAndAssessment";
+import TitleAndDescriptionWithActions from "./TitleAndDescription";
 import AiAssessmentResults from "./AiAssessmentResults";
-import QuestionWithAnswerTextBoxAndAssessmentButton from "./QuestionWithAnswerTextboxAndAssessmentButton";
-import TitleAndDescriptionWithActions from "./TitleAndDescriptionWithActions";
+import ActionButtons from "./ActionButtons";
 
 export {
-  AiAssessmentResults,
-  QuestionWithAnswerTextBoxAndAssessmentButton,
+  QuestionWithAnswerAndAssessment,
   TitleAndDescriptionWithActions,
+  AiAssessmentResults,
+  ActionButtons,
 };

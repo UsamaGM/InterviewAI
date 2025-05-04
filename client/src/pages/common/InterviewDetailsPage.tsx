@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ClockIcon,
@@ -10,11 +10,10 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { ErrorAlert, LoadingSpinner } from "@/components/common";
+import { ErrorAlert, LoadingSpinner, StyledButton } from "@/components/common";
 import { formatDate, statusConfig } from "@/utils/helpers";
 import { useAuth, useInterview } from "@/hooks";
 
-// Types
 type DetailItemProps = {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
@@ -22,21 +21,14 @@ type DetailItemProps = {
   fullWidth?: boolean;
 };
 
-type StyledButtonProps = {
-  onClick: () => void;
-  children: ReactNode;
-  className?: string;
-};
-
 type DescriptionTextProps = {
   description: string;
 };
 
-// Components
 function DetailItem({ icon: Icon, label, value, fullWidth }: DetailItemProps) {
   return (
     <div
-      className={`bg-gray-50 rounded-xl p-4 transition-all duration-200 hover:bg-gray-100 ${
+      className={`bg-blue-50 rounded-xl p-4 transition-all duration-200 hover:bg-blue-100 ${
         fullWidth ? "col-span-full" : ""
       }`}
     >
@@ -45,26 +37,11 @@ function DetailItem({ icon: Icon, label, value, fullWidth }: DetailItemProps) {
           <Icon className="h-5 w-5 text-blue-600" />
         </div>
         <div className="ml-4">
-          <dt className="text-sm font-medium text-gray-500">{label}</dt>
-          <dd className="mt-1 text-lg font-semibold text-gray-900">{value}</dd>
+          <dt className="text-sm font-medium text-blue-500">{label}</dt>
+          <dd className="mt-1 text-lg font-semibold text-blue-900">{value}</dd>
         </div>
       </div>
     </div>
-  );
-}
-
-function StyledButton({
-  onClick,
-  children,
-  className = "",
-}: StyledButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      className={`inline-flex items-center px-6 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium transition-all duration-200 cursor-pointer ${className}`}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -77,7 +54,7 @@ function DescriptionText({ description }: DescriptionTextProps) {
       {lines.map((line, index) => (
         <p
           key={index}
-          className={`text-justify text-gray-600 mb-1 ${
+          className={`text-justify text-blue-700 ${
             index === 0
               ? readMore
                 ? "line-clamp-none"
@@ -118,10 +95,10 @@ function ConfirmationModal({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 transform transition-all duration-300 animate-fade-in">
-        <h3 className="text-xl font-semibold text-gray-900">
+        <h3 className="text-xl font-semibold text-blue-900">
           {type === "delete" ? "Delete Interview" : "Cancel Interview"}
         </h3>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-blue-600">
           Are you sure you want to {type} this interview? This action cannot be
           undone.
         </p>
@@ -129,7 +106,7 @@ function ConfirmationModal({
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            className="px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 rounded-lg transition-colors duration-200"
           >
             Cancel
           </button>
@@ -218,26 +195,23 @@ function InterviewDetailsPage() {
     );
   }
 
-  function renderActionButtons() {
+  function ActionButtons() {
     if (
       isCandidate &&
       selectedInterview &&
       statusConfig[selectedInterview.status].action
     ) {
       return (
-        <button
+        <StyledButton
+          disabled={loading.startingInterview}
           onClick={handleStartInterview}
-          className="inline-flex items-center px-6 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
         >
-          {React.createElement(statusConfig[selectedInterview.status].icon, {
-            className: "h-5 w-5 mr-2",
-          })}
           {loading.startingInterview ? (
             <LoadingSpinner size="sm" />
           ) : (
             statusConfig[selectedInterview.status].action
           )}
-        </button>
+        </StyledButton>
       );
     }
 
@@ -245,25 +219,22 @@ function InterviewDetailsPage() {
       return (
         <>
           <StyledButton
+            disabled={false}
             onClick={() => navigate("/recruiter/edit-interview")}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             <PencilIcon className="h-5 w-5 mr-2" />
             Edit
           </StyledButton>
           {selectedInterview.status !== "cancelled" && (
             <StyledButton
+              disabled={false}
               onClick={() => setShowModal("cancel")}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white"
             >
               <XMarkIcon className="h-5 w-5 mr-2" />
               Cancel
             </StyledButton>
           )}
-          <StyledButton
-            onClick={() => setShowModal("delete")}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
+          <StyledButton disabled={false} onClick={() => setShowModal("delete")}>
             <TrashIcon className="h-5 w-5 mr-2" />
             Delete
           </StyledButton>
@@ -278,8 +249,8 @@ function InterviewDetailsPage() {
     <div className="h-full py-2">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
-          <div className="relative h-20 bg-gradient-to-r from-blue-500 to-purple-600">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="relative h-20 bg-blue-300">
             <div className="absolute inset-0 bg-black/10 backdrop-blur-sm" />
             <div className="relative p-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -299,86 +270,87 @@ function InterviewDetailsPage() {
           <div className="p-6">
             <DescriptionText description={selectedInterview.description!} />
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-6 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <DetailItem
-                icon={BriefcaseIcon}
-                label="Job Role"
-                value={selectedInterview.jobRole ?? "Not specified"}
-              />
-              <DetailItem
-                icon={UserIcon}
-                label={isCandidate ? "Recruiter" : "Candidate"}
-                value={
-                  isCandidate
-                    ? selectedInterview.recruiter!.name
-                    : selectedInterview.candidate?.name ??
-                      (selectedInterview.candidate?.email || "No Candidate yet")
-                }
-              />
-              <DetailItem
-                icon={ClockIcon}
-                label="Status"
-                value={
-                  statusConfig[selectedInterview.status].title ?? "Unknown"
-                }
-              />
-              {selectedInterview.status === "scheduled" && (
+          {/* Main Content */}
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <DetailItem
+                  icon={BriefcaseIcon}
+                  label="Job Role"
+                  value={selectedInterview.jobRole ?? "Not specified"}
+                />
+                <DetailItem
+                  icon={UserIcon}
+                  label={isCandidate ? "Recruiter" : "Candidate"}
+                  value={
+                    isCandidate
+                      ? selectedInterview.recruiter!.name
+                      : selectedInterview.candidate?.name ??
+                        (selectedInterview.candidate?.email ||
+                          "No Candidate yet")
+                  }
+                />
                 <DetailItem
                   icon={ClockIcon}
-                  label="Scheduled Time"
-                  value={formatDate(selectedInterview.scheduledTime!)}
+                  label="Status"
+                  value={
+                    statusConfig[selectedInterview.status].title ?? "Unknown"
+                  }
+                />
+                {selectedInterview.status === "scheduled" && (
+                  <DetailItem
+                    icon={ClockIcon}
+                    label="Scheduled Time"
+                    value={formatDate(selectedInterview.scheduledTime!)}
+                  />
+                )}
+
+                {selectedInterview.status === "completed" && (
+                  <>
+                    <DetailItem
+                      icon={StarIcon}
+                      label="Score"
+                      value={selectedInterview.score?.toString() ?? "N/A"}
+                    />
+                    <DetailItem
+                      icon={ChatBubbleLeftIcon}
+                      label="Feedback"
+                      value={selectedInterview.feedback ?? "No feedback"}
+                      fullWidth
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="px-6 py-4 bg-blue-50 gap-4 flex justify-center items-center">
+              {error.startingInterview && (
+                <ErrorAlert
+                  title="Failed to start!"
+                  subtitle={error.startingInterview}
                 />
               )}
-
-              {selectedInterview.status === "completed" && (
-                <>
-                  <DetailItem
-                    icon={StarIcon}
-                    label="Score"
-                    value={selectedInterview.score?.toString() ?? "N/A"}
-                  />
-                  <DetailItem
-                    icon={ChatBubbleLeftIcon}
-                    label="Feedback"
-                    value={selectedInterview.feedback ?? "No feedback"}
-                    fullWidth
-                  />
-                </>
-              )}
+              <ActionButtons />
             </div>
           </div>
-
-          {/* Actions */}
-          <div className="border-t border-gray-100 px-6 py-4 bg-gray-50 flex flex-wrap gap-4">
-            {error.startingInterview && (
-              <ErrorAlert
-                title="Failed to start!"
-                subtitle={error.startingInterview}
-              />
-            )}
-            {renderActionButtons()}
-          </div>
         </div>
-      </div>
 
-      {showModal && (
-        <ConfirmationModal
-          type={showModal}
-          onConfirm={showModal === "delete" ? handleDelete : handleCancel}
-          onCancel={() => setShowModal(null)}
-          isLoading={loading.deletingInterview || loading.updatingInterview}
-          error={
-            showModal === "delete"
-              ? error.deletingInterview
-              : error.updatingInterview
-          }
-        />
-      )}
+        {showModal && (
+          <ConfirmationModal
+            type={showModal}
+            onConfirm={showModal === "delete" ? handleDelete : handleCancel}
+            onCancel={() => setShowModal(null)}
+            isLoading={loading.deletingInterview || loading.updatingInterview}
+            error={
+              showModal === "delete"
+                ? error.deletingInterview
+                : error.updatingInterview
+            }
+          />
+        )}
+      </div>
     </div>
   );
 }

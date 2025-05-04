@@ -211,6 +211,7 @@ export function InterviewProvider({ children }: { children: ReactNode }) {
   ) {
     try {
       setLoading((prev) => ({ ...prev, savingAnswer: true }));
+      console.log("Saving answer...", answer);
 
       setSelectedInterview((prevInterview) => {
         if (!prevInterview) return null;

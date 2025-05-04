@@ -1,23 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   TitleAndDescriptionWithActions,
-  QuestionWithAnswerTextBoxAndAssessmentButton,
+  QuestionWithAnswerAndAssessment,
   AiAssessmentResults,
+  ActionButtons,
 } from "@/components/candidate";
 import { ErrorAlert, LoadingSpinner } from "@/components/common";
 import { useInterview } from "@/hooks";
+import { QuestionProvider } from "@/context";
 
 function TakeInterviewPage() {
   const { id } = useParams<{ id: string }>();
-  const [index, setIndex] = useState<number>(0);
 
-  const {
-    selectedInterview,
-    fetchInterviewWithId,
-    loading: { fetchingInterviewWithId },
-    error: { fetchingInterviewWithId: fetchError },
-  } = useInterview();
+  const { selectedInterview, fetchInterviewWithId, loading, error } =
+    useInterview();
 
   useEffect(() => {
     async function fetchInterview() {
@@ -25,9 +22,9 @@ function TakeInterviewPage() {
     }
 
     fetchInterview();
-  }, []);
+  }, [id, fetchInterviewWithId]);
 
-  if (fetchingInterviewWithId) {
+  if (loading.fetchingInterviewWithId) {
     return <LoadingSpinner size="lg" />;
   }
 
@@ -41,24 +38,22 @@ function TakeInterviewPage() {
   }
 
   return (
-    <div className="flex space-x-6">
-      {fetchError && (
-        <ErrorAlert
-          title="Could not fetch interview!"
-          subtitle="Please check if you have entered a valid interview id."
-        />
-      )}
-      <TitleAndDescriptionWithActions interview={selectedInterview} />
-      <QuestionWithAnswerTextBoxAndAssessmentButton
-        currentQuestionIndex={index}
-        setIndex={setIndex}
-        questions={selectedInterview.questions}
-      />
-      <AiAssessmentResults
-        questions={selectedInterview.questions}
-        index={index}
-      />
-    </div>
+    <QuestionProvider>
+      <div className="flex flex-col space-y-6 p-8 bg-white shadow-lg rounded-lg">
+        {error.fetchingInterviewWithId && (
+          <ErrorAlert
+            title="Could not fetch interview!"
+            subtitle="Please check if you have entered a valid interview id."
+          />
+        )}
+        <div className="flex space-x-8">
+          <TitleAndDescriptionWithActions />
+          <QuestionWithAnswerAndAssessment />
+        </div>
+        <ActionButtons />
+        <AiAssessmentResults />
+      </div>
+    </QuestionProvider>
   );
 }
 
