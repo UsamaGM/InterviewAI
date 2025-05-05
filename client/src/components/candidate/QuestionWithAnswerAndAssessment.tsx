@@ -185,7 +185,7 @@ const NavigationDots = React.memo(function (props: NavigationDotProps) {
         </div>
       ))}
       <div
-        className={`absolute pointer-events-none z-10 group-target:animate-elongate-shorten transition-all duration-500 ease-in-out ${calculatePosition()} w-10 h-6 rounded-lg bg-blue-200`}
+        className={`absolute pointer-events-none z-10 transition-all duration-500 ease-in-out ${calculatePosition()} w-10 h-6 rounded-lg bg-blue-200`}
       />
     </div>
   );

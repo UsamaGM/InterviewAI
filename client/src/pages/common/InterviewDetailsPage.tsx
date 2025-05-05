@@ -28,17 +28,19 @@ type DescriptionTextProps = {
 function DetailItem({ icon: Icon, label, value, fullWidth }: DetailItemProps) {
   return (
     <div
-      className={`bg-blue-50 rounded-xl p-4 transition-all duration-200 hover:bg-blue-100 ${
+      className={`bg-white rounded-lg shadow-sm p-4 transition-all duration-200 hover:shadow-md ${
         fullWidth ? "col-span-full" : ""
       }`}
     >
-      <div className="flex items-start">
-        <div className="bg-white p-2 rounded-lg shadow-sm">
+      <div className="flex items-center gap-3">
+        <div className="bg-blue-50 p-2 rounded-lg">
           <Icon className="h-5 w-5 text-blue-600" />
         </div>
-        <div className="ml-4">
-          <dt className="text-sm font-medium text-blue-500">{label}</dt>
-          <dd className="mt-1 text-lg font-semibold text-blue-900">{value}</dd>
+        <div>
+          <dt className="text-sm font-medium text-gray-500">{label}</dt>
+          <dd className="mt-1 text-base font-semibold text-gray-900">
+            {value}
+          </dd>
         </div>
       </div>
     </div>
@@ -54,7 +56,7 @@ function DescriptionText({ description }: DescriptionTextProps) {
       {lines.map((line, index) => (
         <p
           key={index}
-          className={`text-justify text-blue-700 ${
+          className={`text-gray-700 ${
             index === 0
               ? readMore
                 ? "line-clamp-none"
@@ -94,11 +96,11 @@ function ConfirmationModal({
 }) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 transform transition-all duration-300 animate-fade-in">
-        <h3 className="text-xl font-semibold text-blue-900">
+      <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
+        <h3 className="text-xl font-semibold text-gray-900">
           {type === "delete" ? "Delete Interview" : "Cancel Interview"}
         </h3>
-        <p className="mt-2 text-blue-600">
+        <p className="mt-2 text-gray-600">
           Are you sure you want to {type} this interview? This action cannot be
           undone.
         </p>
@@ -106,7 +108,7 @@ function ConfirmationModal({
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
           >
             Cancel
           </button>
@@ -126,7 +128,6 @@ function ConfirmationModal({
   );
 }
 
-// Main Component
 function InterviewDetailsPage() {
   const { id } = useParams();
   const [showModal, setShowModal] = useState<"delete" | "cancel" | null>(null);
@@ -202,22 +203,24 @@ function InterviewDetailsPage() {
       statusConfig[selectedInterview.status].action
     ) {
       return (
-        <StyledButton
-          disabled={loading.startingInterview}
-          onClick={handleStartInterview}
-        >
-          {loading.startingInterview ? (
-            <LoadingSpinner size="sm" />
-          ) : (
-            statusConfig[selectedInterview.status].action
-          )}
-        </StyledButton>
+        <div className="flex gap-3">
+          <StyledButton
+            disabled={loading.startingInterview}
+            onClick={handleStartInterview}
+          >
+            {loading.startingInterview ? (
+              <LoadingSpinner size="sm" />
+            ) : (
+              statusConfig[selectedInterview.status].action
+            )}
+          </StyledButton>
+        </div>
       );
     }
 
     if (!isCandidate && selectedInterview) {
       return (
-        <>
+        <div className="flex gap-3">
           <StyledButton
             disabled={false}
             onClick={() => navigate("/recruiter/edit-interview")}
@@ -238,7 +241,7 @@ function InterviewDetailsPage() {
             <TrashIcon className="h-5 w-5 mr-2" />
             Delete
           </StyledButton>
-        </>
+        </div>
       );
     }
 
@@ -246,111 +249,98 @@ function InterviewDetailsPage() {
   }
 
   return (
-    <div className="h-full py-2">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="relative h-20 bg-blue-300">
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-sm" />
-            <div className="relative p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h2 className="text-3xl font-bold text-white">
-                  {selectedInterview.title}
-                </h2>
-                <span
-                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium shadow-sm ${
-                    statusConfig[selectedInterview.status].styles
-                  }`}
-                >
-                  {statusConfig[selectedInterview.status].title}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="p-6">
-            <DescriptionText description={selectedInterview.description!} />
-          </div>
-
-          {/* Main Content */}
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-6 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <DetailItem
-                  icon={BriefcaseIcon}
-                  label="Job Role"
-                  value={selectedInterview.jobRole ?? "Not specified"}
-                />
-                <DetailItem
-                  icon={UserIcon}
-                  label={isCandidate ? "Recruiter" : "Candidate"}
-                  value={
-                    isCandidate
-                      ? selectedInterview.recruiter!.name
-                      : selectedInterview.candidate?.name ??
-                        (selectedInterview.candidate?.email ||
-                          "No Candidate yet")
-                  }
-                />
-                <DetailItem
-                  icon={ClockIcon}
-                  label="Status"
-                  value={
-                    statusConfig[selectedInterview.status].title ?? "Unknown"
-                  }
-                />
-                {selectedInterview.status === "scheduled" && (
-                  <DetailItem
-                    icon={ClockIcon}
-                    label="Scheduled Time"
-                    value={formatDate(selectedInterview.scheduledTime!)}
-                  />
-                )}
-
-                {selectedInterview.status === "completed" && (
-                  <>
-                    <DetailItem
-                      icon={StarIcon}
-                      label="Score"
-                      value={selectedInterview.score?.toString() ?? "N/A"}
-                    />
-                    <DetailItem
-                      icon={ChatBubbleLeftIcon}
-                      label="Feedback"
-                      value={selectedInterview.feedback ?? "No feedback"}
-                      fullWidth
-                    />
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="px-6 py-4 bg-blue-50 gap-4 flex justify-center items-center">
-              {error.startingInterview && (
-                <ErrorAlert
-                  title="Failed to start!"
-                  subtitle={error.startingInterview}
-                />
-              )}
-              <ActionButtons />
-            </div>
-          </div>
+    <div className="container mx-auto px-4 py-6">
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {selectedInterview.title}
+          </h1>
+          <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+              statusConfig[selectedInterview.status].styles
+            }`}
+          >
+            {statusConfig[selectedInterview.status].title}
+          </span>
         </div>
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <DescriptionText description={selectedInterview.description!} />
+        </div>
+      </div>
 
-        {showModal && (
-          <ConfirmationModal
-            type={showModal}
-            onConfirm={showModal === "delete" ? handleDelete : handleCancel}
-            onCancel={() => setShowModal(null)}
-            isLoading={loading.deletingInterview || loading.updatingInterview}
-            error={
-              showModal === "delete"
-                ? error.deletingInterview
-                : error.updatingInterview
-            }
+      {/* Details Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <DetailItem
+          icon={BriefcaseIcon}
+          label="Job Role"
+          value={selectedInterview.jobRole ?? "Not specified"}
+        />
+        <DetailItem
+          icon={UserIcon}
+          label={isCandidate ? "Recruiter" : "Candidate"}
+          value={
+            isCandidate
+              ? selectedInterview.recruiter!.name
+              : selectedInterview.candidate?.name ??
+                (selectedInterview.candidate?.email || "No Candidate yet")
+          }
+        />
+        <DetailItem
+          icon={ClockIcon}
+          label="Status"
+          value={statusConfig[selectedInterview.status].title ?? "Unknown"}
+        />
+        {selectedInterview.status === "scheduled" && (
+          <DetailItem
+            icon={ClockIcon}
+            label="Scheduled Time"
+            value={formatDate(selectedInterview.scheduledTime!)}
           />
         )}
+        {selectedInterview.status === "completed" && (
+          <>
+            <DetailItem
+              icon={StarIcon}
+              label="Score"
+              value={selectedInterview.score?.toString() ?? "N/A"}
+            />
+            <DetailItem
+              icon={ChatBubbleLeftIcon}
+              label="Feedback"
+              value={selectedInterview.feedback ?? "No feedback"}
+              fullWidth
+            />
+          </>
+        )}
       </div>
+
+      {/* Actions Section */}
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {error.startingInterview && (
+            <ErrorAlert
+              title="Failed to start!"
+              subtitle={error.startingInterview}
+            />
+          )}
+          <ActionButtons />
+        </div>
+      </div>
+
+      {showModal && (
+        <ConfirmationModal
+          type={showModal}
+          onConfirm={showModal === "delete" ? handleDelete : handleCancel}
+          onCancel={() => setShowModal(null)}
+          isLoading={loading.deletingInterview || loading.updatingInterview}
+          error={
+            showModal === "delete"
+              ? error.deletingInterview
+              : error.updatingInterview
+          }
+        />
+      )}
     </div>
   );
 }

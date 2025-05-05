@@ -152,9 +152,9 @@ export function InterviewProvider({ children }: { children: ReactNode }) {
     async function () {
       try {
         setLoading((prev) => ({ ...prev, startingInterview: true }));
+        setError((prev) => ({ ...prev, startingInterview: null }));
         await api.post(`/interviews/${selectedInterview!._id}/start`, {});
         await updateInterviews();
-        setError((prev) => ({ ...prev, startingInterview: null }));
       } catch (err) {
         setError((prev) => ({
           ...prev,

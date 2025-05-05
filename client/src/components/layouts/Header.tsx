@@ -86,27 +86,27 @@ function Header() {
             </button>
 
             {showLogoutConfirm && (
-              <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden z-50 animate-fade-in">
-                <div className="p-4 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-800">
+              <div className="absolute top-full right-0 mt-2 w-md bg-white rounded-lg shadow-lg shadow-gray-300 overflow-hidden z-50 animate-fade-in">
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-600">
                     Confirm Logout
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-500 mt-1">
                     Are you sure you want to log out of your account?
                   </p>
                 </div>
-                <div className="p-3 bg-gray-50 flex justify-end space-x-2">
+                <div className="p-3 flex justify-end space-x-2">
                   <button
                     onClick={() => setShowLogoutConfirm(false)}
-                    className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-200 rounded-md transition-colors duration-200"
+                    className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer rounded-md transition-colors duration-200"
                   >
-                    Cancel
+                    No
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors duration-200"
+                    className="px-3 py-1.5 text-sm cursor-pointer bg-red-500 hover:bg-red-600 text-red-50 font-bold rounded-md transition-colors duration-200"
                   >
-                    Logout
+                    Yes
                   </button>
                 </div>
               </div>
