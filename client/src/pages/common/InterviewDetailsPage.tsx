@@ -252,8 +252,8 @@ function InterviewDetailsPage() {
     <div className="container mx-auto px-4 py-6">
       {/* Header Section */}
       <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <h1 className="text-2xl font-bold text-blue-500">
             {selectedInterview.title}
           </h1>
           <span
@@ -316,7 +316,7 @@ function InterviewDetailsPage() {
       </div>
 
       {/* Actions Section */}
-      <div className="bg-white rounded-lg shadow-sm p-4">
+      <div className="p-4 bg-white rounded-lg shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           {error.startingInterview && (
             <ErrorAlert

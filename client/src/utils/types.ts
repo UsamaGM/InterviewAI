@@ -13,7 +13,7 @@ export interface Question {
   aiAssessment?: {
     score?: number;
     keywords?: string[];
-    sentiment?: string;
+    sentiment?: "positive" | "negative" | "neutral";
     feedback?: string;
   };
 }

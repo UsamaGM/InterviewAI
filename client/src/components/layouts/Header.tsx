@@ -86,7 +86,7 @@ function Header() {
             </button>
 
             {showLogoutConfirm && (
-              <div className="absolute top-full right-0 mt-2 w-md bg-white rounded-lg shadow-lg shadow-gray-300 overflow-hidden z-50 animate-fade-in">
+              <div className="absolute top-full right-0 mt-2 w-md bg-red-50 rounded-lg shadow-md overflow-hidden z-50 animate-slide-in">
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-600">
                     Confirm Logout
@@ -98,15 +98,15 @@ function Header() {
                 <div className="p-3 flex justify-end space-x-2">
                   <button
                     onClick={() => setShowLogoutConfirm(false)}
-                    className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer rounded-md transition-colors duration-200"
+                    className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-200 font-bold cursor-pointer rounded-md transition-colors duration-200"
                   >
-                    No
+                    No, I want to stay
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="px-3 py-1.5 text-sm cursor-pointer bg-red-500 hover:bg-red-600 text-red-50 font-bold rounded-md transition-colors duration-200"
+                    className="px-4 py-1.5 text-sm cursor-pointer bg-red-300 hover:bg-red-400 text-red-800 font-bold rounded-md transition-colors duration-200"
                   >
-                    Yes
+                    Yes, Log me out
                   </button>
                 </div>
               </div>

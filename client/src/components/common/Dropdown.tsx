@@ -100,7 +100,7 @@ const Dropdown = forwardRef<HTMLSelectElement, DropdownProps>(
             {placeholder}
           </span>
           {isOpen && (
-            <div className="absolute z-10 mt-1 w-full max-h-40 overflow-y-scroll bg-white/50 backdrop-blur-lg rounded-md shadow-lg ring-2 ring-gray-300 ring-opacity-5">
+            <div className="absolute z-10 mt-1 w-full max-h-40 overflow-y-scroll bg-white rounded-md shadow-lg ring-1 ring-gray-300">
               <div className="py-1">
                 {options.map((option) => (
                   <div
