@@ -167,11 +167,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           currentPassword,
           newPassword,
         });
+        return true;
       } catch (err) {
         setError((prev) => ({
           ...prev,
           updatingUser: handleError(err, "Failed to update password"),
         }));
+        return false;
       } finally {
         setLoading((prev) => ({ ...prev, updatingUser: false }));
       }

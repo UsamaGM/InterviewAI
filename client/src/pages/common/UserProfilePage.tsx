@@ -1,13 +1,50 @@
+import { useState } from "react";
 import {
-  useState,
-  useEffect,
-  ChangeEvent,
-  FormEvent,
-  useCallback,
-  memo,
-} from "react";
-import { ErrorAlert, InputBox, LoadingSpinner } from "@/components/common";
+  ErrorAlert,
+  InputBox,
+  LoadingSpinner,
+  PasswordBox,
+  SuccessAlert,
+} from "@/components/common";
 import { useAuth } from "@/hooks";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  UserCircleIcon,
+  ShieldCheckIcon,
+  CalendarIcon,
+  KeyIcon,
+  PencilIcon,
+  CheckIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { formatDate } from "@/utils/helpers";
+
+const FormSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    currentPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .optional(),
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .optional(),
+    confirmPassword: z.string().optional(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
+type UserProfileFormData = z.infer<typeof FormSchema>;
 
 function UserProfilePage() {
   const {
@@ -18,258 +55,277 @@ function UserProfilePage() {
     loading: { updatingUser },
   } = useAuth();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    reset,
+  } = useForm<UserProfileFormData>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+    },
   });
 
+  const [editingField, setEditingField] = useState<"name" | "email" | null>(
+    null
+  );
   const [showPasswordFields, setShowPasswordFields] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [disabled, setDisabled] = useState({
-    name: true,
-    email: true,
-    password: true,
-  });
+  const [localError, setLocalError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: user.name,
-        email: user.email,
-      }));
+  const handleEdit = (field: "name" | "email") => {
+    setEditingField(field);
+    setLocalError(null);
+  };
+
+  const handleCancel = () => {
+    setEditingField(null);
+    reset();
+    setLocalError(null);
+  };
+
+  const handleSave = async (field: "name" | "email", value: string) => {
+    if (!user) return;
+
+    try {
+      const updateData = {
+        ...user,
+        [field]: value,
+      };
+
+      await updateUser(updateData);
+      setEditingField(null);
+      setSuccessMessage(
+        `${
+          field.charAt(0).toUpperCase() + field.slice(1)
+        } updated successfully!`
+      );
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch {
+      setLocalError("Failed to update profile. Please try again.");
     }
-  }, [user]);
+  };
 
-  // Reset password fields when toggling password section
-  useEffect(() => {
-    if (!showPasswordFields) {
-      setFormData((prev) => ({
-        ...prev,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      }));
-      setPasswordError(null);
-    }
-  }, [showPasswordFields]);
+  const handlePasswordChange = async (formData: UserProfileFormData) => {
+    if (!formData.currentPassword || !formData.newPassword) return;
 
-  const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const { id, value } = event.target;
-      setFormData((prev) => ({ ...prev, [id]: value }));
+    try {
+      const passwordChanged = await updatePassword(
+        formData.currentPassword,
+        formData.newPassword
+      );
 
-      if (passwordError && id === "password") {
-        setPasswordError(null);
-      }
-    },
-    [passwordError]
-  );
-
-  const toggleDisabled = useCallback((id: "email" | "name" | "password") => {
-    setDisabled((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, []);
-
-  const handleSubmit = useCallback(
-    async (event: FormEvent) => {
-      event.preventDefault();
-
-      if (showPasswordFields) {
-        if (formData.newPassword.length < 8) {
-          setPasswordError("Password must be 8 characters long!");
-        } else if (formData.newPassword !== formData.confirmPassword) {
-          setPasswordError("Passwords do not match!");
-        } else if (!formData.currentPassword) {
-          setPasswordError("Current password is required!");
-        }
-      }
-
-      if (user) {
-        const updateData = {
-          ...user,
-          name: formData.name,
-          email: formData.email,
-        };
-
-        await updateUser(updateData);
-        if (showPasswordFields)
-          await updatePassword(formData.currentPassword, formData.newPassword);
-
-        setFormData((prev) => ({
-          ...prev,
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        }));
-        setSuccessMessage("Profile updated successfully!");
+      if (passwordChanged) {
         setShowPasswordFields(false);
+        setSuccessMessage("Password updated successfully!");
+        setTimeout(() => setSuccessMessage(null), 3000);
+        reset();
       }
-    },
-    [formData, showPasswordFields, user, updateUser, updatePassword]
-  );
+    } catch {
+      setLocalError("Failed to update password. Please try again.");
+    }
+  };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Profile</h2>
+    <div className="container mx-auto px-4 py-6">
+      <h2 className="text-3xl text-blue-700 font-bold mb-8">Your Profile</h2>
 
-      {updateError && (
-        <div
-          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded"
-          role="alert"
-        >
-          <p className="font-bold">Error</p>
-          <p>{updateError}</p>
-        </div>
-      )}
-
-      {successMessage && (
-        <div
-          className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded"
-          role="alert"
-        >
-          <p>{successMessage}</p>
-        </div>
-      )}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <FormInput
-          showToggle
-          id="email"
-          name="email"
-          type="email"
-          placeholder="Email Address"
-          value={formData.email}
-          disabled={disabled.email}
-          onChange={handleChange}
-          onToggle={() => toggleDisabled("email")}
-        />
-        <FormInput
-          showToggle
-          id="name"
-          name="name"
-          type="text"
-          placeholder="Name"
-          value={formData.name}
-          disabled={disabled.name}
-          onChange={handleChange}
-          onToggle={() => toggleDisabled("name")}
-        />
-
-        <div className="relative pt-2 flex justify-center">
-          <div className="absolute left-0 w-full top-1/2 translate-y-1/2 h-0.5 rounded-full bg-blue-200" />
-          <button
-            type="button"
-            onClick={() => setShowPasswordFields(!showPasswordFields)}
-            className="text-blue-500 z-50 bg-white hover:bg-blue-100 hover:text-blue-800 px-4 py-2 cursor-pointer rounded-md text-sm font-medium  focus:outline-none"
-          >
-            {showPasswordFields ? "Cancel Password Change" : "Change Password"}
-          </button>
-        </div>
-
-        {showPasswordFields && (
-          <div className="space-y-6 pt-2 pb-2">
-            {passwordError && (
-              <ErrorAlert title="Password Error!" subtitle={passwordError} />
-            )}
-
-            <FormInput
-              showToggle={false}
-              id="currentPassword"
-              name="password"
-              type="password"
-              placeholder="Current Password"
-              value={formData.currentPassword}
-              disabled={false}
-              onChange={handleChange}
-            />
-            <FormInput
-              showToggle={false}
-              id="newPassword"
-              name="password"
-              type="password"
-              placeholder="New Password"
-              value={formData.newPassword}
-              disabled={false}
-              onChange={handleChange}
-            />
-            <FormInput
-              showToggle={false}
-              id="confirmPassword"
-              name="password"
-              type="password"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              disabled={false}
-              onChange={handleChange}
-            />
+      {/* User Stats Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-50 p-2 rounded-lg">
+              <UserCircleIcon className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <dt className="text-sm font-medium text-gray-500">
+                Account Type
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-gray-900 capitalize">
+                {user?.role}
+              </dd>
+            </div>
           </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-green-50 p-2 rounded-lg">
+              <ShieldCheckIcon className="h-5 w-5 text-green-600" />
+            </div>
+            <div>
+              <dt className="text-sm font-medium text-gray-500">
+                Verification Status
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-gray-900">
+                {user?.isVerified ? "Verified" : "Unverified"}
+              </dd>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-yellow-50 p-2 rounded-lg">
+              <CalendarIcon className="h-5 w-5 text-yellow-600" />
+            </div>
+            <div>
+              <dt className="text-sm font-medium text-gray-500">
+                Member Since
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-gray-900">
+                {user?.createdAt
+                  ? formatDate(user.createdAt.toString()).split(",")[0]
+                  : "N/A"}
+              </dd>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-purple-50 p-2 rounded-lg">
+              <KeyIcon className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <dt className="text-sm font-medium text-gray-500">
+                Password Status
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-gray-900">
+                {user?.resetPasswordToken ? "Reset Pending" : "Active"}
+              </dd>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Form Section */}
+      <div className="bg-white rounded-lg shadow-sm p-6 space-y-2">
+        {(updateError || localError) && (
+          <ErrorAlert
+            title="Error Updating User!"
+            subtitle={updateError || localError}
+          />
         )}
 
-        <div className="pt-4">
-          <button
-            type="submit"
-            disabled={updatingUser}
-            className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-75"
-          >
-            {updatingUser ? <LoadingSpinner size="sm" /> : "Save Changes"}
-          </button>
+        {successMessage && (
+          <SuccessAlert
+            title="Successfully updated profile!"
+            subtitle={successMessage}
+          />
+        )}
+
+        <EditableDetailItem fieldName="name" placeholder="Your Name" />
+        <EditableDetailItem fieldName="email" placeholder="Your Email" />
+
+        {/* Password Section */}
+        <div className="p-4 rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Password</h3>
+            <button
+              type="button"
+              onClick={() => setShowPasswordFields(!showPasswordFields)}
+              className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              {showPasswordFields ? "Cancel" : "Change Password"}
+            </button>
+          </div>
+
+          {showPasswordFields && (
+            <form
+              onSubmit={handleSubmit(handlePasswordChange)}
+              className="space-y-4"
+            >
+              <PasswordBox
+                id="currentPassword"
+                placeholder="Current Password"
+                disabled={updatingUser}
+                {...register("currentPassword")}
+                error={errors.currentPassword?.message}
+              />
+              <PasswordBox
+                id="newPassword"
+                placeholder="New Password"
+                disabled={updatingUser}
+                {...register("newPassword")}
+                error={errors.newPassword?.message}
+              />
+              <PasswordBox
+                id="confirmPassword"
+                placeholder="Confirm Password"
+                disabled={updatingUser}
+                {...register("confirmPassword")}
+                error={errors.confirmPassword?.message}
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={updatingUser}
+                  className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-75"
+                >
+                  {updatingUser ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    "Update Password"
+                  )}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
-      </form>
+      </div>
     </div>
   );
-}
 
-type FormInputProps = {
-  showToggle: boolean;
-  id: "name" | "email" | "currentPassword" | "newPassword" | "confirmPassword";
-  name: "name" | "email" | "password";
-  type: string;
-  placeholder: string;
-  value: string;
-  disabled: boolean;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onToggle?: () => void;
-};
+  type propTypes = {
+    fieldName: "name" | "email";
+    placeholder: string;
+  };
 
-const FormInput = memo(
-  ({
-    showToggle = false,
-    id,
-    name,
-    type,
-    placeholder,
-    value,
-    disabled,
-    onChange,
-    onToggle,
-  }: FormInputProps) => {
+  function EditableDetailItem(props: propTypes) {
     return (
-      <div className="flex w-full">
-        <InputBox
-          id={id}
-          name={name}
-          type={type}
-          placeholder={placeholder}
-          required={!disabled}
-          disabled={disabled}
-          value={value}
-          onChange={onChange}
-        />
-        {showToggle && onToggle && (
-          <button
-            type="button"
-            onClick={onToggle}
-            className="w-20 ml-2 px-4 py-2 text-sm bg-blue-100 text-blue-600 hover:bg-blue-300 hover:text-blue-800 rounded-md"
-          >
-            {disabled ? "Change" : "Cancel"}
-          </button>
-        )}
+      <div className="flex items-center justify-between p-4">
+        <div className="flex-1 flex gap-2">
+          <InputBox
+            id={props.fieldName}
+            placeholder={props.placeholder}
+            {...register(props.fieldName)}
+            disabled={updatingUser || editingField !== props.fieldName}
+          />
+          {editingField === props.fieldName ? (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  handleSave(props.fieldName, getValues(props.fieldName))
+                }
+                className="p-2 w-10 h-10 text-center text-green-600 hover:text-green-800 hover:bg-green-100 rounded-md transition-colors"
+                disabled={updatingUser}
+              >
+                <CheckIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="p-2 pl-2.5 w-10 h-10 text-center text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors"
+                disabled={updatingUser}
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleEdit(props.fieldName)}
+              className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+            >
+              <PencilIcon className="h-5 w-5" />
+            </button>
+          )}
+        </div>
       </div>
     );
   }
-);
+}
 
 export default UserProfilePage;

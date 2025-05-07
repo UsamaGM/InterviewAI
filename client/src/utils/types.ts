@@ -2,8 +2,13 @@ export type User = {
   _id?: string;
   name: string;
   email: string;
-  role: string;
-  password: string;
+  role: "recruiter" | "candidate";
+  password?: string;
+  isVerified: boolean;
+  verificationToken?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  createdAt: Date;
 };
 
 export interface Question {

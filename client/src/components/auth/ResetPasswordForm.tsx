@@ -71,7 +71,6 @@ function ResetPasswordForm() {
         placeholder="New Password"
         {...register("password")}
         error={errors.password?.message}
-        required
         disabled={isLoading}
       />
 
@@ -80,7 +79,6 @@ function ResetPasswordForm() {
         placeholder="Confirm New Password"
         {...register("confirmPassword")}
         error={errors.confirmPassword?.message}
-        required
         disabled={isLoading}
       />
 

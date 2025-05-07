@@ -54,10 +54,10 @@ function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
           {isCandidate ? (
-            <StyledNavLink title="My Interviews" to="/candidate/dashboard" />
+            <StyledNavLink title="Dashboard" to="/candidate/dashboard" />
           ) : (
             <>
-              <StyledNavLink title="Interviews" to="/recruiter/dashboard" />
+              <StyledNavLink title="Dashboard" to="/recruiter/dashboard" />
               <StyledNavLink title="New Interview" to="/recruiter/schedule" />
             </>
           )}
@@ -163,7 +163,7 @@ function Header() {
                   }`
                 }
               >
-                My Interviews
+                Dashboard
               </NavLink>
             ) : (
               <>
@@ -177,7 +177,7 @@ function Header() {
                     }`
                   }
                 >
-                  Interviews
+                  Dashboard
                 </NavLink>
                 <NavLink
                   to="/recruiter/schedule"

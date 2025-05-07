@@ -36,7 +36,7 @@ export type AuthContextType = {
   updatePassword: (
     currentPassword: string,
     newPassword: string
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   fetchCandidates: () => Promise<void>;
   forgotPassword: (email: string) => Promise<{ success: boolean }>;
   resetPassword: (
