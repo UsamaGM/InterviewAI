@@ -9,7 +9,7 @@ InterviewAI is a comprehensive platform designed to streamline the interview pro
 - **AI-Powered Assessments**: Automatically evaluate candidate responses using AI.
 - **Interview Scheduling**: Simplify the process of scheduling interviews with built-in tools.
 - **User Management**: Manage profiles for candidates, recruiters, and administrators.
-- **Real-Time Feedback**: Provide instant feedback to candidates during assessments.
+- **Quick AI based Feedback**: Provide instant feedback to candidates during assessments.
 - **Secure Authentication**: Robust authentication system for secure access.
 
 ## Project Structure

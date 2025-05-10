@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ErrorAlert, LoadingSpinner, TextArea } from "@/components/common";
 import { useInterview, useQuestion } from "@/hooks";
 import { Question } from "@/utils/types";
 
-const QuestionWithAnswerAndAssessment = React.memo(function () {
+const QuestionWithAnswerAndAssessment = memo(function () {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const saveTimeout = useRef<NodeJS.Timeout | null>(null);
   const {
@@ -162,11 +162,7 @@ type NavigationDotProps = {
   onClick: (index: number) => void;
 };
 
-const NavigationDots = React.memo(function (props: NavigationDotProps) {
-  function calculatePosition() {
-    return `left-${props.currentQuestionIndex * 12 + 1}`;
-  }
-
+const NavigationDots = function (props: NavigationDotProps) {
   return (
     <div className="relative flex">
       {Array.from({ length: props.totalQuestions }).map((_, i) => (
@@ -185,10 +181,13 @@ const NavigationDots = React.memo(function (props: NavigationDotProps) {
         </div>
       ))}
       <div
-        className={`absolute pointer-events-none z-10 transition-all duration-500 ease-in-out ${calculatePosition()} w-10 h-6 rounded-lg bg-blue-200`}
+        className="absolute pointer-events-none z-10 transition-all duration-500 ease-in-out w-10 h-6 rounded-lg bg-blue-200"
+        style={{
+          left: `${props.currentQuestionIndex * 48 + 4}px`, // 48px = width(40px) + margin(8px)
+        }}
       />
     </div>
   );
-});
+};
 
 export default QuestionWithAnswerAndAssessment;

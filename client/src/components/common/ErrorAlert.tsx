@@ -7,7 +7,7 @@ function ErrorAlert({ title, subtitle }: ErrorAlertProps) {
   if (!subtitle) return null;
 
   return (
-    <div className="bg-red-50 border-l-4 border-red-400 rounded-md p-2 mb-2">
+    <div className="bg-red-50 border-l-4 border-red-400 rounded-md p-2 mb-4">
       <div className="flex items-center">
         <div className="flex-shrink-0">
           <svg

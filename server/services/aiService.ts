@@ -76,15 +76,25 @@ export const assessAnswer = async (
   }
 };
 
-export const rateInterview = async (
-  questions: IQuestion[]
-): Promise<{ score: number; feedback: string } | {}> => {
+type Score =
+  | {
+      score: {
+        overall: number;
+        technical: number;
+        communication: number;
+        problemSolving: number;
+      };
+      feedback: string;
+    }
+  | {};
+
+export const rateInterview = async (questions: IQuestion[]): Promise<Score> => {
   try {
     const assessments = questions.map((q) => q.aiAssessment);
 
     const prompt = `Based on the following assessments of interview questions: ${JSON.stringify(
       assessments
-    )}. Give a score of the interview from 0 to 10 and give overall feedback. Format the response as JSON: {"score": ..., "feedback": "..."}`;
+    )}. Give a score  of the interview from 0 to 10 and give overall feedback. Format the response as JSON: {"score": {"overall": ..., "technical": ..., "communication": ..., "problemSolving": ...}, "feedback": "..."}`;
 
     const { score, feedback } = await query(prompt);
 

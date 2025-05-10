@@ -20,7 +20,12 @@ export interface IInterview extends Document {
   scheduledTime?: Date;
   questions: IQuestion[];
   status: "draft" | "scheduled" | "in-progress" | "completed" | "cancelled";
-  score?: number;
+  score?: {
+    overall: number;
+    technical: number;
+    communication: number;
+    problemSolving: number;
+  };
   feedback?: string;
   createdAt: Date;
   jobRole?: string; // Optional
@@ -50,7 +55,12 @@ const InterviewSchema: Schema = new Schema({
     enum: ["draft", "scheduled", "in-progress", "completed", "cancelled"],
     default: "draft",
   },
-  score: { type: Number },
+  score: {
+    overall: { type: Number },
+    technical: { type: Number },
+    communication: { type: Number },
+    problemSolving: { type: Number },
+  },
   feedback: { type: String },
   createdAt: { type: Date, default: Date.now },
   jobRole: {

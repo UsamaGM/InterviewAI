@@ -3,8 +3,14 @@ import { LoadingSpinner, StyledButton } from "../common";
 import { useInterview, useQuestion } from "@/hooks";
 
 function ActionButtons() {
-  const { submitAnswers, submitInterview, assessAnswer, loading, error } =
-    useInterview();
+  const {
+    selectedInterview,
+    submitAnswers,
+    submitInterview,
+    assessAnswer,
+    loading,
+    error,
+  } = useInterview();
   const { currentQuestion, currentIndex } = useQuestion();
 
   const navigate = useNavigate();
@@ -12,39 +18,40 @@ function ActionButtons() {
   async function handleSaveAnswers() {
     await submitAnswers();
     if (error.submittingAnswers) return;
+
     navigate("/candidate/dashboard");
   }
 
   async function handleSumbitInterview() {
     await submitInterview();
-    if (error.submittingInterview) {
-      navigate("/candidate/dashboard");
-    }
+    if (error.submittingInterview) return;
+
+    navigate("/candidate/dashboard");
   }
 
+  const buttonDisabled =
+    selectedInterview?.score !== undefined ||
+    loading.submittingAnswers ||
+    loading.submittingInterview ||
+    loading.assessingAnswer;
+
   const assessmentButtonDisabled =
-    loading.assessingAnswer ||
     currentQuestion?.answerText === undefined ||
     currentQuestion.answerText === "" ||
-    currentQuestion?.aiAssessment?.score !== undefined;
+    currentQuestion?.aiAssessment?.score !== undefined ||
+    buttonDisabled;
 
   return (
     <div className="flex space-x-6">
       <div className="flex flex-2/5">
-        <StyledButton
-          disabled={loading.submittingAnswers}
-          onClick={handleSaveAnswers}
-        >
+        <StyledButton disabled={buttonDisabled} onClick={handleSaveAnswers}>
           {loading.submittingAnswers ? (
             <LoadingSpinner size="sm" />
           ) : (
             "Save Answers"
           )}
         </StyledButton>
-        <StyledButton
-          disabled={loading.submittingInterview}
-          onClick={handleSumbitInterview}
-        >
+        <StyledButton disabled={buttonDisabled} onClick={handleSumbitInterview}>
           {loading.submittingInterview ? (
             <LoadingSpinner size="sm" />
           ) : (
