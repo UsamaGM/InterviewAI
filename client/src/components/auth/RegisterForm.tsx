@@ -8,8 +8,10 @@ import {
   PasswordBox,
   ErrorAlert,
   StyledButton,
+  SuccessAlert,
 } from "@/components/common";
 import { useAuth } from "@/hooks";
+import { useState } from "react";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -27,6 +29,8 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 function RegisterForm() {
+  const [success, setSuccess] = useState({ status: false, message: "" });
+
   const {
     register,
     handleSubmit,
@@ -45,12 +49,26 @@ function RegisterForm() {
   } = useAuth();
 
   const onSubmit = async (data: RegisterFormData) => {
-    await authRegister(data);
+    const success = await authRegister(data);
+    if (!success) {
+      setSuccess({ status: false, message: "" });
+    } else {
+      setSuccess({
+        status: true,
+        message: "Registration successful! Please check your email.",
+      });
+      setTimeout(() => {
+        setSuccess({ status: false, message: "" });
+      }, 5000);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {registerError && <ErrorAlert title="Error!" subtitle={registerError} />}
+      {success.status && (
+        <SuccessAlert title="Success!" subtitle={success.message} />
+      )}
 
       <InputBox
         id="name"
@@ -91,7 +109,7 @@ function RegisterForm() {
               {...register("role")}
             />
             <label className="ml-2" htmlFor="recruiter">
-              Hire
+              Conduct Interviews
             </label>
           </div>
           <div className="flex-1">
@@ -102,7 +120,7 @@ function RegisterForm() {
               {...register("role")}
             />
             <label className="ml-2" htmlFor="candidate">
-              Get hired
+              Attend Interviews
             </label>
           </div>
         </div>

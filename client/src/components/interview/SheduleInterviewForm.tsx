@@ -62,10 +62,6 @@ function ScheduleInterviewForm({ id: interviewId }: Props) {
     resolver: zodResolver(scheduleInterviewSchema),
     defaultValues: {
       scheduleNow: true,
-      title: "",
-      description: "",
-      candidateEmail: "",
-      scheduledTime: "",
     },
   });
 
@@ -74,10 +70,11 @@ function ScheduleInterviewForm({ id: interviewId }: Props) {
   const {
     inviteCandidate,
     createInterview,
-    loading: { schedulingInterview, creatingInterview },
+    loading: { schedulingInterview, creatingInterview, invitingCandidate },
     error: {
       schedulingInterview: scheduleError,
       creatingInterview: createError,
+      invitingCandidate: inviteError,
     },
   } = useInterview();
 
@@ -126,10 +123,15 @@ function ScheduleInterviewForm({ id: interviewId }: Props) {
         {interviewId ? "Schedule Interview" : "Create Interview"}
       </h2>
 
-      {(createError || scheduleError) && (
+      {(createError || scheduleError || inviteError) && (
         <ErrorAlert
           title="Error!"
-          subtitle={createError || scheduleError || "Something went wrong!"}
+          subtitle={
+            createError ||
+            scheduleError ||
+            inviteError ||
+            "Something went wrong!"
+          }
         />
       )}
 
@@ -198,7 +200,7 @@ function ScheduleInterviewForm({ id: interviewId }: Props) {
         disabled={creatingInterview || schedulingInterview}
         className="bg-blue-200 w-full hover:bg-blue-400 text-blue-500 hover:text-blue-800 cursor-pointer font-bold py-2 px-6 rounded-md shadow transition-colors duration-300 ease-in-out"
       >
-        {creatingInterview || schedulingInterview ? (
+        {creatingInterview || schedulingInterview || invitingCandidate ? (
           <LoadingSpinner size="sm" />
         ) : (
           "Schedule Interview"

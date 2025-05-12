@@ -30,7 +30,7 @@ export type AuthContextType = {
   error: errorType;
   loading: loadingType;
   login: (email: string, password: string) => Promise<void>;
-  register: (userData: User) => Promise<void>;
+  register: (userData: User) => Promise<boolean>;
   logout: () => void;
   updateUser: (user: User) => Promise<void>;
   updatePassword: (

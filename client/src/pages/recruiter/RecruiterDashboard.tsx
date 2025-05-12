@@ -72,19 +72,22 @@ function RecruiterDashboard() {
       );
 
       // Calculate average score
-      const totalScore = completed.reduce((sum, i) => sum + (i.score || 0), 0);
+      const totalScore = completed.reduce(
+        (sum, i) => sum + (i.score?.overall || 0),
+        0
+      );
       const avgScore = completed.length > 0 ? totalScore / completed.length : 0;
 
       // Calculate candidate quality based on actual scores
       const candidateQuality = {
-        excellent: completed.filter((i) => (i.score || 0) >= 9).length,
+        excellent: completed.filter((i) => (i.score?.overall || 0) >= 9).length,
         good: completed.filter(
-          (i) => (i.score || 0) >= 7.5 && (i.score || 0) < 9
+          (i) => (i.score?.overall || 0) >= 7.5 && (i.score?.overall || 0) < 9
         ).length,
         average: completed.filter(
-          (i) => (i.score || 0) >= 6 && (i.score || 0) < 7.5
+          (i) => (i.score?.overall || 0) >= 6 && (i.score?.overall || 0) < 7.5
         ).length,
-        poor: completed.filter((i) => (i.score || 0) < 6).length,
+        poor: completed.filter((i) => (i.score?.overall || 0) < 6).length,
       };
 
       // Calculate job role distribution

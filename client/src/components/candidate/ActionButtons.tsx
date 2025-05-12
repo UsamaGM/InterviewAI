@@ -30,7 +30,7 @@ function ActionButtons() {
   }
 
   const buttonDisabled =
-    selectedInterview?.score !== undefined ||
+    selectedInterview?.score?.overall !== undefined ||
     loading.submittingAnswers ||
     loading.submittingInterview ||
     loading.assessingAnswer;

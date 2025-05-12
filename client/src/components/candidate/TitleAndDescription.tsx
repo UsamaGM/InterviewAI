@@ -1,5 +1,6 @@
 import { ErrorAlert } from "@/components/common";
 import { useInterview } from "@/hooks";
+import DescriptionText from "../common/DesciptionText";
 
 export default function TitleAndDescriptionWithActions() {
   const { selectedInterview: interview } = useInterview();
@@ -23,13 +24,11 @@ export default function TitleAndDescriptionWithActions() {
       <h2 className="text-2xl font-bold text-gray-700 mb-4 line-clamp-2 tracking-tight">
         {interview.title}
       </h2>
-      <div className="text-gray-600 prose prose-sm max-w-none max-h-26 overscroll-y-auto text-justify">
-        {interview.description?.split("\n").map((line, index) => (
-          <p key={index} className="mb-1">
-            {line}
-          </p>
-        ))}
-      </div>
+      <DescriptionText
+        description={interview.description!}
+        linesToShow={4}
+        className="mx-2"
+      />
     </div>
   );
 }

@@ -9,20 +9,19 @@ import {
   PencilIcon,
   TrashIcon,
   XMarkIcon,
+  CodeBracketIcon,
+  LightBulbIcon,
 } from "@heroicons/react/24/outline";
 import { ErrorAlert, LoadingSpinner, StyledButton } from "@/components/common";
 import { formatDate, statusConfig } from "@/utils/helpers";
 import { useAuth, useInterview } from "@/hooks";
+import DescriptionText from "@/components/common/DesciptionText";
 
 type DetailItemProps = {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string;
   fullWidth?: boolean;
-};
-
-type DescriptionTextProps = {
-  description: string;
 };
 
 function DetailItem({ icon: Icon, label, value, fullWidth }: DetailItemProps) {
@@ -43,40 +42,6 @@ function DetailItem({ icon: Icon, label, value, fullWidth }: DetailItemProps) {
           </dd>
         </div>
       </div>
-    </div>
-  );
-}
-
-function DescriptionText({ description }: DescriptionTextProps) {
-  const [readMore, setReadMore] = useState<boolean>(false);
-  const lines = description.split("\n");
-
-  return (
-    <div className="flex flex-col">
-      {lines.map((line, index) => (
-        <p
-          key={index}
-          className={`text-gray-700 ${
-            index === 0
-              ? readMore
-                ? "line-clamp-none"
-                : "line-clamp-3"
-              : readMore
-              ? "line-clamp-none"
-              : "hidden"
-          }`}
-        >
-          {line}
-        </p>
-      ))}
-      {description.length > 200 && (
-        <button
-          className="text-blue-600 hover:text-blue-800 cursor-pointer w-fit text-sm font-medium mt-2 transition-colors duration-200"
-          onClick={() => setReadMore(!readMore)}
-        >
-          {readMore ? "Show less" : "Show more"}
-        </button>
-      )}
     </div>
   );
 }
@@ -282,8 +247,9 @@ function InterviewDetailsPage() {
           value={
             isCandidate
               ? selectedInterview.recruiter!.name
-              : selectedInterview.candidate?.name ??
-                (selectedInterview.candidate?.email || "No Candidate yet")
+              : selectedInterview.candidate?.name ||
+                selectedInterview.candidate?.email ||
+                "No Candidate"
           }
         />
         <DetailItem
@@ -302,8 +268,27 @@ function InterviewDetailsPage() {
           <>
             <DetailItem
               icon={StarIcon}
-              label="Score"
-              value={selectedInterview.score?.toString() ?? "N/A"}
+              label="Overall Score"
+              value={selectedInterview.score?.overall?.toString() ?? "N/A"}
+            />
+            <DetailItem
+              icon={CodeBracketIcon}
+              label="Technical Score"
+              value={selectedInterview.score?.technical?.toString() ?? "N/A"}
+            />
+            <DetailItem
+              icon={ChatBubbleLeftIcon}
+              label="Communication Score"
+              value={
+                selectedInterview.score?.communication?.toString() ?? "N/A"
+              }
+            />
+            <DetailItem
+              icon={LightBulbIcon}
+              label="Problem Solving Score"
+              value={
+                selectedInterview.score?.problemSolving?.toString() ?? "N/A"
+              }
             />
             <DetailItem
               icon={ChatBubbleLeftIcon}

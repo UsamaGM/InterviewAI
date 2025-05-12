@@ -51,10 +51,9 @@ export const getInterviewById = async (
 ): Promise<void> => {
   try {
     const interviewId = req.params.id;
-    const interview = await Interview.findById(interviewId).populate(
-      "recruiter",
-      "_id name email"
-    );
+    const interview = await Interview.findById(interviewId)
+      .populate("recruiter", "_id name email")
+      .populate("candidate", "_id name email");
 
     if (!interview) {
       res.status(404).json({ message: "Interview not found" });

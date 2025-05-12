@@ -38,7 +38,7 @@ const InterviewCard = ({
         <span>{formatDate(interview.scheduledTime)}</span>
         {interview.score && (
           <span className="font-medium text-gray-800">
-            Score: {interview.score * 10}%
+            Score: {interview.score.overall * 10}%
           </span>
         )}
       </div>

@@ -67,13 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError((prev) => ({ ...prev, registering: null }));
 
       await api.post("/auth/register", userData);
-
-      window.location.href = "/auth/login";
+      return true;
     } catch (err) {
       setError((prev) => ({
         ...prev,
         registering: handleError(err, "Failed to register"),
       }));
+      return false;
     } finally {
       setLoading((prev) => ({ ...prev, registering: false }));
     }

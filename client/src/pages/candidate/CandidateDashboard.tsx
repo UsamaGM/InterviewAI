@@ -46,14 +46,25 @@ function CandidateDashboard() {
       const inProgress = interviews.filter((i) => i.status === "in-progress");
 
       // Calculate average score
-      const totalScore = completed.reduce((sum, i) => sum + (i.score || 0), 0);
+      const totalScore = completed.reduce(
+        (sum, i) => sum + (i.score?.overall || 0),
+        0
+      );
       const avgScore = completed.length > 0 ? totalScore / completed.length : 0;
 
       // Calculate skill scores based on actual interview feedback
       const skillScores = {
-        technical: Math.min(100, avgScore + 10),
-        communication: Math.min(100, avgScore - 5),
-        problemSolving: Math.min(100, avgScore + 5),
+        technical:
+          completed.reduce((sum, i) => sum + (i.score?.technical || 0), 0) /
+            completed.length || 0,
+        communication:
+          completed.reduce((sum, i) => sum + (i.score?.communication || 0), 0) /
+            completed.length || 0,
+        problemSolving:
+          completed.reduce(
+            (sum, i) => sum + (i.score?.problemSolving || 0),
+            0
+          ) / completed.length || 0,
       };
 
       // Get recent performance with job role information
@@ -61,7 +72,7 @@ function CandidateDashboard() {
         .slice(-5)
         .map((i) => ({
           date: formatDate(i.scheduledTime!),
-          score: i.score || 0,
+          score: i.score?.overall || 0,
         }))
         .reverse();
 

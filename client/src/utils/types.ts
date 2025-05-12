@@ -4,11 +4,11 @@ export type User = {
   email: string;
   role: "recruiter" | "candidate";
   password?: string;
-  isVerified: boolean;
+  isVerified?: boolean;
   verificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
-  createdAt: Date;
+  createdAt?: Date;
 };
 
 export interface Question {
@@ -32,7 +32,12 @@ export type Interview = {
   scheduledTime?: string;
   questions: Question[];
   status: "draft" | "scheduled" | "in-progress" | "completed" | "cancelled";
-  score?: number;
+  score?: {
+    overall: number;
+    technical: number;
+    communication: number;
+    problemSolving: number;
+  };
   feedback?: string;
   createdAt: Date;
   jobRole?: string;
