@@ -1,5 +1,7 @@
 # InterviewAI
 
+![interview_ai](https://github.com/user-attachments/assets/3eb43a5b-8879-452b-b2f1-31b51141d855)
+
 ## Overview
 
 InterviewAI is an AI-powered platform designed to revolutionize the hiring process, benefiting both recruiters and candidates. It streamlines the entire interview workflow, from initial screening to final evaluation, using cutting-edge AI technology. For recruiters, InterviewAI offers a faster, more efficient way to identify top talent, reducing time-to-hire and improving the quality of hires. For candidates, the platform provides a fair, unbiased assessment experience, allowing them to showcase their skills and abilities in a dynamic and engaging manner. InterviewAI supports organizations ranging from tech startups to large enterprises in optimizing their recruitment strategies and securing the best candidates.
