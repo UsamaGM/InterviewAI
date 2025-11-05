@@ -10,3 +10,5 @@
 *.njsproj
 *.sln
 *.sw?
+config.bat
+node_modules
